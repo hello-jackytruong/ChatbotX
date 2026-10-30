@@ -127,7 +127,10 @@ describe("resolveCallPhoneButtons", () => {
     expect(warn).toHaveBeenCalled()
   })
 
-  test("keeps the button count of every card when one number is invalid", async () => {
+  test.each([
+    "messenger",
+    "whatsapp",
+  ])("keeps the button count of every card on %s when one number is invalid", async (channel) => {
     const card = (number: string) => ({
       id: "c",
       title: "Card",
@@ -138,7 +141,7 @@ describe("resolveCallPhoneButtons", () => {
       stepType: "sendCarousel",
       cards: [card("+84901234567"), card("junk")],
     } as unknown as SendFlowStepData
-    const result = (await run("messenger", step)) as unknown as {
+    const result = (await run(channel, step)) as unknown as {
       cards: { buttons: ButtonStepProps[] }[]
     }
     expect(result.cards.map((c) => c.buttons.length)).toEqual([1, 1])
