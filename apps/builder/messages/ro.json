@@ -173,7 +173,8 @@
       "sendViewCatalog": "Vezi catalogul",
       "sendProducts": "Trimite produse",
       "sendCollection": "Colecție",
-      "pipeline": "Pipeline-uri"
+      "pipeline": "Pipeline-uri",
+      "callPhoneNumber": "Apelează un număr de telefon"
     },
     "externalRequest": {
       "errors": {
@@ -442,6 +443,11 @@
       "comment": "Comentariu",
       "destinationPipeline": "Pipeline de destinație",
       "destinationStage": "Etapă de destinație"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Pe canalele care nu pot iniția un apel, contactul primește în schimb acest număr ca răspuns.",
+      "countryLabel": "Prefix de țară",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -2566,7 +2572,8 @@
     },
     "button": {
       "label": "Buton",
-      "whenPressed": "Când este apăsat acest buton"
+      "whenPressed": "Când este apăsat acest buton",
+      "callToThisNumber": "Apelează acest număr"
     },
     "buttonLabel": {
       "label": "Eticheta butonului"
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Imaginile care nu pot fi trimise aici au fost eliminate",
     "onlyImagesAllowed": "Se pot adăuga doar imagini",
     "tooManySavedReplyImages": "Un răspuns salvat poate avea cel mult {max} imagini",
-    "savedReplyImagesNotSentHere": "Imaginile nu vor fi trimise aici"
+    "savedReplyImagesNotSentHere": "Imaginile nu vor fi trimise aici",
+    "invalidPhoneNumber": "Introdu numărul în format internațional, de exemplu +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Acest buton nu poate apela un număr de telefon aici. Alege altă acțiune."
   },
   "instagram": {
     "description": "Această integrare îți permite să creezi boți Instagram.",

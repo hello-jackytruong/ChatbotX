@@ -1248,7 +1248,8 @@
     },
     "button": {
       "label": "Tombol",
-      "whenPressed": "Saat tombol ini ditekan"
+      "whenPressed": "Saat tombol ini ditekan",
+      "callToThisNumber": "Telepon ke nomor ini"
     },
     "buttonLabel": {
       "label": "Label Tombol"
@@ -2829,7 +2830,8 @@
       "sendViewCatalog": "Lihat katalog",
       "sendProducts": "Kirim produk",
       "sendCollection": "Koleksi",
-      "pipeline": "Pipeline"
+      "pipeline": "Pipeline",
+      "callPhoneNumber": "Telepon nomor"
     },
     "externalRequest": {
       "errors": {
@@ -3098,6 +3100,11 @@
       "comment": "Komentar",
       "destinationPipeline": "Pipeline tujuan",
       "destinationStage": "Tahap tujuan"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Di kanal yang tidak dapat melakukan panggilan, kontak menerima nomor ini sebagai balasan.",
+      "countryLabel": "Kode negara",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Gambar yang tidak bisa dikirim di sini telah dihapus",
     "onlyImagesAllowed": "Hanya gambar yang dapat ditambahkan",
     "tooManySavedReplyImages": "Balasan tersimpan dapat memiliki maksimal {max} gambar",
-    "savedReplyImagesNotSentHere": "Gambar tidak akan dikirim di sini"
+    "savedReplyImagesNotSentHere": "Gambar tidak akan dikirim di sini",
+    "invalidPhoneNumber": "Masukkan nomor dalam format internasional, misalnya +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Tombol ini tidak dapat menelepon nomor di sini. Pilih tindakan lain."
   },
   "instagram": {
     "description": "Integrasi ini memungkinkan Anda membuat bot Instagram.",

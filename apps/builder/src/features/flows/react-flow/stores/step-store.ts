@@ -10,6 +10,8 @@ export type ButtonEditorConfig = {
   lockLabel?: boolean
   hiddenButtonTypes?: ButtonType[]
   hideDelete?: boolean
+  /** Channel of the node the button belongs to; set by `ButtonStepEditor`. */
+  channel?: string
 }
 
 export type StepState = {

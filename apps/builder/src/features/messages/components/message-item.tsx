@@ -1,5 +1,6 @@
 "use client"
 
+import { isE164PhoneNumber } from "@chatbotx.io/flow-config"
 import type {
   MessageButtonTemplate,
   MessageStoryReplyEntity,
@@ -791,6 +792,76 @@ const ViewCatalogCard = ({ footer }: { footer?: string }) => {
   )
 }
 
+type TemplateButtonProps = {
+  button: MessageButtonTemplate
+  onPostback?: (button: MessageButtonTemplate) => void
+  className?: string
+}
+
+/**
+ * One button of a template message, shared by the button list and carousel
+ * cards: a link opens its URL, a call button dials its number (`tel:`), and
+ * everything else replies with its postback. The number was validated as
+ * E.164 when the message was sent; it is re-checked here so only a plain
+ * number ever reaches the `tel:` link.
+ */
+const TemplateButton = ({
+  button,
+  onPostback,
+  className,
+}: TemplateButtonProps) => {
+  if (button.buttonType === "url") {
+    return (
+      <Link
+        className={cn(
+          buttonVariants({ size: "sm", variant: "secondary" }),
+          className,
+        )}
+        href={button.url}
+        target="_blank"
+      >
+        <ExternalLinkIcon />
+        {button.label}
+      </Link>
+    )
+  }
+
+  if (
+    button.buttonType === "phoneNumber" &&
+    isE164PhoneNumber(button.phoneNumber)
+  ) {
+    return (
+      <a
+        className={cn(
+          buttonVariants({ size: "sm", variant: "secondary" }),
+          className,
+        )}
+        href={`tel:${button.phoneNumber}`}
+      >
+        <PhoneIcon />
+        {button.label}
+      </a>
+    )
+  }
+
+  return (
+    <Button
+      className={cn(
+        "w-full bg-secondary text-secondary-foreground disabled:bg-muted disabled:text-muted-foreground sm:w-auto sm:min-w-60 dark:bg-secondary dark:text-secondary-foreground dark:disabled:bg-muted dark:disabled:text-muted-foreground",
+        className,
+      )}
+      disabled={!onPostback}
+      onClick={() => {
+        onPostback?.(button)
+      }}
+      size="sm"
+      variant="outline"
+    >
+      {button.label}
+    </Button>
+  )
+}
+
 const RenderContentAttributes = (props: MessageItemProps) => {
   const { message, onPostback } = props
   const viewCatalog = getViewCatalogEntity(message.contentAttributes)
@@ -877,38 +948,13 @@ const RenderContentAttributes = (props: MessageItemProps) => {
       return (
         <div className="mt-1 flex flex-col gap-1">
           {contentAttributes.payload.templateType === "button" &&
-            contentAttributes.payload.buttons.map((button) => {
-              if (button.buttonType === "url") {
-                return (
-                  <Link
-                    className={buttonVariants({
-                      size: "sm",
-                      variant: "secondary",
-                    })}
-                    href={button.url}
-                    key={button.id}
-                    target="_blank"
-                  >
-                    <ExternalLinkIcon />
-                    {button.label}
-                  </Link>
-                )
-              }
-              return (
-                <Button
-                  className="w-full bg-secondary text-secondary-foreground disabled:bg-muted disabled:text-muted-foreground sm:w-auto sm:min-w-60 dark:bg-secondary dark:text-secondary-foreground dark:disabled:bg-muted dark:disabled:text-muted-foreground"
-                  disabled={!onPostback}
-                  key={button.id}
-                  onClick={() => {
-                    onPostback?.(button)
-                  }}
-                  size="sm"
-                  variant="outline"
-                >
-                  {button.label}
-                </Button>
-              )
-            })}
+            contentAttributes.payload.buttons.map((button) => (
+              <TemplateButton
+                button={button}
+                key={button.id}
+                onPostback={onPostback}
+              />
+            ))}
           {contentAttributes.payload.templateType === "carousel" && (
             <Carousel
               opts={{
@@ -943,14 +989,12 @@ const RenderContentAttributes = (props: MessageItemProps) => {
                           {"buttons" in card &&
                             card.buttons &&
                             card.buttons.map((button) => (
-                              <Button
-                                className="w-full"
+                              <TemplateButton
+                                button={button}
+                                className="w-full sm:w-full sm:min-w-0"
                                 key={button.id}
-                                size="sm"
-                                variant="secondary"
-                              >
-                                {button.label}
-                              </Button>
+                                onPostback={onPostback}
+                              />
                             ))}
                         </CardContent>
                       </Card>

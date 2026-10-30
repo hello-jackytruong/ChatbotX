@@ -620,7 +620,8 @@
       "sendViewCatalog": "הצגת קטלוג",
       "sendProducts": "שליחת מוצרים",
       "sendCollection": "אוסף",
-      "pipeline": "פייפליינים"
+      "pipeline": "פייפליינים",
+      "callPhoneNumber": "התקשרות למספר טלפון"
     },
     "externalRequest": {
       "errors": {
@@ -889,6 +890,11 @@
       "comment": "תגובה",
       "destinationPipeline": "פייפליין יעד",
       "destinationStage": "שלב יעד"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "בערוצים שאינם יכולים לבצע שיחה, איש הקשר יקבל את המספר הזה כתשובה במקום.",
+      "countryLabel": "קידומת מדינה",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -2120,7 +2126,9 @@
     "savedReplyImagesRemoved": "תמונות שלא ניתן לשלוח כאן הוסרו",
     "onlyImagesAllowed": "ניתן להוסיף תמונות בלבד",
     "tooManySavedReplyImages": "תשובה שמורה יכולה לכלול עד {max} תמונות",
-    "savedReplyImagesNotSentHere": "התמונות לא יישלחו כאן"
+    "savedReplyImagesNotSentHere": "התמונות לא יישלחו כאן",
+    "invalidPhoneNumber": "הזינו את המספר בפורמט בינלאומי, לדוגמה ‎+84901234567.",
+    "buttonCallPhoneNumberUnsupported": "כפתור זה אינו יכול להתקשר למספר טלפון כאן. בחרו פעולה אחרת."
   },
   "instagram": {
     "description": "שילוב זה מאפשר ליצור בוטים ל-Instagram.",
@@ -5498,7 +5506,8 @@
     },
     "button": {
       "label": "כפתור",
-      "whenPressed": "כאשר כפתור זה נלחץ"
+      "whenPressed": "כאשר כפתור זה נלחץ",
+      "callToThisNumber": "התקשר למספר זה"
     },
     "buttonLabel": {
       "label": "תווית כפתור"

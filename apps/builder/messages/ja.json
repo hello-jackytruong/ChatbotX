@@ -1248,7 +1248,8 @@
     },
     "button": {
       "label": "ボタン",
-      "whenPressed": "このボタンが押されたとき"
+      "whenPressed": "このボタンが押されたとき",
+      "callToThisNumber": "この番号に発信"
     },
     "buttonLabel": {
       "label": "ボタンラベル"
@@ -2829,7 +2830,8 @@
       "sendViewCatalog": "カタログを見る",
       "sendProducts": "商品を送信",
       "sendCollection": "コレクション",
-      "pipeline": "パイプライン"
+      "pipeline": "パイプライン",
+      "callPhoneNumber": "電話番号に発信"
     },
     "externalRequest": {
       "errors": {
@@ -3098,6 +3100,11 @@
       "comment": "コメント",
       "destinationPipeline": "移管先のパイプライン",
       "destinationStage": "移管先のステージ"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "通話を開始できないチャネルでは、代わりにこの番号が返信として相手に届きます。",
+      "countryLabel": "国番号",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4308,7 +4315,9 @@
     "savedReplyImagesRemoved": "ここで送信できない画像を削除しました",
     "onlyImagesAllowed": "追加できるのは画像のみです",
     "tooManySavedReplyImages": "保存済み返信の画像は最大 {max} 枚です",
-    "savedReplyImagesNotSentHere": "ここでは画像は送信されません"
+    "savedReplyImagesNotSentHere": "ここでは画像は送信されません",
+    "invalidPhoneNumber": "国際形式で番号を入力してください（例: +84901234567）。",
+    "buttonCallPhoneNumberUnsupported": "このボタンではここで電話番号に発信できません。別のアクションを選択してください。"
   },
   "instagram": {
     "description": "この連携を使用すると、Instagramボットを作成できます。",

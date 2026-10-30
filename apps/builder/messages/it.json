@@ -214,7 +214,8 @@
     },
     "button": {
       "label": "Pulsante",
-      "whenPressed": "Quando viene premuto questo pulsante"
+      "whenPressed": "Quando viene premuto questo pulsante",
+      "callToThisNumber": "Chiama questo numero"
     },
     "buttonLabel": {
       "label": "Etichetta del pulsante"
@@ -2829,7 +2830,8 @@
       "sendViewCatalog": "Vedi catalogo",
       "sendProducts": "Invia prodotti",
       "sendCollection": "Collezione",
-      "pipeline": "Pipeline"
+      "pipeline": "Pipeline",
+      "callPhoneNumber": "Chiama un numero di telefono"
     },
     "externalRequest": {
       "errors": {
@@ -3098,6 +3100,11 @@
       "comment": "Commento",
       "destinationPipeline": "Pipeline di destinazione",
       "destinationStage": "Fase di destinazione"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Sui canali che non possono avviare una chiamata, il contatto riceve questo numero come risposta.",
+      "countryLabel": "Prefisso internazionale",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Le immagini che non possono essere inviate qui sono state rimosse",
     "onlyImagesAllowed": "È possibile aggiungere solo immagini",
     "tooManySavedReplyImages": "Una risposta salvata può avere al massimo {max} immagini",
-    "savedReplyImagesNotSentHere": "Le immagini non verranno inviate qui"
+    "savedReplyImagesNotSentHere": "Le immagini non verranno inviate qui",
+    "invalidPhoneNumber": "Inserisci il numero in formato internazionale, ad esempio +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Questo pulsante non può chiamare un numero qui. Scegli un'altra azione."
   },
   "instagram": {
     "description": "Questa integrazione ti consente di creare bot Instagram.",

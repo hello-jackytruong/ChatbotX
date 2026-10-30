@@ -2330,7 +2330,8 @@
     },
     "button": {
       "label": "按钮",
-      "whenPressed": "当按下此按钮时"
+      "whenPressed": "当按下此按钮时",
+      "callToThisNumber": "拨打此号码"
     },
     "buttonLabel": {
       "label": "按钮标签"
@@ -3940,7 +3941,8 @@
       "sendViewCatalog": "查看商品目录",
       "sendProducts": "发送商品",
       "sendCollection": "商品集合",
-      "pipeline": "管道"
+      "pipeline": "管道",
+      "callPhoneNumber": "拨打电话号码"
     },
     "externalRequest": {
       "errors": {
@@ -4257,6 +4259,11 @@
       "comment": "评论",
       "destinationPipeline": "目标管道",
       "destinationStage": "目标阶段"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "在无法发起通话的渠道上，联系人将改为收到这个号码作为回复。",
+      "countryLabel": "国家/地区代码",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -5429,7 +5436,9 @@
     "savedReplyImagesRemoved": "已移除无法在此发送的图片",
     "onlyImagesAllowed": "只能添加图片",
     "tooManySavedReplyImages": "一条快捷回复最多包含 {max} 张图片",
-    "savedReplyImagesNotSentHere": "图片不会在此发送"
+    "savedReplyImagesNotSentHere": "图片不会在此发送",
+    "invalidPhoneNumber": "请按国际格式输入号码，例如 +84901234567。",
+    "buttonCallPhoneNumberUnsupported": "此按钮在这里无法拨打电话号码，请选择其他操作。"
   },
   "messenger": {
     "botProfile": "机器人个人数据",

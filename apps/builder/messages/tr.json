@@ -1404,7 +1404,8 @@
     },
     "button": {
       "label": "Düğme",
-      "whenPressed": "Bu düğmeye basıldığında"
+      "whenPressed": "Bu düğmeye basıldığında",
+      "callToThisNumber": "Bu numarayı ara"
     },
     "buttonLabel": {
       "label": "Düğme Etiketi"
@@ -2985,7 +2986,8 @@
       "sendViewCatalog": "Kataloğu görüntüle",
       "sendProducts": "Ürün gönder",
       "sendCollection": "Koleksiyon",
-      "pipeline": "İşlem Hatları"
+      "pipeline": "İşlem Hatları",
+      "callPhoneNumber": "Telefon numarasını ara"
     },
     "externalRequest": {
       "errors": {
@@ -3254,6 +3256,11 @@
       "comment": "Yorum",
       "destinationPipeline": "Hedef işlem hattı",
       "destinationStage": "Hedef aşama"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Arama başlatamayan kanallarda kişi bu numarayı yanıt olarak alır.",
+      "countryLabel": "Ülke kodu",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Burada gönderilemeyen görseller kaldırıldı",
     "onlyImagesAllowed": "Yalnızca görsel eklenebilir",
     "tooManySavedReplyImages": "Kayıtlı bir yanıtta en fazla {max} görsel olabilir",
-    "savedReplyImagesNotSentHere": "Görseller burada gönderilmeyecek"
+    "savedReplyImagesNotSentHere": "Görseller burada gönderilmeyecek",
+    "invalidPhoneNumber": "Numarayı uluslararası biçimde girin, örneğin +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Bu düğme burada bir telefon numarasını arayamaz. Başka bir eylem seçin."
   },
   "instagram": {
     "description": "Bu entegrasyon, Instagram botları oluşturmanızı sağlar.",

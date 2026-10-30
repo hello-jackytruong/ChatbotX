@@ -1248,7 +1248,8 @@
     },
     "button": {
       "label": "Schaltfläche",
-      "whenPressed": "Wenn diese Schaltfläche gedrückt wird"
+      "whenPressed": "Wenn diese Schaltfläche gedrückt wird",
+      "callToThisNumber": "Diese Nummer anrufen"
     },
     "buttonLabel": {
       "label": "Schaltflächenbeschriftung"
@@ -2829,7 +2830,8 @@
       "sendViewCatalog": "Katalog ansehen",
       "sendProducts": "Produkte senden",
       "sendCollection": "Kollektion",
-      "pipeline": "Pipelines"
+      "pipeline": "Pipelines",
+      "callPhoneNumber": "Telefonnummer anrufen"
     },
     "externalRequest": {
       "errors": {
@@ -3098,6 +3100,11 @@
       "comment": "Kommentar",
       "destinationPipeline": "Ziel-Pipeline",
       "destinationStage": "Zielphase"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Auf Kanälen, die keine Anrufe auslösen können, erhält der Kontakt diese Nummer stattdessen als Antwort.",
+      "countryLabel": "Ländervorwahl",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Bilder, die hier nicht gesendet werden können, wurden entfernt",
     "onlyImagesAllowed": "Es können nur Bilder hinzugefügt werden",
     "tooManySavedReplyImages": "Eine gespeicherte Antwort kann höchstens {max} Bilder enthalten",
-    "savedReplyImagesNotSentHere": "Bilder werden hier nicht gesendet"
+    "savedReplyImagesNotSentHere": "Bilder werden hier nicht gesendet",
+    "invalidPhoneNumber": "Gib die Nummer im internationalen Format ein, zum Beispiel +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Diese Schaltfläche kann hier keine Telefonnummer anrufen. Wähle eine andere Aktion."
   },
   "instagram": {
     "description": "Mit dieser Integration können Sie Instagram-Bots erstellen.",

@@ -1441,7 +1441,8 @@
     },
     "button": {
       "label": "Nút",
-      "whenPressed": "Khi nút này được nhấn"
+      "whenPressed": "Khi nút này được nhấn",
+      "callToThisNumber": "Gọi đến số này"
     },
     "buttonLabel": {
       "label": "Nhãn nút"
@@ -3027,7 +3028,8 @@
       "sendViewCatalog": "Xem danh mục",
       "sendProducts": "Gửi sản phẩm",
       "sendCollection": "Bộ sưu tập sản phẩm",
-      "pipeline": "Quản lý Pipeline"
+      "pipeline": "Quản lý Pipeline",
+      "callPhoneNumber": "Gọi số điện thoại"
     },
     "externalRequest": {
       "errors": {
@@ -3296,6 +3298,11 @@
       "comment": "Bình luận",
       "destinationPipeline": "Pipeline đích",
       "destinationStage": "Giai đoạn đích"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Trên các kênh không thể gọi điện, khách hàng sẽ nhận được số này dưới dạng tin nhắn trả lời.",
+      "countryLabel": "Mã quốc gia",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4371,7 +4378,9 @@
     "savedReplyImagesRemoved": "Đã bỏ những ảnh không gửi được ở đây",
     "onlyImagesAllowed": "Chỉ được thêm hình ảnh",
     "tooManySavedReplyImages": "Một câu trả lời nhanh có tối đa {max} ảnh",
-    "savedReplyImagesNotSentHere": "Ảnh sẽ không được gửi ở đây"
+    "savedReplyImagesNotSentHere": "Ảnh sẽ không được gửi ở đây",
+    "invalidPhoneNumber": "Nhập số theo định dạng quốc tế, ví dụ +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Nút này không thể gọi số điện thoại ở đây. Hãy chọn hành động khác."
   },
   "instagram": {
     "description": "Tích hợp này cho phép bạn tạo bot Instagram.",

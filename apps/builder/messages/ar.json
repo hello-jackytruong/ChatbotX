@@ -1404,7 +1404,8 @@
     },
     "button": {
       "label": "زر",
-      "whenPressed": "عند الضغط على هذا الزر"
+      "whenPressed": "عند الضغط على هذا الزر",
+      "callToThisNumber": "الاتصال بهذا الرقم"
     },
     "buttonLabel": {
       "label": "تسمية الزر"
@@ -2985,7 +2986,8 @@
       "sendViewCatalog": "عرض الكتالوج",
       "sendProducts": "إرسال المنتجات",
       "sendCollection": "مجموعة",
-      "pipeline": "خطوط سير العمل"
+      "pipeline": "خطوط سير العمل",
+      "callPhoneNumber": "الاتصال برقم هاتف"
     },
     "externalRequest": {
       "errors": {
@@ -3254,6 +3256,11 @@
       "comment": "التعليق",
       "destinationPipeline": "خط سير العمل الوجهة",
       "destinationStage": "المرحلة الوجهة"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "في القنوات التي لا يمكنها إجراء مكالمة، تتلقى جهة الاتصال هذا الرقم كرد بدلاً من ذلك.",
+      "countryLabel": "رمز الدولة",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "تمت إزالة الصور التي لا يمكن إرسالها هنا",
     "onlyImagesAllowed": "يمكن إضافة الصور فقط",
     "tooManySavedReplyImages": "يمكن أن يحتوي الرد المحفوظ على {max} صور كحد أقصى",
-    "savedReplyImagesNotSentHere": "لن يتم إرسال الصور هنا"
+    "savedReplyImagesNotSentHere": "لن يتم إرسال الصور هنا",
+    "invalidPhoneNumber": "أدخل الرقم بالصيغة الدولية، مثل ‎+84901234567.",
+    "buttonCallPhoneNumberUnsupported": "لا يمكن لهذا الزر الاتصال برقم هاتف هنا. اختر إجراءً آخر."
   },
   "instagram": {
     "description": "يتيح لك هذا التكامل إنشاء بوتات Instagram.",

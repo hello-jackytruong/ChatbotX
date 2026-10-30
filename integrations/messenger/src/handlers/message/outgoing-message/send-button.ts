@@ -61,6 +61,12 @@ export function getButtonTemplate(props: {
         title: button.label,
         url: appendCodeToMagicLink(button.beforeStep.url, buttonPayload),
       }
+    case buttonTypes.enum.callPhoneNumber:
+      return {
+        type: "phone_number",
+        title: button.label,
+        payload: button.beforeStep.phoneNumber,
+      }
     default: {
       return {
         type: "postback",

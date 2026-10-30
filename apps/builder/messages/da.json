@@ -1248,7 +1248,8 @@
     },
     "button": {
       "label": "Knap",
-      "whenPressed": "Når denne knap er pressed"
+      "whenPressed": "Når denne knap er pressed",
+      "callToThisNumber": "Ring til dette nummer"
     },
     "buttonLabel": {
       "label": "Knap Etiket"
@@ -2829,7 +2830,8 @@
       "sendViewCatalog": "Se katalog",
       "sendProducts": "Send produkter",
       "sendCollection": "Kollektion",
-      "pipeline": "Pipelines"
+      "pipeline": "Pipelines",
+      "callPhoneNumber": "Ring til telefonnummer"
     },
     "externalRequest": {
       "errors": {
@@ -3098,6 +3100,11 @@
       "comment": "Kommentar",
       "destinationPipeline": "Destinationspipeline",
       "destinationStage": "Destinationsfase"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "På kanaler, der ikke kan starte et opkald, modtager kontakten i stedet dette nummer som svar.",
+      "countryLabel": "Landekode",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Billeder, der ikke kan sendes her, blev fjernet",
     "onlyImagesAllowed": "Kun billeder kan tilføjes",
     "tooManySavedReplyImages": "Et gemt svar kan højst have {max} billeder",
-    "savedReplyImagesNotSentHere": "Billeder bliver ikke sendt her"
+    "savedReplyImagesNotSentHere": "Billeder bliver ikke sendt her",
+    "invalidPhoneNumber": "Indtast nummeret i internationalt format, for eksempel +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Denne knap kan ikke ringe til et telefonnummer her. Vælg en anden handling."
   },
   "instagram": {
     "description": "Denne integration lets du opret Instagram bots.",

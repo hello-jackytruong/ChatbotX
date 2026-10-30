@@ -148,9 +148,15 @@ export function ActiveButton({
   )
 }
 
-function ButtonSteps() {
+function ButtonSteps({ buttonType }: { buttonType: ButtonType }) {
   const t = useTranslations()
   const { control } = useFormContext()
+  const allowsSteps = useMemo(
+    () =>
+      allButtonsConfig(t).find((config) => config.buttonType === buttonType)
+        ?.allowsSteps !== false,
+    [t, buttonType],
+  )
   const { fields, append, remove } = useFieldArray({
     control,
     name: "steps",
@@ -167,6 +173,10 @@ function ButtonSteps() {
     },
     [append],
   )
+
+  if (!allowsSteps) {
+    return null
+  }
 
   return (
     <div className="mt-2 flex flex-col gap-2">
@@ -439,7 +449,7 @@ export function ButtonEditorDialog() {
                     buttonType={buttonType}
                     onChooseButton={onChooseButton}
                   />
-                  <ButtonSteps />
+                  <ButtonSteps buttonType={buttonType} />
                 </div>
               ) : (
                 <AllButtonOptions

@@ -1,6 +1,8 @@
 import {
   type ButtonStepProps,
+  buttonTypes,
   encodeButtonPayload,
+  hasPhoneNumberVariable,
   type SendCardStepSchema,
   sendMessageNodeSchema,
   stepTypes,
@@ -119,18 +121,38 @@ export function convertStartNodeToMessengerAdsJson(props: {
     lenient && rewriteLabel(label) === ""
 
   /**
+   * Ad JSON is static, so a Call Phone Number button whose number still holds
+   * a `{{variable}}` can never become the `+<country><number>` Meta requires.
+   * Strict mode reports it like any other unsupported variable; lenient mode
+   * drops the button, as it does a blank one.
+   */
+  const isUnresolvableCallButton = (button: ButtonStepProps): boolean =>
+    button.buttonType === buttonTypes.enum.callPhoneNumber &&
+    hasPhoneNumberVariable(button.beforeStep.phoneNumber)
+
+  /**
    * Templates a step's buttons via the shared runtime helper so ad JSON and
    * live sends never diverge, applying the variable rewrite to each label.
    * If every button is dropped the helper returns `undefined`, so a text
    * step falls back to a plain text message.
    */
-  const buildButtons = (buttons: ButtonStepProps[]) =>
-    convertButtons({
+  const buildButtons = (buttons: ButtonStepProps[]) => {
+    if (buttons.some(isUnresolvableCallButton)) {
+      hasInvalidVariable = true
+    }
+    return convertButtons({
       flowId,
       flowVersionId,
-      buttons: buttons.filter((button) => !isBlankLabel(button.label)),
+      buttons: buttons.filter(
+        (button) =>
+          !(
+            isBlankLabel(button.label) ||
+            (lenient && isUnresolvableCallButton(button))
+          ),
+      ),
       transformLabel: rewriteLabel,
     })
+  }
 
   const messages: MessengerAdsMessage[] = []
 

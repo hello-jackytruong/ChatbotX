@@ -2327,7 +2327,8 @@
     },
     "button": {
       "label": "Knapp",
-      "whenPressed": "När den här knappen trycks ned"
+      "whenPressed": "När den här knappen trycks ned",
+      "callToThisNumber": "Ring till det här numret"
     },
     "buttonLabel": {
       "label": "Knappetikett"
@@ -3937,7 +3938,8 @@
       "sendViewCatalog": "Visa katalog",
       "sendProducts": "Skicka produkter",
       "sendCollection": "Kollektion",
-      "pipeline": "Pipelines"
+      "pipeline": "Pipelines",
+      "callPhoneNumber": "Ring ett telefonnummer"
     },
     "externalRequest": {
       "errors": {
@@ -4254,6 +4256,11 @@
       "comment": "Kommentar",
       "destinationPipeline": "Målpipeline",
       "destinationStage": "Målfas"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "I kanaler som inte kan starta ett samtal får kontakten i stället numret som ett svar.",
+      "countryLabel": "Landskod",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -5429,7 +5436,9 @@
     "savedReplyImagesRemoved": "Bilder som inte kan skickas här har tagits bort",
     "onlyImagesAllowed": "Endast bilder kan läggas till",
     "tooManySavedReplyImages": "Ett sparat svar kan ha högst {max} bilder",
-    "savedReplyImagesNotSentHere": "Bilder skickas inte här"
+    "savedReplyImagesNotSentHere": "Bilder skickas inte här",
+    "invalidPhoneNumber": "Ange numret i internationellt format, till exempel +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Den här knappen kan inte ringa ett telefonnummer här. Välj en annan åtgärd."
   },
   "messenger": {
     "botProfile": "Botprofil",

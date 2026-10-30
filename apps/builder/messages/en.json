@@ -1446,7 +1446,8 @@
     },
     "button": {
       "label": "Button",
-      "whenPressed": "When this button is pressed"
+      "whenPressed": "When this button is pressed",
+      "callToThisNumber": "Call to this number"
     },
     "buttonLabel": {
       "label": "Button Label"
@@ -3667,7 +3668,8 @@
       "sendViewCatalog": "View catalog",
       "sendProducts": "Send Products",
       "sendCollection": "Collection",
-      "pipeline": "Pipelines"
+      "pipeline": "Pipelines",
+      "callPhoneNumber": "Call Phone Number"
     },
     "externalRequest": {
       "errors": {
@@ -3936,6 +3938,11 @@
       "comment": "Comment",
       "destinationPipeline": "Destination pipeline",
       "destinationStage": "Destination stage"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "On channels that cannot place a call, the contact receives this number as a reply instead.",
+      "countryLabel": "Country code",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -5011,7 +5018,9 @@
     "savedReplyImagesRemoved": "Images that can't be sent here were removed",
     "onlyImagesAllowed": "Only images can be added",
     "tooManySavedReplyImages": "A saved reply can have at most {max} images",
-    "savedReplyImagesNotSentHere": "Images won't be sent here"
+    "savedReplyImagesNotSentHere": "Images won't be sent here",
+    "invalidPhoneNumber": "Enter the number in international format, for example +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "This button cannot call a phone number here. Choose another action."
   },
   "instagram": {
     "description": "This integration lets you create Instagram bots.",

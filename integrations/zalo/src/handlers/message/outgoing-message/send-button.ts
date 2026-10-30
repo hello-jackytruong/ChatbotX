@@ -12,6 +12,15 @@ import { chunk } from "remeda"
 import { MAX_BUTTONS } from "../../../constants"
 import type { ButtonPayload } from "../../../schema/webhook"
 
+const LEADING_PLUS = /^\+/
+
+/**
+ * Zalo's `oa.open.phone` takes the number as digits with the country code and
+ * no `+` (docs example: `84919018791`), while flow buttons carry E.164.
+ */
+const toZaloPhoneCode = (e164PhoneNumber: string): string =>
+  e164PhoneNumber.replace(LEADING_PLUS, "")
+
 export function getButtonTemplate(props: {
   flowId: string
   flowVersionId?: string
@@ -38,6 +47,12 @@ export function getButtonTemplate(props: {
         payload: {
           url: appendCodeToMagicLink(button.beforeStep.url, buttonPayload),
         },
+      }
+    case buttonTypes.enum.callPhoneNumber:
+      return {
+        type: "oa.open.phone",
+        title: button.label,
+        payload: { phone_code: toZaloPhoneCode(button.beforeStep.phoneNumber) },
       }
     default:
       return {
@@ -77,6 +92,14 @@ export function getCanonicalButtonTemplate(
       type: "oa.open.url",
       title: button.label,
       payload: { url: button.url },
+    }
+  }
+
+  if (button.buttonType === "phoneNumber") {
+    return {
+      type: "oa.open.phone",
+      title: button.label,
+      payload: { phone_code: toZaloPhoneCode(button.phoneNumber) },
     }
   }
 

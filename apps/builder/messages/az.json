@@ -1446,7 +1446,8 @@
     },
     "button": {
       "label": "Düymə",
-      "whenPressed": "Bu düyməyə basıldıqda"
+      "whenPressed": "Bu düyməyə basıldıqda",
+      "callToThisNumber": "Bu nömrəyə zəng et"
     },
     "buttonLabel": {
       "label": "Düymə etiketi"
@@ -3667,7 +3668,8 @@
       "sendViewCatalog": "Kataloqa bax",
       "sendProducts": "Məhsul göndər",
       "sendCollection": "Kolleksiya",
-      "pipeline": "Satış xətləri"
+      "pipeline": "Satış xətləri",
+      "callPhoneNumber": "Telefon nömrəsinə zəng et"
     },
     "externalRequest": {
       "errors": {
@@ -3936,6 +3938,11 @@
       "comment": "Şərh",
       "destinationPipeline": "Təyinat satış xətti",
       "destinationStage": "Təyinat mərhələsi"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "Zəng edə bilməyən kanallarda kontakt bu nömrəni cavab olaraq alır.",
+      "countryLabel": "Ölkə kodu",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -5011,7 +5018,9 @@
     "savedReplyImagesRemoved": "Burada göndərilə bilməyən şəkillər silindi",
     "onlyImagesAllowed": "Yalnız şəkil əlavə etmək olar",
     "tooManySavedReplyImages": "Saxlanmış cavabda ən çox {max} şəkil ola bilər",
-    "savedReplyImagesNotSentHere": "Şəkillər burada göndərilməyəcək"
+    "savedReplyImagesNotSentHere": "Şəkillər burada göndərilməyəcək",
+    "invalidPhoneNumber": "Nömrəni beynəlxalq formatda daxil edin, məsələn +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Bu düymə burada telefon nömrəsinə zəng edə bilməz. Başqa əməliyyat seçin."
   },
   "instagram": {
     "description": "Bu inteqrasiya Instagram botları yaratmağa imkan verir.",

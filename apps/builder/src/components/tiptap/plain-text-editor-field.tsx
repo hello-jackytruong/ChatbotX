@@ -8,6 +8,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@chatbotx.io/ui/components/ui/form"
 import { cn } from "@chatbotx.io/ui/lib/utils"
 import { useTranslations } from "next-intl"
@@ -32,6 +33,33 @@ export type PlainTextEditorFieldProps = {
   description?: string
   /** Single-line layout with the variable picker inline (e.g. filter value inputs). */
   inline?: boolean
+  /** Rewrites a validation message before it is shown (e.g. a code to text). */
+  translateError?: (message: string) => string
+  /** Single-line value: Enter is ignored and pasted line breaks are removed. */
+  disableLineBreaks?: boolean
+}
+
+/** `FormMessage` whose text goes through `translateError`. */
+const TranslatedFormMessage = ({
+  translateError,
+}: {
+  translateError: (message: string) => string
+}) => {
+  const { error, formMessageId } = useFormField()
+  const message = error?.message
+  if (!message) {
+    return null
+  }
+
+  return (
+    <p
+      className="text-destructive text-sm"
+      data-slot="form-message"
+      id={formMessageId}
+    >
+      {translateError(message)}
+    </p>
+  )
 }
 
 export const PlainTextEditorField = ({
@@ -50,6 +78,8 @@ export const PlainTextEditorField = ({
   includeBotFieldVariables = false,
   showEmojiPicker = true,
   inline = false,
+  translateError,
+  disableLineBreaks = false,
 }: PlainTextEditorFieldProps) => {
   const { control, getValues } = useFormContext()
   const t = useTranslations("fields")
@@ -82,6 +112,7 @@ export const PlainTextEditorField = ({
               botFieldsOnly={botFieldsOnly}
               channels={channels}
               className={editorClassName}
+              disableLineBreaks={disableLineBreaks}
               includeBotFieldVariables={includeBotFieldVariables}
               includeCouponVariables={includeCouponVariables}
               includePipelineVariables={includePipelineVariables}
@@ -96,7 +127,11 @@ export const PlainTextEditorField = ({
           {description ? (
             <FormDescription>{description}</FormDescription>
           ) : null}
-          <FormMessage />
+          {translateError ? (
+            <TranslatedFormMessage translateError={translateError} />
+          ) : (
+            <FormMessage />
+          )}
         </FormItem>
       )}
     />

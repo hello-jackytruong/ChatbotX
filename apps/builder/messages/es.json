@@ -1404,7 +1404,8 @@
     },
     "button": {
       "label": "Botón",
-      "whenPressed": "Cuando se pulse este botón"
+      "whenPressed": "Cuando se pulse este botón",
+      "callToThisNumber": "Llamar a este número"
     },
     "buttonLabel": {
       "label": "Etiqueta del botón"
@@ -2985,7 +2986,8 @@
       "sendViewCatalog": "Ver catálogo",
       "sendProducts": "Enviar productos",
       "sendCollection": "Colección",
-      "pipeline": "Pipelines"
+      "pipeline": "Pipelines",
+      "callPhoneNumber": "Llamar a un número de teléfono"
     },
     "externalRequest": {
       "errors": {
@@ -3254,6 +3256,11 @@
       "comment": "Comentario",
       "destinationPipeline": "Pipeline de destino",
       "destinationStage": "Etapa de destino"
+    },
+    "callPhoneNumber": {
+      "fallbackHint": "En los canales que no pueden iniciar una llamada, el contacto recibe este número como respuesta.",
+      "countryLabel": "Código de país",
+      "placeholder": "+84901234567"
     }
   },
   "folders": {
@@ -4329,7 +4336,9 @@
     "savedReplyImagesRemoved": "Se quitaron las imágenes que no se pueden enviar aquí",
     "onlyImagesAllowed": "Solo se pueden añadir imágenes",
     "tooManySavedReplyImages": "Una respuesta guardada puede tener como máximo {max} imágenes",
-    "savedReplyImagesNotSentHere": "Las imágenes no se enviarán aquí"
+    "savedReplyImagesNotSentHere": "Las imágenes no se enviarán aquí",
+    "invalidPhoneNumber": "Introduce el número en formato internacional, por ejemplo +84901234567.",
+    "buttonCallPhoneNumberUnsupported": "Este botón no puede llamar a un número aquí. Elige otra acción."
   },
   "instagram": {
     "description": "This integración lets tú Crear Instagram bots.",

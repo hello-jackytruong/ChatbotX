@@ -49,7 +49,7 @@ export const ButtonStepEditor = (props: ButtonStepEditorProps) => {
       <Button
         className="w-full justify-between gap-2 hover:text-blue-500"
         onClick={() => {
-          setButtonEditorConfig(editorConfig ?? null)
+          setButtonEditorConfig({ ...editorConfig, channel })
           setButtonPath(`data.details.${parentName}`)
           setButtonInitialData(buttonData)
           setOpenButtonEditorDialog(true)

@@ -33,6 +33,11 @@ const capabilitiesChannelPolicySchema = z.object({
   policyVersion: z.number(),
   unsupportedSteps: z.array(z.string()),
   noButtonSteps: z.array(z.string()),
+  nativeButtonTypes: z
+    .array(z.string())
+    .describe(
+      "Button types this channel renders as a native control. Today only `callPhoneNumber` (dials on tap); a channel that does not list it sends that button as a reply showing the number.",
+    ),
   limits: z.object({
     buttonCount: z.number(),
     buttonLabel: z.number(),
