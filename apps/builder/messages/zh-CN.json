@@ -4263,7 +4263,10 @@
     "callPhoneNumber": {
       "fallbackHint": "在无法发起通话的渠道上，联系人将改为收到这个号码作为回复。",
       "countryLabel": "国家/地区代码",
-      "placeholder": "+84901234567"
+      "noCountry": "不选择国家/地区",
+      "invalidForCountry": "这不是有效的{country}电话号码。",
+      "needsCountry": "请选择国家/地区，或以 + 和国家代码开头输入号码。",
+      "invalidInternational": "这不是有效的国际电话号码。"
     }
   },
   "folders": {
@@ -5437,7 +5440,7 @@
     "onlyImagesAllowed": "只能添加图片",
     "tooManySavedReplyImages": "一条快捷回复最多包含 {max} 张图片",
     "savedReplyImagesNotSentHere": "图片不会在此发送",
-    "invalidPhoneNumber": "请选择国家/地区，或按国际格式输入号码，例如 +84901234567。",
+    "invalidPhoneNumber": "这不是有效的电话号码。请包含国家代码，例如 +1。",
     "buttonCallPhoneNumberUnsupported": "此按钮在这里无法拨打电话号码，请选择其他操作。"
   },
   "messenger": {

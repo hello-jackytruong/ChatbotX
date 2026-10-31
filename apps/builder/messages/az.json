@@ -3942,7 +3942,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Zəng edə bilməyən kanallarda kontakt bu nömrəni cavab olaraq alır.",
       "countryLabel": "Ölkə kodu",
-      "placeholder": "+84901234567"
+      "noCountry": "Ölkə yoxdur",
+      "invalidForCountry": "Bu, {country} üçün etibarlı telefon nömrəsi deyil.",
+      "needsCountry": "Ölkəni seçin və ya nömrəni + və ölkə kodu ilə başlayın.",
+      "invalidInternational": "Bu etibarlı beynəlxalq telefon nömrəsi deyil."
     }
   },
   "folders": {
@@ -5019,7 +5022,7 @@
     "onlyImagesAllowed": "Yalnız şəkil əlavə etmək olar",
     "tooManySavedReplyImages": "Saxlanmış cavabda ən çox {max} şəkil ola bilər",
     "savedReplyImagesNotSentHere": "Şəkillər burada göndərilməyəcək",
-    "invalidPhoneNumber": "Ölkəni seçin və ya nömrəni beynəlxalq formatda daxil edin, məsələn +84901234567.",
+    "invalidPhoneNumber": "Bu etibarlı telefon nömrəsi deyil. Ölkə kodunu daxil edin, məsələn +1.",
     "buttonCallPhoneNumberUnsupported": "Bu düymə burada telefon nömrəsinə zəng edə bilməz. Başqa əməliyyat seçin."
   },
   "instagram": {

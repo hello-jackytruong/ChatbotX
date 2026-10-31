@@ -55,7 +55,7 @@ export const callPhoneNumberStepSchema = z.object({
     .trim()
     .refine(isValidAuthoredPhoneNumber, flowValidationCodes.invalidPhoneNumber)
     .meta({
-      description: `Number the button dials, in international format (E.164, e.g. +84901234567). May embed {{variables}} (max ${PHONE_NUMBER_EXPRESSION_MAX} characters) that resolve to such a number when the message is sent.`,
+      description: `Number the button dials, in international format (E.164, e.g. +14155552671). May embed {{variables}} (max ${PHONE_NUMBER_EXPRESSION_MAX} characters) that resolve to such a number when the message is sent.`,
     }),
 })
 

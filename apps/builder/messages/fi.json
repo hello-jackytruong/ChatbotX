@@ -3104,7 +3104,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Kanavissa, jotka eivät voi soittaa puhelua, yhteystieto saa numeron vastauksena.",
       "countryLabel": "Maatunnus",
-      "placeholder": "+84901234567"
+      "noCountry": "Ei maata",
+      "invalidForCountry": "Tämä ei ole kelvollinen puhelinnumero maassa {country}.",
+      "needsCountry": "Valitse maa tai aloita numero +-merkillä ja maatunnuksella.",
+      "invalidInternational": "Tämä ei ole kelvollinen kansainvälinen puhelinnumero."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Vain kuvia voi lisätä",
     "tooManySavedReplyImages": "Tallennetussa vastauksessa voi olla enintään {max} kuvaa",
     "savedReplyImagesNotSentHere": "Kuvia ei lähetetä täällä",
-    "invalidPhoneNumber": "Valitse maa tai syötä numero kansainvälisessä muodossa, esimerkiksi +84901234567.",
+    "invalidPhoneNumber": "Tämä ei ole kelvollinen puhelinnumero. Lisää maatunnus, esimerkiksi +1.",
     "buttonCallPhoneNumberUnsupported": "Tämä painike ei voi soittaa puhelinnumeroon täällä. Valitse toinen toiminto."
   },
   "instagram": {

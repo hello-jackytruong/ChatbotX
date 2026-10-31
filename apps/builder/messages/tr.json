@@ -3260,7 +3260,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Arama başlatamayan kanallarda kişi bu numarayı yanıt olarak alır.",
       "countryLabel": "Ülke kodu",
-      "placeholder": "+84901234567"
+      "noCountry": "Ülke yok",
+      "invalidForCountry": "Bu, {country} için geçerli bir telefon numarası değil.",
+      "needsCountry": "Ülkeyi seçin veya numarayı + ve ülke koduyla başlatın.",
+      "invalidInternational": "Bu geçerli bir uluslararası telefon numarası değil."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Yalnızca görsel eklenebilir",
     "tooManySavedReplyImages": "Kayıtlı bir yanıtta en fazla {max} görsel olabilir",
     "savedReplyImagesNotSentHere": "Görseller burada gönderilmeyecek",
-    "invalidPhoneNumber": "Ülkeyi seçin veya numarayı uluslararası biçimde girin, örneğin +84901234567.",
+    "invalidPhoneNumber": "Bu geçerli bir telefon numarası değil. Ülke kodunu ekleyin, örneğin +1.",
     "buttonCallPhoneNumberUnsupported": "Bu düğme burada bir telefon numarasını arayamaz. Başka bir eylem seçin."
   },
   "instagram": {

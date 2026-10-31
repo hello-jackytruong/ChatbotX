@@ -4260,7 +4260,10 @@
     "callPhoneNumber": {
       "fallbackHint": "I kanaler som inte kan starta ett samtal får kontakten i stället numret som ett svar.",
       "countryLabel": "Landskod",
-      "placeholder": "+84901234567"
+      "noCountry": "Inget land",
+      "invalidForCountry": "Det här är inte ett giltigt telefonnummer för {country}.",
+      "needsCountry": "Välj land eller börja numret med + och landskoden.",
+      "invalidInternational": "Det här är inte ett giltigt internationellt telefonnummer."
     }
   },
   "folders": {
@@ -5437,7 +5440,7 @@
     "onlyImagesAllowed": "Endast bilder kan läggas till",
     "tooManySavedReplyImages": "Ett sparat svar kan ha högst {max} bilder",
     "savedReplyImagesNotSentHere": "Bilder skickas inte här",
-    "invalidPhoneNumber": "Välj land eller ange numret i internationellt format, till exempel +84901234567.",
+    "invalidPhoneNumber": "Det här är inte ett giltigt telefonnummer. Ange landskoden, till exempel +1.",
     "buttonCallPhoneNumberUnsupported": "Den här knappen kan inte ringa ett telefonnummer här. Välj en annan åtgärd."
   },
   "messenger": {

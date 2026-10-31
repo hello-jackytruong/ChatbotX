@@ -3104,7 +3104,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Em canais que não conseguem fazer uma chamada, o contacto recebe este número como resposta.",
       "countryLabel": "Indicativo do país",
-      "placeholder": "+84901234567"
+      "noCountry": "Nenhum país",
+      "invalidForCountry": "Este não é um número de telefone válido para {country}.",
+      "needsCountry": "Escolha o país ou comece o número com + e o indicativo do país.",
+      "invalidInternational": "Este não é um número de telefone internacional válido."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Só é possível adicionar imagens",
     "tooManySavedReplyImages": "Uma resposta guardada pode ter no máximo {max} imagens",
     "savedReplyImagesNotSentHere": "As imagens não serão enviadas aqui",
-    "invalidPhoneNumber": "Escolha o país ou introduza o número no formato internacional, por exemplo +84901234567.",
+    "invalidPhoneNumber": "Este não é um número de telefone válido. Inclua o indicativo do país, por exemplo +1.",
     "buttonCallPhoneNumberUnsupported": "Este botão não pode ligar para um número aqui. Escolha outra ação."
   },
   "instagram": {

@@ -1,22 +1,28 @@
 "use client"
 
-import { hasPhoneNumberVariable } from "@chatbotx.io/flow-config"
-import { PHONE_NUMBER_LITERAL_MAX } from "@chatbotx.io/flow-config/button-limits"
+import { flowValidationCodes } from "@chatbotx.io/flow-config"
 import {
-  type CountryCode,
-  getCountryCallingCode,
-  isSupportedCountry,
-  parsePhoneNumberFromString,
-} from "libphonenumber-js"
-import { useTranslations } from "next-intl"
-import { useEffect, useState } from "react"
-import { useFormContext, useWatch } from "react-hook-form"
-import { CharacterCounter } from "@/components/character-counter"
-import { PlainTextEditorField } from "@/components/tiptap/plain-text-editor-field"
+  FormField,
+  FormItem,
+  FormLabel,
+  useFormField,
+} from "@chatbotx.io/ui/components/ui/form"
+import { type CountryCode, isSupportedCountry } from "libphonenumber-js"
+import { useLocale, useTranslations } from "next-intl"
+import { useState } from "react"
+import { useFormContext } from "react-hook-form"
+import { PlainTextTiptapEditor } from "@/components/tiptap/plain-text-tiptap-editor"
 import { resolveFlowValidationCodeKey } from "../../flow-validation-message"
 import { useStepStore } from "../../stores/step-store-provider"
-import { applyCountryToPhoneNumber, canApplyCountry } from "./apply-country"
 import { CountryDialCodePicker } from "./country-dial-code-picker"
+import {
+  canPickCountry,
+  changeCountry,
+  joinPhoneNumber,
+  moveToOwnCountry,
+  type PhoneNumberParts,
+  splitPhoneNumber,
+} from "./phone-number-parts"
 
 type PhoneNumberFieldProps = {
   name: string
@@ -24,94 +30,162 @@ type PhoneNumberFieldProps = {
 }
 
 /**
- * Phone number input with a country picker (flag + dial code) in front of a
- * variable-capable text editor. The form value is the whole international
- * number, e.g. `+84901234567`, or an expression embedding `{{variables}}`.
- *
- * Picking a country rewrites the dial code, or turns a national number into
- * the international one (see `applyCountryToPhoneNumber`). The picker is off
- * while the value is not typed like a number — e.g. it holds a variable, whose
- * number is only known at send time.
+ * The field's error. An invalid number is explained for what the author has
+ * in front of them: a picked country, a national number with none, or a `+…`
+ * number. Any other code shows its own translated text.
  */
-export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
+const PhoneNumberMessage = ({ parts }: { parts: PhoneNumberParts }) => {
   const t = useTranslations()
-  const { setValue } = useFormContext()
-  const value = (useWatch({ name }) as string | undefined) ?? ""
-  const translateError = (message: string) => {
-    const key = resolveFlowValidationCodeKey(message)
-    return key ? t(key) : message
+  const locale = useLocale()
+  const { error, formMessageId } = useFormField()
+  if (!error?.message) {
+    return null
   }
-  const workspaceTargetCountry = useStepStore(
-    (state) => state.workspaceTargetCountry,
-  )
-  const [pickedCountry, setPickedCountry] = useState<CountryCode | null>(null)
-  // The editor snapshots its value once on mount, so a programmatic change
-  // (picking a country) remounts it.
-  const [editorVersion, setEditorVersion] = useState(0)
 
-  // A new, empty number starts with the workspace country's dial code. The
-  // author can still pick another country or clear it.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once, on the value the editor opened with
-  useEffect(() => {
-    if (
-      value === "" &&
-      workspaceTargetCountry &&
-      isSupportedCountry(workspaceTargetCountry)
-    ) {
-      setPickedCountry(workspaceTargetCountry)
-      setValue(name, `+${getCountryCallingCode(workspaceTargetCountry)}`)
-      setEditorVersion((version) => version + 1)
+  const describeInvalidNumber = () => {
+    if (parts.country) {
+      const country =
+        new Intl.DisplayNames([locale], { type: "region" }).of(parts.country) ??
+        parts.country
+      return t("flows.callPhoneNumber.invalidForCountry", { country })
     }
-  }, [])
+    return parts.local.trim().startsWith("+")
+      ? t("flows.callPhoneNumber.invalidInternational")
+      : t("flows.callPhoneNumber.needsCountry")
+  }
 
-  const hasVariable = hasPhoneNumberVariable(value)
-  // A picked country only stays selected while the value still starts with its
-  // dial code, so retyping another code does not leave a stale flag behind.
-  const pickedDialCode = pickedCountry
-    ? `+${getCountryCallingCode(pickedCountry)}`
-    : null
-  const country =
-    (parsePhoneNumberFromString(value)?.country as CountryCode | undefined) ??
-    (pickedCountry && pickedDialCode && value.startsWith(pickedDialCode)
-      ? pickedCountry
-      : undefined)
-
-  const onCountryChange = (next: CountryCode) => {
-    setPickedCountry(next)
-    setValue(name, applyCountryToPhoneNumber(value, next), {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-    setEditorVersion((version) => version + 1)
+  const key = resolveFlowValidationCodeKey(error.message)
+  let text = error.message
+  if (error.message === flowValidationCodes.invalidPhoneNumber) {
+    text = describeInvalidNumber()
+  } else if (key) {
+    text = t(key)
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-start gap-2">
-        <CountryDialCodePicker
-          disabled={!canApplyCountry(value)}
-          onChange={onCountryChange}
-          value={country}
-        />
-        <PlainTextEditorField
-          disableLineBreaks
-          formItemClassName="min-w-0 flex-1"
-          includeBotFieldVariables
-          inline
-          key={editorVersion}
-          label={label}
-          name={name}
-          placeholder={t("flows.callPhoneNumber.placeholder")}
-          required
-          showEmojiPicker={false}
-          translateError={translateError}
-        />
-      </div>
-      {hasVariable ? null : (
-        <div className="flex justify-end">
-          <CharacterCounter max={PHONE_NUMBER_LITERAL_MAX} value={value} />
-        </div>
-      )}
+    <p className="text-destructive text-sm" id={formMessageId}>
+      {text}
+    </p>
+  )
+}
+
+/**
+ * The editable number. The label and error point at tiptap's `contenteditable`
+ * through `editorAttributes`, which is where the editor puts DOM attributes.
+ */
+const PhoneNumberInput = ({
+  initValue,
+  autoFocus,
+  onChange,
+}: {
+  initValue: string
+  autoFocus: boolean
+  onChange: (local: string) => void
+}) => {
+  const { error, formItemId, formMessageId } = useFormField()
+  return (
+    <PlainTextTiptapEditor
+      autoFocus={autoFocus}
+      disableLineBreaks
+      editorAttributes={{
+        id: formItemId,
+        "aria-invalid": String(Boolean(error)),
+        ...(error ? { "aria-describedby": formMessageId } : {}),
+      }}
+      includeBotFieldVariables
+      initValue={initValue}
+      inline
+      onChange={onChange}
+      placeholder=""
+      showEmojiPicker={false}
+    />
+  )
+}
+
+/**
+ * Phone number input with an optional country picker (flag + dial code). With
+ * a country the input holds only the national number and the stored value is
+ * the international one (`+4915123456789`); without one the input holds the
+ * whole value — a `+…` number or an expression with `{{variables}}`.
+ *
+ * A new, empty number starts with the workspace's country picked.
+ */
+export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
+  const { control, getValues, setValue } = useFormContext()
+  const workspaceTargetCountry = useStepStore(
+    (state) => state.workspaceTargetCountry,
+  )
+  const [parts, setParts] = useState<PhoneNumberParts>(() => {
+    const initial = splitPhoneNumber((getValues(name) as string) ?? "")
+    const workspaceCountry =
+      workspaceTargetCountry && isSupportedCountry(workspaceTargetCountry)
+        ? workspaceTargetCountry
+        : null
+    return initial.local === "" && initial.country === null
+      ? { country: workspaceCountry, local: "" }
+      : initial
+  })
+  // The editor snapshots its text on mount, so a programmatic change (picking
+  // a country) remounts it with the new text.
+  const [editorVersion, setEditorVersion] = useState(0)
+
+  const commit = (next: PhoneNumberParts) => {
+    setParts(next)
+    setValue(name, joinPhoneNumber(next), {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
+
+  // Shows new parts in the editor, which only reads its text on mount.
+  const remountEditor = (next: PhoneNumberParts) => {
+    commit(next)
+    setEditorVersion((version) => version + 1)
+  }
+
+  const onLocalChange = (local: string) => {
+    // A number typed with its own `+` carries its own country.
+    const typed = {
+      country: local.trim().startsWith("+") ? null : parts.country,
+      local,
+    }
+    // Once complete it moves into the picker (`+14155552671` → 🇺🇸 4155552671).
+    const moved = moveToOwnCountry(typed)
+    if (moved) {
+      remountEditor(moved)
+      return
+    }
+    commit(typed)
+  }
+
+  const onCountryChange = (country: CountryCode | null) => {
+    remountEditor(changeCountry(parts, country))
+  }
+
+  return (
+    <div className="flex items-start gap-2">
+      <CountryDialCodePicker
+        disabled={!canPickCountry(parts.local)}
+        onChange={onCountryChange}
+        value={parts.country}
+      />
+      <FormField
+        control={control}
+        name={name}
+        render={() => (
+          <FormItem className="w-full min-w-0 flex-1">
+            <FormLabel className="flex gap-1">{label}</FormLabel>
+            <PhoneNumberInput
+              // Keep typing after a programmatic change remounts it.
+              autoFocus={editorVersion > 0}
+              initValue={parts.local}
+              key={editorVersion}
+              onChange={onLocalChange}
+            />
+            <PhoneNumberMessage parts={parts} />
+          </FormItem>
+        )}
+      />
     </div>
   )
 }

@@ -894,7 +894,10 @@
     "callPhoneNumber": {
       "fallbackHint": "בערוצים שאינם יכולים לבצע שיחה, איש הקשר יקבל את המספר הזה כתשובה במקום.",
       "countryLabel": "קידומת מדינה",
-      "placeholder": "+84901234567"
+      "noCountry": "ללא מדינה",
+      "invalidForCountry": "זה אינו מספר טלפון תקין עבור {country}.",
+      "needsCountry": "בחרו מדינה, או התחילו את המספר ב-+ ובקידומת המדינה.",
+      "invalidInternational": "זה אינו מספר טלפון בינלאומי תקין."
     }
   },
   "folders": {
@@ -2127,7 +2130,7 @@
     "onlyImagesAllowed": "ניתן להוסיף תמונות בלבד",
     "tooManySavedReplyImages": "תשובה שמורה יכולה לכלול עד {max} תמונות",
     "savedReplyImagesNotSentHere": "התמונות לא יישלחו כאן",
-    "invalidPhoneNumber": "בחרו מדינה, או הזינו את המספר בפורמט בינלאומי, לדוגמה ‎+84901234567.",
+    "invalidPhoneNumber": "זה אינו מספר טלפון תקין. כללו את קידומת המדינה, לדוגמה ‎+1.",
     "buttonCallPhoneNumberUnsupported": "כפתור זה אינו יכול להתקשר למספר טלפון כאן. בחרו פעולה אחרת."
   },
   "instagram": {

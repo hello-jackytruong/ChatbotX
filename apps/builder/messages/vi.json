@@ -3302,7 +3302,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Trên các kênh không thể gọi điện, khách hàng sẽ nhận được số này dưới dạng tin nhắn trả lời.",
       "countryLabel": "Mã quốc gia",
-      "placeholder": "+84901234567"
+      "noCountry": "Không chọn quốc gia",
+      "invalidForCountry": "Số này không phải số điện thoại hợp lệ của {country}.",
+      "needsCountry": "Chọn quốc gia, hoặc nhập số bắt đầu bằng + và mã quốc gia.",
+      "invalidInternational": "Số điện thoại quốc tế không hợp lệ."
     }
   },
   "folders": {
@@ -4379,7 +4382,7 @@
     "onlyImagesAllowed": "Chỉ được thêm hình ảnh",
     "tooManySavedReplyImages": "Một câu trả lời nhanh có tối đa {max} ảnh",
     "savedReplyImagesNotSentHere": "Ảnh sẽ không được gửi ở đây",
-    "invalidPhoneNumber": "Chọn quốc gia, hoặc nhập số theo định dạng quốc tế, ví dụ +84901234567.",
+    "invalidPhoneNumber": "Số điện thoại không hợp lệ. Hãy kèm mã quốc gia, ví dụ +1.",
     "buttonCallPhoneNumberUnsupported": "Nút này không thể gọi số điện thoại ở đây. Hãy chọn hành động khác."
   },
   "instagram": {

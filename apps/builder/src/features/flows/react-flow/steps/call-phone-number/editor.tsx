@@ -1,7 +1,6 @@
 "use client"
 
 import { buttonTypes, getChannelFlowPolicy } from "@chatbotx.io/flow-config"
-import { PhoneCallIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useStepStore } from "../../stores/step-store-provider"
 import { BaseStepEditor } from "../base/editor"
@@ -21,10 +20,8 @@ const CallPhoneNumberStepEditor = ({
   )
 
   return (
-    <BaseStepEditor
-      icon={PhoneCallIcon}
-      title={t("fields.button.callToThisNumber")}
-    >
+    // The button editor already names the action above, so no title here.
+    <BaseStepEditor>
       <div className="flex flex-col gap-2">
         <PhoneNumberField
           label={t("fields.phoneNumber.label")}

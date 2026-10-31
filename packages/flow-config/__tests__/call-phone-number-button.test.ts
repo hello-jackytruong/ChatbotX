@@ -39,8 +39,16 @@ const template = { id: "1", name: "welcome", language: "en", params: {} }
 
 describe("callPhoneNumber button schema", () => {
   test.each([
-    "+84901234567",
-    "+14155552671",
+    "+14155552671", // US
+    "+16135550123", // CA (shares +1)
+    "+442079460958", // GB
+    "+4915123456789", // DE
+    "+919876543210", // IN
+    "+5511987654321", // BR
+    "+81312345678", // JP
+    "+390612345678", // IT (keeps its leading 0)
+    "+84901234567", // VN
+    "+80012345678", // non-geographic
   ])("accepts the E.164 literal %s", (phoneNumber) => {
     expect(buttonStepSchema.safeParse(callButton(phoneNumber)).success).toBe(
       true,

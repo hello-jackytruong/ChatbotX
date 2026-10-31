@@ -3260,7 +3260,10 @@
     "callPhoneNumber": {
       "fallbackHint": "En los canales que no pueden iniciar una llamada, el contacto recibe este número como respuesta.",
       "countryLabel": "Código de país",
-      "placeholder": "+84901234567"
+      "noCountry": "Sin país",
+      "invalidForCountry": "No es un número de teléfono válido para {country}.",
+      "needsCountry": "Elige el país o empieza el número con + y el código de país.",
+      "invalidInternational": "No es un número de teléfono internacional válido."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Solo se pueden añadir imágenes",
     "tooManySavedReplyImages": "Una respuesta guardada puede tener como máximo {max} imágenes",
     "savedReplyImagesNotSentHere": "Las imágenes no se enviarán aquí",
-    "invalidPhoneNumber": "Elige el país o introduce el número en formato internacional, por ejemplo +84901234567.",
+    "invalidPhoneNumber": "No es un número de teléfono válido. Incluye el código de país, por ejemplo +1.",
     "buttonCallPhoneNumberUnsupported": "Este botón no puede llamar a un número aquí. Elige otra acción."
   },
   "instagram": {

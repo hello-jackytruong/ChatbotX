@@ -60,7 +60,7 @@ again equals the published content.
 
 A step button (`buttonType: "callPhoneNumber"`, or `call` in a flow spec) that dials
 a number when tapped. The number is either a real number in E.164 form
-(`+84901234567`, at most 16 characters; checked with libphonenumber when the flow is
+(`+14155552671`, at most 16 characters; checked with libphonenumber when the flow is
 saved or published) or an expression embedding `{{variables}}` (at most 100
 characters) that is resolved, and validated the same way, when the message is sent.
 
@@ -125,7 +125,7 @@ here, so it cannot drift from the schema.
 
 | Type | Terminal? | Notes |
 |---|---|---|
-| `send` | No | Text, image, or file, with optional `buttons`. Each button's `then` is a nested step list. A button may instead set `call` (an international number such as `+84901234567`, optionally with `{{variables}}`) to become a Call Phone Number button; `call` cannot be combined with `then`. See "Call Phone Number buttons". |
+| `send` | No | Text, image, or file, with optional `buttons`. Each button's `then` is a nested step list. A button may instead set `call` (an international number such as `+14155552671`, optionally with `{{variables}}`) to become a Call Phone Number button; `call` cannot be combined with `then`. See "Call Phone Number buttons". |
 | `sendTemplate` | No | Sends an existing WhatsApp template by `templateName`. The template must resolve (by name) to a workspace template with status `APPROVED`. |
 | `sendCollection` | No | A product carousel (Messenger): `collectionType` `automated` picks the products matching `conditions` (`name`, `categoryId`, `subcategoryId`, `vendorId`) when sent, `manual` the chosen `productIds`; at most 10, only what the web shop shows. Each card opens the product in the web shop signed for the contact (`{{shop_token}}`). A collection matching nothing is skipped. See `docs/ecommerce.md`. |
 | `sendProducts` | No | Sends catalog products (`display`: `products` or `carousel`) by ChatbotX product id; get ids from `products.listSendable`. Needs a `channel` that supports product messages (WhatsApp); omnichannel flows reject it. Limits per channel come from `capabilities.get`. See `docs/product-messages.md`. |

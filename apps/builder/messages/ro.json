@@ -447,7 +447,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Pe canalele care nu pot iniția un apel, contactul primește în schimb acest număr ca răspuns.",
       "countryLabel": "Prefix de țară",
-      "placeholder": "+84901234567"
+      "noCountry": "Nicio țară",
+      "invalidForCountry": "Acesta nu este un număr de telefon valid pentru {country}.",
+      "needsCountry": "Alege țara sau începe numărul cu + și prefixul țării.",
+      "invalidInternational": "Acesta nu este un număr de telefon internațional valid."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Se pot adăuga doar imagini",
     "tooManySavedReplyImages": "Un răspuns salvat poate avea cel mult {max} imagini",
     "savedReplyImagesNotSentHere": "Imaginile nu vor fi trimise aici",
-    "invalidPhoneNumber": "Alege țara sau introdu numărul în format internațional, de exemplu +84901234567.",
+    "invalidPhoneNumber": "Acesta nu este un număr de telefon valid. Include prefixul țării, de exemplu +1.",
     "buttonCallPhoneNumberUnsupported": "Acest buton nu poate apela un număr de telefon aici. Alege altă acțiune."
   },
   "instagram": {

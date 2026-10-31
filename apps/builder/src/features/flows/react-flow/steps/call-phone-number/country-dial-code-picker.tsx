@@ -21,9 +21,10 @@ import { useState } from "react"
 import { useCountryOptions } from "@/hooks/use-country-options"
 
 type CountryDialCodePickerProps = {
-  value: CountryCode | undefined
+  /** null = no country: the number is typed with its own `+` dial code. */
+  value: CountryCode | null
   disabled: boolean
-  onChange: (country: CountryCode) => void
+  onChange: (country: CountryCode | null) => void
 }
 
 const toFlagEmoji = (countryCode: string): string =>
@@ -37,8 +38,9 @@ const toDialCode = (country: CountryCode): string =>
   `+${getCountryCallingCode(country)}`
 
 /**
- * Flag + dial code picker, searchable by country name, ISO code or dial code
- * (`viet`, `VN`, `+84` all find Vietnam).
+ * Optional flag + dial code picker, searchable by country name, ISO code or
+ * dial code (`germ`, `DE`, `+49` all find Germany). Its first option clears
+ * the country.
  */
 export const CountryDialCodePicker = ({
   value,
@@ -48,6 +50,10 @@ export const CountryDialCodePicker = ({
   const t = useTranslations()
   const countryOptions = useCountryOptions()
   const [open, setOpen] = useState(false)
+  const select = (country: CountryCode | null) => {
+    onChange(country)
+    setOpen(false)
+  }
 
   return (
     <Popover modal onOpenChange={setOpen} open={open}>
@@ -73,6 +79,21 @@ export const CountryDialCodePicker = ({
           <CommandInput placeholder={t("actions.search")} />
           <CommandList>
             <CommandEmpty>{t("messages.noResults")}</CommandEmpty>
+            <CommandItem
+              className="text-muted-foreground"
+              onSelect={() => select(null)}
+              value={t("flows.callPhoneNumber.noCountry")}
+            >
+              <span className="min-w-0 flex-1 truncate">
+                {t("flows.callPhoneNumber.noCountry")}
+              </span>
+              <Check
+                className={cn(
+                  "size-4",
+                  value === null ? "opacity-100" : "opacity-0",
+                )}
+              />
+            </CommandItem>
             {countryOptions.map((option) => {
               const country = option.value as CountryCode
               const dialCode = toDialCode(country)
@@ -80,10 +101,7 @@ export const CountryDialCodePicker = ({
                 <CommandItem
                   key={country}
                   keywords={[option.label, dialCode]}
-                  onSelect={() => {
-                    onChange(country)
-                    setOpen(false)
-                  }}
+                  onSelect={() => select(country)}
                   value={country}
                 >
                   <span>{toFlagEmoji(country)}</span>

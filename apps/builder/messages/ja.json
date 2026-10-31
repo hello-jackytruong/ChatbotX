@@ -3104,7 +3104,10 @@
     "callPhoneNumber": {
       "fallbackHint": "通話を開始できないチャネルでは、代わりにこの番号が返信として相手に届きます。",
       "countryLabel": "国番号",
-      "placeholder": "+84901234567"
+      "noCountry": "国を指定しない",
+      "invalidForCountry": "{country} の電話番号として正しくありません。",
+      "needsCountry": "国を選択するか、+ と国番号から番号を入力してください。",
+      "invalidInternational": "国際電話番号として正しくありません。"
     }
   },
   "folders": {
@@ -4316,7 +4319,7 @@
     "onlyImagesAllowed": "追加できるのは画像のみです",
     "tooManySavedReplyImages": "保存済み返信の画像は最大 {max} 枚です",
     "savedReplyImagesNotSentHere": "ここでは画像は送信されません",
-    "invalidPhoneNumber": "国を選択するか、国際形式で番号を入力してください（例: +84901234567）。",
+    "invalidPhoneNumber": "電話番号が正しくありません。国番号（例: +1）を含めてください。",
     "buttonCallPhoneNumberUnsupported": "このボタンではここで電話番号に発信できません。別のアクションを選択してください。"
   },
   "instagram": {

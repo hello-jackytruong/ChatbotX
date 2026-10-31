@@ -7,12 +7,6 @@
 export const BUTTON_LABEL_MAX = 20
 
 /**
- * Longest number a Call Phone Number button may be authored with. E.164 is
- * `+` plus at most 15 digits.
- */
-export const PHONE_NUMBER_LITERAL_MAX = 16
-
-/**
  * Longest authored value that contains a `{{variable}}`. Variable tokens
  * (`{{bot_field:<id>}}`) are far longer than the number they resolve to, so
  * only the resolved value is validated as a number, at send time.

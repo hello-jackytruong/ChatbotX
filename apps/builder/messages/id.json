@@ -3104,7 +3104,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Di kanal yang tidak dapat melakukan panggilan, kontak menerima nomor ini sebagai balasan.",
       "countryLabel": "Kode negara",
-      "placeholder": "+84901234567"
+      "noCountry": "Tanpa negara",
+      "invalidForCountry": "Ini bukan nomor telepon yang valid untuk {country}.",
+      "needsCountry": "Pilih negara, atau awali nomor dengan + dan kode negara.",
+      "invalidInternational": "Ini bukan nomor telepon internasional yang valid."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Hanya gambar yang dapat ditambahkan",
     "tooManySavedReplyImages": "Balasan tersimpan dapat memiliki maksimal {max} gambar",
     "savedReplyImagesNotSentHere": "Gambar tidak akan dikirim di sini",
-    "invalidPhoneNumber": "Pilih negara, atau masukkan nomor dalam format internasional, misalnya +84901234567.",
+    "invalidPhoneNumber": "Ini bukan nomor telepon yang valid. Sertakan kode negara, misalnya +1.",
     "buttonCallPhoneNumberUnsupported": "Tombol ini tidak dapat menelepon nomor di sini. Pilih tindakan lain."
   },
   "instagram": {

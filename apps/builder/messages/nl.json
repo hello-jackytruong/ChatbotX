@@ -3104,7 +3104,10 @@
     "callPhoneNumber": {
       "fallbackHint": "Op kanalen die geen gesprek kunnen starten, ontvangt het contact dit nummer als antwoord.",
       "countryLabel": "Landcode",
-      "placeholder": "+84901234567"
+      "noCountry": "Geen land",
+      "invalidForCountry": "Dit is geen geldig telefoonnummer voor {country}.",
+      "needsCountry": "Kies het land of begin het nummer met + en de landcode.",
+      "invalidInternational": "Dit is geen geldig internationaal telefoonnummer."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "Alleen afbeeldingen kunnen worden toegevoegd",
     "tooManySavedReplyImages": "Een opgeslagen antwoord kan maximaal {max} afbeeldingen bevatten",
     "savedReplyImagesNotSentHere": "Afbeeldingen worden hier niet verstuurd",
-    "invalidPhoneNumber": "Kies het land of voer het nummer in internationaal formaat in, bijvoorbeeld +84901234567.",
+    "invalidPhoneNumber": "Dit is geen geldig telefoonnummer. Voeg de landcode toe, bijvoorbeeld +1.",
     "buttonCallPhoneNumberUnsupported": "Deze knop kan hier geen telefoonnummer bellen. Kies een andere actie."
   },
   "instagram": {

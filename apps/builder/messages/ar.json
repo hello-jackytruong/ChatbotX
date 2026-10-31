@@ -3260,7 +3260,10 @@
     "callPhoneNumber": {
       "fallbackHint": "في القنوات التي لا يمكنها إجراء مكالمة، تتلقى جهة الاتصال هذا الرقم كرد بدلاً من ذلك.",
       "countryLabel": "رمز الدولة",
-      "placeholder": "+84901234567"
+      "noCountry": "بدون دولة",
+      "invalidForCountry": "هذا ليس رقم هاتف صالحًا في {country}.",
+      "needsCountry": "اختر الدولة، أو ابدأ الرقم بـ + ورمز الدولة.",
+      "invalidInternational": "هذا ليس رقم هاتف دوليًا صالحًا."
     }
   },
   "folders": {
@@ -4337,7 +4340,7 @@
     "onlyImagesAllowed": "يمكن إضافة الصور فقط",
     "tooManySavedReplyImages": "يمكن أن يحتوي الرد المحفوظ على {max} صور كحد أقصى",
     "savedReplyImagesNotSentHere": "لن يتم إرسال الصور هنا",
-    "invalidPhoneNumber": "اختر الدولة، أو أدخل الرقم بالصيغة الدولية، مثل ‎+84901234567.",
+    "invalidPhoneNumber": "هذا ليس رقم هاتف صالحًا. أضف رمز الدولة، مثل ‎+1.",
     "buttonCallPhoneNumberUnsupported": "لا يمكن لهذا الزر الاتصال برقم هاتف هنا. اختر إجراءً آخر."
   },
   "instagram": {

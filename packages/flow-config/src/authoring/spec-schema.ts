@@ -174,7 +174,7 @@ const sendButtonSpecSchema: z.ZodType<{
         )
         .optional()
         .describe(
-          "Turns the button into a Call Phone Number button: the number to dial, in international format (e.g. +84901234567), optionally embedding {{variables}}. Cannot be combined with `then`.",
+          "Turns the button into a Call Phone Number button: the number to dial, in international format (e.g. +14155552671), optionally embedding {{variables}}. Cannot be combined with `then`.",
         ),
     })
     .refine((button) => button.call === undefined || !button.then?.length, {
