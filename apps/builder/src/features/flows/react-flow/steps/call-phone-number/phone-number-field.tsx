@@ -13,15 +13,17 @@ import {
   AsYouType,
   type CountryCode,
   getCountryCallingCode,
+  isSupportedCountry,
   parsePhoneNumberFromString,
 } from "libphonenumber-js"
 import { useTranslations } from "next-intl"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { CharacterCounter } from "@/components/character-counter"
 import { PlainTextEditorField } from "@/components/tiptap/plain-text-editor-field"
 import { useCountryOptions } from "@/hooks/use-country-options"
 import { resolveFlowValidationCodeKey } from "../../flow-validation-message"
+import { useStepStore } from "../../stores/step-store-provider"
 
 type PhoneNumberFieldProps = {
   name: string
@@ -60,10 +62,28 @@ export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
     const key = resolveFlowValidationCodeKey(message)
     return key ? t(key) : message
   }
+  const workspaceTargetCountry = useStepStore(
+    (state) => state.workspaceTargetCountry,
+  )
   const [pickedCountry, setPickedCountry] = useState<CountryCode | null>(null)
   // The editor snapshots its value once on mount, so a programmatic change
   // (picking a country) remounts it.
   const [editorVersion, setEditorVersion] = useState(0)
+
+  // A new, empty number starts with the workspace country's dial code. The
+  // author can still pick another country or clear it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once, on the value the editor opened with
+  useEffect(() => {
+    if (
+      value === "" &&
+      workspaceTargetCountry &&
+      isSupportedCountry(workspaceTargetCountry)
+    ) {
+      setPickedCountry(workspaceTargetCountry)
+      setValue(name, `+${getCountryCallingCode(workspaceTargetCountry)}`)
+      setEditorVersion((version) => version + 1)
+    }
+  }, [])
 
   const hasVariable = hasPhoneNumberVariable(value)
   // A picked country only stays selected while the value still starts with its
@@ -84,7 +104,6 @@ export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
     (value === "" || PLUS_DIGITS_ONLY.test(value) || country !== undefined)
 
   const onCountryChange = (next: CountryCode) => {
-    const dialCode = `+${getCountryCallingCode(next)}`
     // Whatever the typed number already starts with is its dial code, known
     // even while the number is incomplete or has no single country (`+800…`).
     // With none (empty value, or an unfinished `+4`) there is no number yet.
@@ -93,7 +112,7 @@ export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
       ? value.slice(`+${typedCallingCode}`.length)
       : ""
     setPickedCountry(next)
-    setValue(name, `${dialCode}${national}`, {
+    setValue(name, `+${getCountryCallingCode(next)}${national}`, {
       shouldDirty: true,
       shouldValidate: true,
     })

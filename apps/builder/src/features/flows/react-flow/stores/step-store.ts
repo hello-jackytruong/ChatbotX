@@ -25,6 +25,9 @@ export type StepState = {
   openNodeDetailSheet: boolean
 
   buttonEditorConfig: ButtonEditorConfig | null
+
+  /** The workspace's `targetCountry`; may be `"unknown"` or null. */
+  workspaceTargetCountry: string | null
 }
 
 export type StepStore = StepState & {
@@ -49,6 +52,7 @@ export const createStepStore = (initState?: Partial<StepState>) => {
     activeFlowId: null,
 
     buttonEditorConfig: null,
+    workspaceTargetCountry: null,
   }
 
   return createStore<StepStore>()((set) => ({
