@@ -174,7 +174,8 @@ export const PhoneNumberField = ({ name, label }: PhoneNumberFieldProps) => {
         name={name}
         render={() => (
           <FormItem className="w-full min-w-0 flex-1">
-            <FormLabel className="flex gap-1">{label}</FormLabel>
+            {/* The flag and the number explain themselves; the label stays for screen readers. */}
+            <FormLabel className="sr-only">{label}</FormLabel>
             <PhoneNumberInput
               // Keep typing after a programmatic change remounts it.
               autoFocus={editorVersion > 0}
