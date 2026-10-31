@@ -1823,7 +1823,7 @@
     "onlyImagesAllowed": "只能新增圖片",
     "tooManySavedReplyImages": "一則快速回覆最多包含 {max} 張圖片",
     "savedReplyImagesNotSentHere": "圖片不會在此傳送",
-    "invalidPhoneNumber": "請以國際格式輸入號碼，例如 +84901234567。",
+    "invalidPhoneNumber": "請選擇國家/地區，或以國際格式輸入號碼，例如 +84901234567。",
     "buttonCallPhoneNumberUnsupported": "此按鈕在這裡無法撥打電話號碼，請選擇其他動作。"
   },
   "productCategories": {

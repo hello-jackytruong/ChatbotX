@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Se pot adăuga doar imagini",
     "tooManySavedReplyImages": "Un răspuns salvat poate avea cel mult {max} imagini",
     "savedReplyImagesNotSentHere": "Imaginile nu vor fi trimise aici",
-    "invalidPhoneNumber": "Introdu numărul în format internațional, de exemplu +84901234567.",
+    "invalidPhoneNumber": "Alege țara sau introdu numărul în format internațional, de exemplu +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Acest buton nu poate apela un număr de telefon aici. Alege altă acțiune."
   },
   "instagram": {

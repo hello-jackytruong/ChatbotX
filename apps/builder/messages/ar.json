@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "يمكن إضافة الصور فقط",
     "tooManySavedReplyImages": "يمكن أن يحتوي الرد المحفوظ على {max} صور كحد أقصى",
     "savedReplyImagesNotSentHere": "لن يتم إرسال الصور هنا",
-    "invalidPhoneNumber": "أدخل الرقم بالصيغة الدولية، مثل ‎+84901234567.",
+    "invalidPhoneNumber": "اختر الدولة، أو أدخل الرقم بالصيغة الدولية، مثل ‎+84901234567.",
     "buttonCallPhoneNumberUnsupported": "لا يمكن لهذا الزر الاتصال برقم هاتف هنا. اختر إجراءً آخر."
   },
   "instagram": {

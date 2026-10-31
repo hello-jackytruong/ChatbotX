@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Hanya gambar yang dapat ditambahkan",
     "tooManySavedReplyImages": "Balasan tersimpan dapat memiliki maksimal {max} gambar",
     "savedReplyImagesNotSentHere": "Gambar tidak akan dikirim di sini",
-    "invalidPhoneNumber": "Masukkan nomor dalam format internasional, misalnya +84901234567.",
+    "invalidPhoneNumber": "Pilih negara, atau masukkan nomor dalam format internasional, misalnya +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Tombol ini tidak dapat menelepon nomor di sini. Pilih tindakan lain."
   },
   "instagram": {

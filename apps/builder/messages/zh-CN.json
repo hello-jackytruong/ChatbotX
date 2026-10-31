@@ -5437,7 +5437,7 @@
     "onlyImagesAllowed": "只能添加图片",
     "tooManySavedReplyImages": "一条快捷回复最多包含 {max} 张图片",
     "savedReplyImagesNotSentHere": "图片不会在此发送",
-    "invalidPhoneNumber": "请按国际格式输入号码，例如 +84901234567。",
+    "invalidPhoneNumber": "请选择国家/地区，或按国际格式输入号码，例如 +84901234567。",
     "buttonCallPhoneNumberUnsupported": "此按钮在这里无法拨打电话号码，请选择其他操作。"
   },
   "messenger": {

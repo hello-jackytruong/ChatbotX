@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Só é possível adicionar imagens",
     "tooManySavedReplyImages": "Uma resposta guardada pode ter no máximo {max} imagens",
     "savedReplyImagesNotSentHere": "As imagens não serão enviadas aqui",
-    "invalidPhoneNumber": "Introduza o número no formato internacional, por exemplo +84901234567.",
+    "invalidPhoneNumber": "Escolha o país ou introduza o número no formato internacional, por exemplo +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Este botão não pode ligar para um número aqui. Escolha outra ação."
   },
   "instagram": {

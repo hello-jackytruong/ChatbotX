@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Alleen afbeeldingen kunnen worden toegevoegd",
     "tooManySavedReplyImages": "Een opgeslagen antwoord kan maximaal {max} afbeeldingen bevatten",
     "savedReplyImagesNotSentHere": "Afbeeldingen worden hier niet verstuurd",
-    "invalidPhoneNumber": "Voer het nummer in internationaal formaat in, bijvoorbeeld +84901234567.",
+    "invalidPhoneNumber": "Kies het land of voer het nummer in internationaal formaat in, bijvoorbeeld +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Deze knop kan hier geen telefoonnummer bellen. Kies een andere actie."
   },
   "instagram": {

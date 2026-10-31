@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Vain kuvia voi lisätä",
     "tooManySavedReplyImages": "Tallennetussa vastauksessa voi olla enintään {max} kuvaa",
     "savedReplyImagesNotSentHere": "Kuvia ei lähetetä täällä",
-    "invalidPhoneNumber": "Syötä numero kansainvälisessä muodossa, esimerkiksi +84901234567.",
+    "invalidPhoneNumber": "Valitse maa tai syötä numero kansainvälisessä muodossa, esimerkiksi +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Tämä painike ei voi soittaa puhelinnumeroon täällä. Valitse toinen toiminto."
   },
   "instagram": {

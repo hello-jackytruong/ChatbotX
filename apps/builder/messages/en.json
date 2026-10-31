@@ -5019,7 +5019,7 @@
     "onlyImagesAllowed": "Only images can be added",
     "tooManySavedReplyImages": "A saved reply can have at most {max} images",
     "savedReplyImagesNotSentHere": "Images won't be sent here",
-    "invalidPhoneNumber": "Enter the number in international format, for example +84901234567.",
+    "invalidPhoneNumber": "Pick the country, or enter the number in international format, for example +84901234567.",
     "buttonCallPhoneNumberUnsupported": "This button cannot call a phone number here. Choose another action."
   },
   "instagram": {

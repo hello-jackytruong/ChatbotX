@@ -5019,7 +5019,7 @@
     "onlyImagesAllowed": "Yalnız şəkil əlavə etmək olar",
     "tooManySavedReplyImages": "Saxlanmış cavabda ən çox {max} şəkil ola bilər",
     "savedReplyImagesNotSentHere": "Şəkillər burada göndərilməyəcək",
-    "invalidPhoneNumber": "Nömrəni beynəlxalq formatda daxil edin, məsələn +84901234567.",
+    "invalidPhoneNumber": "Ölkəni seçin və ya nömrəni beynəlxalq formatda daxil edin, məsələn +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Bu düymə burada telefon nömrəsinə zəng edə bilməz. Başqa əməliyyat seçin."
   },
   "instagram": {

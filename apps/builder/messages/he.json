@@ -2127,7 +2127,7 @@
     "onlyImagesAllowed": "ניתן להוסיף תמונות בלבד",
     "tooManySavedReplyImages": "תשובה שמורה יכולה לכלול עד {max} תמונות",
     "savedReplyImagesNotSentHere": "התמונות לא יישלחו כאן",
-    "invalidPhoneNumber": "הזינו את המספר בפורמט בינלאומי, לדוגמה ‎+84901234567.",
+    "invalidPhoneNumber": "בחרו מדינה, או הזינו את המספר בפורמט בינלאומי, לדוגמה ‎+84901234567.",
     "buttonCallPhoneNumberUnsupported": "כפתור זה אינו יכול להתקשר למספר טלפון כאן. בחרו פעולה אחרת."
   },
   "instagram": {

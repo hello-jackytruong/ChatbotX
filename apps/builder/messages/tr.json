@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Yalnızca görsel eklenebilir",
     "tooManySavedReplyImages": "Kayıtlı bir yanıtta en fazla {max} görsel olabilir",
     "savedReplyImagesNotSentHere": "Görseller burada gönderilmeyecek",
-    "invalidPhoneNumber": "Numarayı uluslararası biçimde girin, örneğin +84901234567.",
+    "invalidPhoneNumber": "Ülkeyi seçin veya numarayı uluslararası biçimde girin, örneğin +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Bu düğme burada bir telefon numarasını arayamaz. Başka bir eylem seçin."
   },
   "instagram": {

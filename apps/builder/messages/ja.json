@@ -4316,7 +4316,7 @@
     "onlyImagesAllowed": "追加できるのは画像のみです",
     "tooManySavedReplyImages": "保存済み返信の画像は最大 {max} 枚です",
     "savedReplyImagesNotSentHere": "ここでは画像は送信されません",
-    "invalidPhoneNumber": "国際形式で番号を入力してください（例: +84901234567）。",
+    "invalidPhoneNumber": "国を選択するか、国際形式で番号を入力してください（例: +84901234567）。",
     "buttonCallPhoneNumberUnsupported": "このボタンではここで電話番号に発信できません。別のアクションを選択してください。"
   },
   "instagram": {

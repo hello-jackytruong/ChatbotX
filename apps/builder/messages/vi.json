@@ -4379,7 +4379,7 @@
     "onlyImagesAllowed": "Chỉ được thêm hình ảnh",
     "tooManySavedReplyImages": "Một câu trả lời nhanh có tối đa {max} ảnh",
     "savedReplyImagesNotSentHere": "Ảnh sẽ không được gửi ở đây",
-    "invalidPhoneNumber": "Nhập số theo định dạng quốc tế, ví dụ +84901234567.",
+    "invalidPhoneNumber": "Chọn quốc gia, hoặc nhập số theo định dạng quốc tế, ví dụ +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Nút này không thể gọi số điện thoại ở đây. Hãy chọn hành động khác."
   },
   "instagram": {

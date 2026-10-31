@@ -5437,7 +5437,7 @@
     "onlyImagesAllowed": "Endast bilder kan läggas till",
     "tooManySavedReplyImages": "Ett sparat svar kan ha högst {max} bilder",
     "savedReplyImagesNotSentHere": "Bilder skickas inte här",
-    "invalidPhoneNumber": "Ange numret i internationellt format, till exempel +84901234567.",
+    "invalidPhoneNumber": "Välj land eller ange numret i internationellt format, till exempel +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Den här knappen kan inte ringa ett telefonnummer här. Välj en annan åtgärd."
   },
   "messenger": {

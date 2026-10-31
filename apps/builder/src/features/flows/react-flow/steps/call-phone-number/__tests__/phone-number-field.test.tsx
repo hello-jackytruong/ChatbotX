@@ -46,6 +46,9 @@ const renderField = (
   return form?.getValues("phoneNumber")
 }
 
+// cmdk scrolls the active option into view; jsdom has no layout.
+Element.prototype.scrollIntoView = vi.fn()
+
 beforeEach(() => {
   ;(
     globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -78,5 +81,61 @@ describe("PhoneNumberField workspace default", () => {
 
   test("keeps a number the author already entered", () => {
     expect(renderField("+14155552671", "VN")).toBe("+14155552671")
+  })
+})
+
+const countryTrigger = () =>
+  container.querySelector<HTMLButtonElement>(
+    'button[aria-label="flows.callPhoneNumber.countryLabel"]',
+  )
+
+describe("PhoneNumberField country picker", () => {
+  test.each([
+    ["empty", ""],
+    ["a national number", "0349566551"],
+    ["an international number", "+84 901 234 567"],
+  ])("is enabled for %s", (_name, value) => {
+    renderField(value, null)
+    expect(countryTrigger()?.disabled).toBe(false)
+  })
+
+  test.each([
+    ["a variable", "{{contact.phone}}"],
+    ["a tel: link", "tel:+84901234567"],
+    ["free text", "call me"],
+  ])("is disabled for %s", (_name, value) => {
+    renderField(value, null)
+    expect(countryTrigger()?.disabled).toBe(true)
+  })
+
+  test("searching a dial code and picking the country turns a national number into E.164", () => {
+    renderField("0349566551", null)
+
+    act(() => {
+      countryTrigger()?.click()
+    })
+    const search = document.querySelector<HTMLInputElement>(
+      'input[placeholder="actions.search"]',
+    )
+    if (!search) {
+      throw new Error("expected the country search input")
+    }
+    act(() => {
+      Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )?.set?.call(search, "+84")
+      search.dispatchEvent(new Event("input", { bubbles: true }))
+    })
+
+    const firstMatch = document.querySelector<HTMLElement>("[cmdk-item]")
+    expect(firstMatch?.textContent).toContain("+84")
+
+    act(() => {
+      firstMatch?.click()
+    })
+
+    expect(form?.getValues("phoneNumber")).toBe("+84349566551")
+    expect(countryTrigger()?.textContent).toContain("+84")
   })
 })

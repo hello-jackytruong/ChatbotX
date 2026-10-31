@@ -4337,7 +4337,7 @@
     "onlyImagesAllowed": "Kun billeder kan tilføjes",
     "tooManySavedReplyImages": "Et gemt svar kan højst have {max} billeder",
     "savedReplyImagesNotSentHere": "Billeder bliver ikke sendt her",
-    "invalidPhoneNumber": "Indtast nummeret i internationalt format, for eksempel +84901234567.",
+    "invalidPhoneNumber": "Vælg landet, eller indtast nummeret i internationalt format, for eksempel +84901234567.",
     "buttonCallPhoneNumberUnsupported": "Denne knap kan ikke ringe til et telefonnummer her. Vælg en anden handling."
   },
   "instagram": {
