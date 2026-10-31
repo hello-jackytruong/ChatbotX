@@ -62,7 +62,7 @@ export const CountryDialCodePicker = ({
           <Button
             aria-expanded={open}
             aria-label={t("flows.callPhoneNumber.countryLabel")}
-            className="mt-6 w-28 shrink-0 justify-between px-3"
+            className="w-28 shrink-0 justify-between px-3"
             disabled={disabled}
             role="combobox"
             variant="outline"
