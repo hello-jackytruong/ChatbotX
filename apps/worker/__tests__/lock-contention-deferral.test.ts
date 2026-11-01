@@ -147,4 +147,16 @@ describe("deferOnLockContention", () => {
 
     expect(job.moveToDelayed).not.toHaveBeenCalled()
   })
+
+  test("accepts a larger deferral budget for long-running backfill jobs", async () => {
+    const job = makeJob({ attemptsStarted: 10, attemptsMade: 0 })
+
+    await expect(
+      deferOnLockContention(job, "token", () => Promise.reject(lockError()), {
+        maxDeferrals: 120,
+      }),
+    ).rejects.toBeInstanceOf(DelayedError)
+
+    expect(job.moveToDelayed).toHaveBeenCalledOnce()
+  })
 })

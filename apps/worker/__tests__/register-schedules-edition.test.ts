@@ -7,6 +7,8 @@ const { mockUpsertJobScheduler, mockRemoveJobScheduler, envState } = vi.hoisted(
     envState: {
       NEXT_PUBLIC_EDITION: "community",
       QUOTA_SYNC_INTERVAL_SECONDS: 60,
+      MESSENGER_AUTO_BACKFILL_ENABLED: false,
+      MESSENGER_AUTO_BACKFILL_INTERVAL_MINUTES: 10,
     },
   }),
 )
@@ -38,6 +40,7 @@ vi.mock("@chatbotx.io/worker-config", () => ({
     maintainLeaderboardRankings: "maintainLeaderboardRankings",
     scanCoexistRuns: "scanCoexistRuns",
     reconcileMetaCatalogSyncs: "reconcileMetaCatalogSyncs",
+    reconcileMessengerHistory: "reconcileMessengerHistory",
     purgeCoexistStaging: "purgeCoexistStaging",
     purgeWhatsappSignupSessions: "purgeWhatsappSignupSessions",
     purgeExpiredConnectSessions: "purgeExpiredConnectSessions",
@@ -146,6 +149,7 @@ describe("registerSchedules — edition gating", () => {
     expect(names).toContain("purgeExpiredConnectSessions")
     expect(names).toContain("googleAdsHousekeeping")
     expect(names).toContain("googleAdsSyncSetups")
+    expect(names).toContain("reconcileMessengerHistory")
   })
 
   test("google ads crons run every 10 minutes and daily at 03:30", async () => {

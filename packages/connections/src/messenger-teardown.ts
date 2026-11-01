@@ -1,6 +1,7 @@
 import {
   coexistService,
   instagramIntegrationService,
+  messengerBackfillService,
   messengerIntegrationService,
 } from "@chatbotx.io/business"
 import {
@@ -132,6 +133,13 @@ const tearDownMessengerConnection = async (input: {
     // calls would re-run (or clobber) the same Graph API work.
     skipGenericRemoteTeardown: true,
     withinTransaction: async (tx) => {
+      await messengerBackfillService.tearDownForIntegration({
+        workspaceId,
+        integrationId,
+        currentError: "Integration disconnected",
+        tx,
+      })
+
       await coexistService.tearDownForIntegration({
         workspaceId,
         integrationId,

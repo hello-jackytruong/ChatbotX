@@ -32,6 +32,7 @@ import type { BotResponseTrackingContext } from "../types"
 export * from "./ai-handover-bulk-job-ids"
 export * from "./coexist-job-ids"
 export * from "./contact-scan-job-ids"
+export * from "./messenger-backfill-job-ids"
 
 export const IntegrationJobAction = {
   sendFlow: "sendFlow",
@@ -91,6 +92,8 @@ export const IntegrationJobAction = {
   sendGoogleAdsConversion: "sendGoogleAdsConversion",
   syncRetargetAudience: "syncRetargetAudience",
   contactScan: "contactScan",
+  messengerBackfill: "messengerBackfill",
+  messengerAutoBackfill: "messengerAutoBackfill",
   // Conversation routing (thread control).
   threadControlEvent: "threadControlEvent",
   threadControlAction: "threadControlAction",
@@ -1144,6 +1147,22 @@ export type IntegrationJobContactScan = {
   }
 }
 
+export type IntegrationJobMessengerBackfill = {
+  type: typeof IntegrationJobAction.messengerBackfill
+  data: {
+    runId: string
+    workspaceId: string
+  }
+}
+
+export type IntegrationJobMessengerAutoBackfill = {
+  type: typeof IntegrationJobAction.messengerAutoBackfill
+  data: {
+    integrationId: string
+    workspaceId: string
+  }
+}
+
 /**
  * Runs one budgeted chunk of a Meta Business AI bulk (enable / disable for all
  * customers) run. Only `runId`/`workspaceId` travel: the action, message and
@@ -1274,6 +1293,8 @@ export type IntegrationJobData =
   | AdsConversionJobEvaluateConversionTrigger
   | AdsConversionJobSyncRetargetAudience
   | IntegrationJobContactScan
+  | IntegrationJobMessengerBackfill
+  | IntegrationJobMessengerAutoBackfill
   | IntegrationJobThreadControlEvent
   | IntegrationJobThreadControlAction
   | IntegrationJobAiHandoverTakeBack

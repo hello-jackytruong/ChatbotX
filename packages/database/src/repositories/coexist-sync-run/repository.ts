@@ -120,6 +120,7 @@ export type CoexistRunProgressInput = {
       | "importedContactCount"
       | "importedMessageCount"
       | "skippedCount"
+      | "skippedUnavailableCount"
       | "failedCount"
       | "lastSyncedAt"
       | "lastHeartbeatAt"
@@ -134,6 +135,7 @@ export type CoexistRunProgressInput = {
       | "syncProgress"
       // Contact-scan-only: provider `after` cursor for continuation resume.
       | "resumeCursor"
+      | "cancelRequestedAt"
     >
   >
   /**
@@ -189,6 +191,7 @@ export type IncrementProgressCounters = Partial<
     | "importedContactCount"
     | "importedMessageCount"
     | "skippedCount"
+    | "skippedUnavailableCount"
     | "failedCount",
     number
   >
@@ -200,6 +203,18 @@ export type CreateContactScanRunInput = {
   channel: CoexistChannel
   requestedByUserId: string | null
   scanFromAt: Date
+  triggerSource: string
+  tx?: DatabaseClient
+}
+
+export type CreateBackfillRunInput = {
+  workspaceId: string
+  integrationId: string
+  requestedByUserId: string | null
+  rangeFromAt: Date
+  rangeToAt: Date
+  includeContacts: boolean
+  includeMessages: boolean
   triggerSource: string
   tx?: DatabaseClient
 }
@@ -1172,6 +1187,225 @@ export class CoexistSyncRunRepository {
       data,
       pageCount: Math.ceil(total / pagination.limit),
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Manual Messenger backfill (`type = 'backfill'`). These methods mirror
+  // the contact-scan lease lifecycle but remain independently type-scoped so
+  // a stale/misrouted job can never claim or list another run kind.
+  // ---------------------------------------------------------------------
+
+  async createBackfillRun(
+    input: CreateBackfillRunInput,
+  ): Promise<CoexistSyncRunModel | null> {
+    const { tx = db } = input
+    const [run] = await tx
+      .insert(coexistSyncRunModel)
+      .values({
+        workspaceId: input.workspaceId,
+        integrationId: input.integrationId,
+        channel: "messenger",
+        type: "backfill",
+        status: "init",
+        triggerSource: input.triggerSource,
+        requestedByUserId: input.requestedByUserId,
+        rangeFromAt: input.rangeFromAt,
+        rangeToAt: input.rangeToAt,
+        includeContacts: input.includeContacts,
+        includeMessages: input.includeMessages,
+        pendingPatches: null,
+        claimToken: null,
+        resumeCursor: null,
+      })
+      .onConflictDoNothing()
+      .returning()
+
+    return run ?? null
+  }
+
+  async tearDownActiveBackfillsForIntegration(input: {
+    workspaceId: string
+    integrationId: string
+    currentError: string
+    tx?: DatabaseClient
+  }): Promise<void> {
+    const { tx = db } = input
+    await tx
+      .update(coexistSyncRunModel)
+      .set({
+        status: "failed",
+        currentError: input.currentError,
+        finishedAt: new Date(),
+        resumeCursor: null,
+        claimToken: null,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(coexistSyncRunModel.workspaceId, input.workspaceId),
+          eq(coexistSyncRunModel.integrationId, input.integrationId),
+          eq(coexistSyncRunModel.channel, "messenger"),
+          eq(coexistSyncRunModel.type, "backfill"),
+          inArray(coexistSyncRunModel.status, PULL_CLAIMABLE_STATUSES),
+        ),
+      )
+  }
+
+  async claimBackfillRun(input: {
+    runId: string
+    tx?: DatabaseClient
+  }): Promise<CoexistSyncRunModel | null> {
+    const { tx = db, runId } = input
+    const [run] = await tx
+      .update(coexistSyncRunModel)
+      .set({
+        status: "running",
+        claimToken: crypto.randomUUID(),
+        startedAt: sql`COALESCE(${coexistSyncRunModel.startedAt}, NOW())`,
+        lastHeartbeatAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(coexistSyncRunModel.id, runId),
+          eq(coexistSyncRunModel.type, "backfill"),
+          inArray(coexistSyncRunModel.status, PULL_CLAIMABLE_STATUSES),
+          or(
+            ne(coexistSyncRunModel.status, "running"),
+            isNull(coexistSyncRunModel.claimToken),
+            lt(
+              coexistSyncRunModel.lastHeartbeatAt,
+              sql`NOW() - INTERVAL '10 minutes'`,
+            ),
+          ),
+        ),
+      )
+      .returning()
+
+    return run ?? null
+  }
+
+  async yieldBackfillForContinuation(input: {
+    runId: string
+    expect: CoexistRunWriteGuard
+    tx?: DatabaseClient
+  }): Promise<number> {
+    const { tx = db, runId, expect } = input
+    const rows = await tx
+      .update(coexistSyncRunModel)
+      .set({
+        claimToken: null,
+        lastHeartbeatAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(coexistSyncRunModel.type, "backfill"),
+          ...runWriteFilter(runId, expect),
+        ),
+      )
+      .returning({ id: coexistSyncRunModel.id })
+
+    return rows.length
+  }
+
+  async reopenReleasedBackfill(input: {
+    runId: string
+    tx?: DatabaseClient
+  }): Promise<number> {
+    const { tx = db, runId } = input
+    const rows = await tx
+      .update(coexistSyncRunModel)
+      .set({ status: "init", updatedAt: new Date() })
+      .where(
+        and(
+          eq(coexistSyncRunModel.id, runId),
+          eq(coexistSyncRunModel.type, "backfill"),
+          eq(coexistSyncRunModel.status, "running"),
+          isNull(coexistSyncRunModel.claimToken),
+        ),
+      )
+      .returning({ id: coexistSyncRunModel.id })
+
+    return rows.length
+  }
+
+  async findLatestBackfillRun(input: {
+    workspaceId: string
+    integrationId: string
+    tx?: DatabaseClient
+  }): Promise<CoexistSyncRunModel | null> {
+    const { tx = db } = input
+    return (
+      (await tx.query.coexistSyncRunModel.findFirst({
+        where: {
+          workspaceId: input.workspaceId,
+          integrationId: input.integrationId,
+          channel: "messenger",
+          type: "backfill",
+        },
+        orderBy: { createdAt: "desc" },
+      })) ?? null
+    )
+  }
+
+  async listBackfillRuns(input: {
+    workspaceId: string
+    integrationId?: string
+    page?: number
+    perPage?: number
+    sort?: { id: string; desc: boolean }[]
+    tx?: DatabaseClient
+  }): Promise<{ data: CoexistSyncRunModel[]; pageCount: number }> {
+    const { tx = db, workspaceId } = input
+    const where = {
+      workspaceId,
+      channel: "messenger" as const,
+      type: "backfill" as const,
+      integrationId: input.integrationId,
+    }
+    const pagination = getPaginationWithDefaults(input)
+    const sortObject = parseOrderByAsObject(coexistSyncRunModel, input)
+    const orderBy =
+      Object.keys(sortObject).length > 0
+        ? sortObject
+        : { createdAt: "desc" as const }
+
+    const [data, total] = await Promise.all([
+      tx.query.coexistSyncRunModel.findMany({
+        where,
+        orderBy,
+        ...pagination,
+      }),
+      tx.$count(
+        coexistSyncRunModel,
+        relationsFilterToSQL(coexistSyncRunModel, where),
+      ),
+    ])
+
+    return { data, pageCount: Math.ceil(total / pagination.limit) }
+  }
+
+  async requestBackfillCancel(input: {
+    workspaceId: string
+    runId: string
+    tx?: DatabaseClient
+  }): Promise<number> {
+    const { tx = db } = input
+    const rows = await tx
+      .update(coexistSyncRunModel)
+      .set({ cancelRequestedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(coexistSyncRunModel.id, input.runId),
+          eq(coexistSyncRunModel.workspaceId, input.workspaceId),
+          eq(coexistSyncRunModel.type, "backfill"),
+          inArray(coexistSyncRunModel.status, PULL_CLAIMABLE_STATUSES),
+        ),
+      )
+      .returning({ id: coexistSyncRunModel.id })
+
+    return rows.length
   }
 }
 

@@ -39,6 +39,19 @@ export const env = createEnv({
       .min(1)
       .max(3650)
       .default(90),
+    MESSENGER_AUTO_BACKFILL_ENABLED: z.stringbool().default(true),
+    MESSENGER_AUTO_BACKFILL_INTERVAL_MINUTES: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(60)
+      .default(10),
+    MESSENGER_AUTO_BACKFILL_WINDOW_MINUTES: z.coerce
+      .number()
+      .int()
+      .min(15)
+      .max(24 * 60)
+      .default(15),
     // Every outbound send (comment replies, flow steps, broadcasts, inbox
     // messages) shares the `chat` queue, so its parallelism caps how fast any
     // of them leave. Defaults to the shared worker default.

@@ -4,6 +4,7 @@ import {
 } from "@chatbotx.io/utils/channel"
 import { sql } from "drizzle-orm"
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -66,10 +67,11 @@ export const coexistRunStatus = pgEnum("coexistRunStatus", [
   "waiting",
 ])
 
-// Discriminates the two kinds of run this shared table now carries: a
+// Discriminates the three kinds of run this shared table now carries: a
 // WhatsApp/Messenger/Instagram coexistence history import (`coexist`, the
 // original/default kind — existing rows backfill to it) or an Automatic
-// Customer Scan (`contact_scan`). Every existing coexist set-query MUST
+// Customer Scan (`contact_scan`), or an operator/scheduler Messenger history
+// import (`backfill`). Every existing coexist set-query MUST
 // filter `type = 'coexist'` and every scan set-query MUST filter
 // `type = 'contact_scan'` — see `coexist-sync-run/repository.ts`'s method
 // table. By-id methods are safe as-is (the PK is unique across types).
@@ -179,6 +181,7 @@ export const coexistSyncRunModel = pgTable(
     importedContactCount: integer().notNull().default(0),
     importedMessageCount: integer().notNull().default(0),
     skippedCount: integer().notNull().default(0),
+    skippedUnavailableCount: integer().notNull().default(0),
     failedCount: integer().notNull().default(0),
     attempts: integer().notNull().default(0),
 
@@ -217,7 +220,8 @@ export const coexistSyncRunModel = pgTable(
     // — `createRun` writes it explicitly. NULL means "never claimed".
     claimToken: text(),
 
-    // Contact-scan-only columns below. NULL for `type = 'coexist'` rows.
+    // Contact-scan/manual-backfill columns below. NULL for `type = 'coexist'`
+    // rows unless explicitly noted.
 
     // Scan lower bound: the operator-picked "scan inbox from" time, and the
     // walk ceiling the engine stops at (the same role `startedAt`/prior-run
@@ -234,6 +238,14 @@ export const coexistSyncRunModel = pgTable(
     // re-walking page 1. Cleared on terminal write. Coexist keeps its cursor
     // in memory, unchanged — this column is scan-only.
     resumeCursor: text(),
+    // Exact inclusive provider timestamp bounds for a Messenger backfill.
+    rangeFromAt: timestamp(timestampConfig),
+    rangeToAt: timestamp(timestampConfig),
+    includeContacts: boolean(),
+    includeMessages: boolean(),
+    // Cooperative cancellation: the worker checks this between provider pages
+    // and conversation batches, then releases the run as failed/cancelled.
+    cancelRequestedAt: timestamp(timestampConfig),
   },
   (t) => [
     index("CoexistSyncRun_workspace_idx").on(t.workspaceId),
@@ -266,5 +278,12 @@ export const coexistSyncRunModel = pgTable(
     index("CoexistSyncRun_contact_scan_due_idx")
       .on(t.type, t.status, t.createdAt)
       .where(sql`type = 'contact_scan'`),
+    // Manual and automatic history jobs share the same per-integration lock.
+    uniqueIndex("CoexistSyncRun_backfill_active_uq")
+      .on(t.integrationId)
+      .where(sql`type = 'backfill' AND status IN ('init', 'running')`),
+    index("CoexistSyncRun_backfill_due_idx")
+      .on(t.type, t.status, t.createdAt)
+      .where(sql`type = 'backfill'`),
   ],
 )

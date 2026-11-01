@@ -60,6 +60,8 @@ import { handleChannelLabelWebhook } from "./handlers/inbox_labels"
 import { processLeadgen } from "./handlers/lead-ads"
 import { processMarketingMessageWebhook } from "./handlers/marketing-message-webhook"
 import { handleMessageStatus } from "./handlers/message-status"
+import { runMessengerAutoBackfill } from "./handlers/messenger-backfill/auto"
+import { runMessengerBackfill } from "./handlers/messenger-backfill/engine"
 import { handleSendMetaCapiEvent } from "./handlers/meta-conversions/send-meta-capi-event"
 import { runQuickReplyFollowUpResume } from "./handlers/quick-reply-resume"
 import {
@@ -111,6 +113,8 @@ const integrationWorkerLockDuration = Math.max(
     env.HEAVY_JOB_WAIT_TIMEOUT_MS,
   ) + 60_000,
 )
+
+const MESSENGER_BACKFILL_LOCK_MAX_DEFERRALS = 120
 
 function normalizeToId(value: string | { id: string }): string {
   return typeof value === "string" ? value : value.id
@@ -525,6 +529,14 @@ function startIntegrationWorker() {
               await runContactScan(job.data.data)
               return
             }
+            case IntegrationJobAction.messengerBackfill: {
+              await runMessengerBackfill(job.data.data)
+              return
+            }
+            case IntegrationJobAction.messengerAutoBackfill: {
+              await runMessengerAutoBackfill(job.data.data)
+              return
+            }
             case IntegrationJobAction.processCommentAutomation: {
               await processCommentAutomation(job.data.data)
               return
@@ -641,7 +653,15 @@ function startIntegrationWorker() {
   createQueueWorker(
     queueNames.enum.integration,
     (job: Job<IntegrationJobData>, token) =>
-      deferOnLockContention(job, token, () => processIntegrationJob(job)),
+      deferOnLockContention(
+        job,
+        token,
+        () => processIntegrationJob(job),
+        job.name === IntegrationJobAction.messengerBackfill ||
+          job.name === IntegrationJobAction.messengerAutoBackfill
+          ? { maxDeferrals: MESSENGER_BACKFILL_LOCK_MAX_DEFERRALS }
+          : undefined,
+      ),
     {
       // Override the shared default (5). I/O-bound webhook handling tolerates
       // more parallelism; env-tunable via INTEGRATION_WORKER_CONCURRENCY.

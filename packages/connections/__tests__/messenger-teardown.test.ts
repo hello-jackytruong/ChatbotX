@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   remoteDisconnect: vi.fn(),
   serviceDisconnect: vi.fn(),
   subscribePageToAppWebhook: vi.fn(),
+  tearDownBackfills: vi.fn(),
   tearDownForIntegration: vi.fn(),
   transaction: vi.fn(),
   tx: { marker: "tx" },
@@ -17,6 +18,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@chatbotx.io/business", () => ({
   coexistService: { tearDownForIntegration: mocks.tearDownForIntegration },
   instagramIntegrationService: { existsForPage: mocks.existsForPage },
+  messengerBackfillService: {
+    tearDownForIntegration: mocks.tearDownBackfills,
+  },
   messengerIntegrationService: {
     disconnect: mocks.serviceDisconnect,
     findByInboxId: mocks.findByInboxId,
@@ -74,6 +78,7 @@ describe("disconnectMessengerConnection", () => {
     mocks.existsForPage.mockResolvedValue(false)
     mocks.isDisconnectSafeError.mockReturnValue(false)
     mocks.remoteDisconnect.mockResolvedValue(undefined)
+    mocks.tearDownBackfills.mockResolvedValue(undefined)
     mocks.tearDownForIntegration.mockResolvedValue(undefined)
     mocks.deleteByIntegration.mockResolvedValue(undefined)
     mocks.serviceDisconnect.mockResolvedValue(undefined)
@@ -89,6 +94,12 @@ describe("disconnectMessengerConnection", () => {
     await disconnectMessengerConnection(BASE_INPUT)
 
     expect(mocks.transaction).toHaveBeenCalledTimes(1)
+    expect(mocks.tearDownBackfills).toHaveBeenCalledWith({
+      workspaceId: BASE_INPUT.workspaceId,
+      integrationId: BASE_INPUT.integrationId,
+      currentError: "Integration disconnected",
+      tx: mocks.tx,
+    })
     expect(mocks.tearDownForIntegration).toHaveBeenCalledWith({
       workspaceId: BASE_INPUT.workspaceId,
       integrationId: BASE_INPUT.integrationId,

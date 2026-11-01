@@ -141,13 +141,36 @@ const extractButtonTemplate = (
   return null
 }
 
-const parseApiDate = (value: string | undefined): Date | undefined => {
+export const parseApiDate = (value: string | undefined): Date | undefined => {
   if (!value) {
     return
   }
   const date = new Date(value)
   if (Number.isFinite(date.getTime())) {
     return date
+  }
+}
+
+/** Shared Graph-history normalization for coexist and explicit backfills. */
+export const normalizeMessengerHistoryMessage = (
+  raw: MessengerHistoryMessage,
+  pageId: string,
+): HistoricalMessage | null => {
+  const attachments = extractAttachments(raw)
+  const buttonTemplate = extractButtonTemplate(raw)
+  if (!raw.message && attachments.length === 0 && !buttonTemplate) {
+    return null
+  }
+  return {
+    sourceId: raw.id,
+    messageType: raw.from?.id === pageId ? "outgoing" : "incoming",
+    contentType: "text",
+    text: raw.message || buttonTemplate?.text || "",
+    createdAt: parseApiDate(raw.created_time),
+    ...(attachments.length > 0 ? { attachments } : {}),
+    ...(buttonTemplate
+      ? { contentAttributes: buttonTemplate.contentAttributes }
+      : {}),
   }
 }
 
@@ -308,16 +331,12 @@ export const fetchConvMessages = async (props: {
     const pageMessages: HistoricalMessage[] = []
 
     for (const m of page.data as MessengerHistoryMessage[]) {
-      const attachments = extractAttachments(m)
-      const buttonTemplate = extractButtonTemplate(m)
-      // Empty placeholder rows (no text + no usable attachment URL + no button
-      // template) carry no signal — skip to avoid emitting a row that
-      // bulkImportMessages would then reject for being effectively empty.
-      if (!m.message && attachments.length === 0 && !buttonTemplate) {
+      const normalized = normalizeMessengerHistoryMessage(m, pageId)
+      if (!normalized) {
         continue
       }
       totalMsg++
-      const createdAt = parseApiDate(m.created_time)
+      const createdAt = normalized.createdAt
 
       if (createdAt && ceiling && createdAt <= ceiling) {
         hitOlderBoundary = true
@@ -342,17 +361,7 @@ export const fetchConvMessages = async (props: {
       }
 
       if (!createdAt || createdAt >= cutoff || totalMsg <= 100) {
-        pageMessages.push({
-          sourceId: m.id,
-          messageType: m.from?.id === pageId ? "outgoing" : "incoming",
-          contentType: "text",
-          text: m.message || buttonTemplate?.text || "",
-          createdAt,
-          ...(attachments.length > 0 ? { attachments } : {}),
-          ...(buttonTemplate
-            ? { contentAttributes: buttonTemplate.contentAttributes }
-            : {}),
-        })
+        pageMessages.push(normalized)
       } else {
         hitOlderBoundary = true
       }

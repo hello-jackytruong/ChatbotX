@@ -370,6 +370,24 @@ export const registerSchedules = async () => {
     },
   )
 
+  const messengerBackfillInterval = env.MESSENGER_AUTO_BACKFILL_INTERVAL_MINUTES
+  await scheduleQueue.upsertJobScheduler(
+    ScheduleJobData.reconcileMessengerHistory,
+    {
+      pattern:
+        messengerBackfillInterval === 60
+          ? "0 * * * *"
+          : `*/${messengerBackfillInterval} * * * *`,
+    },
+    {
+      name: ScheduleJobData.reconcileMessengerHistory,
+      data: {
+        type: ScheduleJobData.reconcileMessengerHistory,
+        data: {},
+      },
+    },
+  )
+
   await scheduleQueue.upsertJobScheduler(
     ScheduleJobData.scanAiHandoverBulkRuns,
     {

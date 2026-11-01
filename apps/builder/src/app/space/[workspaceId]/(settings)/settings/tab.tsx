@@ -39,6 +39,10 @@ export function SettingsTab({
         label: t("inboxTeams.title"),
         value: "inbox-teams",
       },
+      {
+        label: t("messengerBackfill.title"),
+        value: "backfill",
+      },
       // {
       //   label: t("billing.title"),
       //   value: "billing",

@@ -24,14 +24,23 @@ const mocks = vi.hoisted(() => ({
   // Captures tagged-template calls (`sql\`GREATEST(${a}, ${b})\``) as a plain
   // `{ strings, values }` fragment so tests can assert both the emitted SQL
   // shape and the interpolated values without a real Postgres connection.
-  sql: vi.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({
-    strings: Array.from(strings),
-    values,
-  })),
+  sql: Object.assign(
+    vi.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({
+      strings: Array.from(strings),
+      values,
+    })),
+    {
+      join: vi.fn((chunks: unknown[], separator: unknown) => ({
+        chunks,
+        separator,
+      })),
+    },
+  ),
   cancelQuickReplyFollowUps: vi.fn(),
   closeHumanReplyWindow: vi.fn(),
   insertDmConversationsIfAbsent: vi.fn(),
   trackWindow: vi.fn(),
+  execute: vi.fn(),
 }))
 
 vi.mock("@chatbotx.io/database/client", () => {
@@ -66,6 +75,7 @@ vi.mock("@chatbotx.io/database/client", () => {
       transaction: (callback: (tx: unknown) => unknown) =>
         callback({ select, update }),
       update,
+      execute: mocks.execute,
     },
     and: (...args: unknown[]) => ({ and: args }),
     eq: (a: unknown, b: unknown) => ({ eq: [a, b] }),
@@ -255,6 +265,50 @@ beforeEach(() => {
   vi.mocked(emitConversationTransferredToHuman).mockReset()
   mocks.sql.mockClear()
   mocks.closeHumanReplyWindow.mockReset()
+  mocks.execute.mockReset()
+  mocks.execute.mockResolvedValue(undefined)
+})
+
+describe("ConversationService.bulkAdvanceActivityAndAiContextMarker", () => {
+  const rows = [
+    {
+      conversationId: "conv-1",
+      newestMessageAt: new Date("2026-01-02T00:00:00Z"),
+      aiMarkerMessageId: "100000000000001",
+    },
+  ]
+
+  test("atomically keeps read/new conversations read and already-unread conversations unread", async () => {
+    await conversationService.bulkAdvanceActivityAndAiContextMarker({
+      workspaceId: WORKSPACE_ID,
+      rows,
+      preserveUnreadState: true,
+    })
+
+    expect(mocks.execute).toHaveBeenCalledOnce()
+    const emittedSql = mocks.sql.mock.calls
+      .map(([strings]) => Array.from(strings as TemplateStringsArray).join(""))
+      .join("\n")
+    expect(emittedSql).toContain('"agentLastReadAt" = CASE')
+    expect(emittedSql).toContain('t."lastActivityAt" IS NULL')
+    expect(emittedSql).toContain('t."lastActivityAt" <= t."agentLastReadAt"')
+    expect(emittedSql).toContain(
+      'GREATEST(COALESCE(t."agentLastReadAt", u.ts), u.ts)',
+    )
+  })
+
+  test("leaves default coexist/live read-state behavior unchanged", async () => {
+    await conversationService.bulkAdvanceActivityAndAiContextMarker({
+      workspaceId: WORKSPACE_ID,
+      rows,
+    })
+
+    expect(mocks.execute).toHaveBeenCalledOnce()
+    const emittedSql = mocks.sql.mock.calls
+      .map(([strings]) => Array.from(strings as TemplateStringsArray).join(""))
+      .join("\n")
+    expect(emittedSql).not.toContain('"agentLastReadAt" = CASE')
+  })
 })
 
 describe("ConversationService.updateFlowStepState lastActivityAt monotonicity", () => {

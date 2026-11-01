@@ -61,6 +61,7 @@ export const deferOnLockContention = async <T>(
   job: DeferrableJob,
   token: string | undefined,
   process: () => Promise<T>,
+  options: { maxDeferrals?: number } = {},
 ): Promise<T> => {
   try {
     return await process()
@@ -69,7 +70,9 @@ export const deferOnLockContention = async <T>(
       throw error
     }
     const deferral = deferralsSoFar(job)
-    if (deferral >= LOCK_CONTENTION_POLICY.maxDeferrals) {
+    if (
+      deferral >= (options.maxDeferrals ?? LOCK_CONTENTION_POLICY.maxDeferrals)
+    ) {
       throw error
     }
     const delayMs = lockContentionDelayMs(deferral)

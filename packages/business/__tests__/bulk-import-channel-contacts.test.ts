@@ -297,6 +297,27 @@ describe("bulkImportChannelContacts", () => {
     )
   })
 
+  it("can suppress creation events for passive historical backfills", async () => {
+    stubNewContactsResolution([
+      {
+        sourceId: "src-1",
+        contactId: "id-1",
+        contactInboxId: "ci-1",
+        conversationId: "conv-1",
+      },
+    ])
+
+    await bulkImportChannelContacts({
+      inbox,
+      workspaceId,
+      contacts: [contact("src-1")],
+      emitCreatedEvents: false,
+    })
+
+    expect(mockEmitContactCreated).not.toHaveBeenCalled()
+    expect(mockEmit).not.toHaveBeenCalled()
+  })
+
   it("increments workspace usage (info-only) for newly-created contacts", async () => {
     stubNewContactsResolution([
       {

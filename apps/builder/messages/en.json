@@ -6608,6 +6608,84 @@
       "empty": "No scans have been run yet."
     }
   },
+  "messengerBackfill": {
+    "title": "Messenger Backfill",
+    "description": "Import available Messenger contacts and message history for one connected Page and time range.",
+    "formTitle": "Schedule a backfill",
+    "formDescription": "Choose one Page and the exact time range to import. There is no maximum lookback, but Meta may not retain all older content.",
+    "submit": "Start backfill",
+    "emptyPages": "Connect a Messenger Page before scheduling a backfill.",
+    "unknownPage": "Disconnected Page",
+    "started": "Started:",
+    "finished": "Finished:",
+    "limitation": {
+      "title": "Meta availability limitation",
+      "description": "This run imports everything Meta still exposes for the selected range. It cannot recover content that was deleted, expired, or is no longer accessible to the connected Page."
+    },
+    "fields": {
+      "page": "Page",
+      "pagePlaceholder": "Select a connected Page",
+      "from": "From",
+      "to": "To",
+      "timezoneHint": "Times are shown in your local timezone and submitted as exact instants.",
+      "resources": "Import",
+      "contacts": "Contacts",
+      "messages": "Messages",
+      "messagesHint": "Contacts and conversations required by the messages are prepared automatically."
+    },
+    "status": {
+      "init": "Queued",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "partial": "Partial",
+      "failed": "Failed",
+      "waiting": "Waiting"
+    },
+    "phase": {
+      "queued": "Waiting for a worker",
+      "importing": "Importing conversations",
+      "pageProcessed": "Page {page} processed",
+      "complete": "Import finished"
+    },
+    "counters": {
+      "scanned": "Conversations scanned",
+      "contacts": "Contacts imported",
+      "messages": "Messages imported",
+      "duplicates": "Existing / duplicate",
+      "unavailable": "Unavailable skipped",
+      "failed": "Real failures"
+    },
+    "history": {
+      "title": "Status and history",
+      "description": "Active runs refresh about every five seconds. Refreshing stops automatically when all runs finish.",
+      "empty": "No Messenger backfills have been run yet.",
+      "page": "Page",
+      "range": "Range and resources",
+      "status": "Status and phase",
+      "progress": "Progress",
+      "timing": "Timing",
+      "actions": "Actions"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "cancelling": "Cancelling",
+      "cancelLabel": "Cancel the active backfill for {page}",
+      "cancelTitle": "Cancel this backfill?",
+      "cancelDescription": "This stops the active import for {page}. Records already imported remain available.",
+      "keepRunning": "Keep running",
+      "confirmCancel": "Cancel backfill",
+      "retry": "Retry",
+      "retryLabel": "Retry the backfill for {page} with the same settings"
+    },
+    "messages": {
+      "scheduled": "Messenger backfill scheduled.",
+      "scheduleFailed": "Could not schedule the Messenger backfill.",
+      "cancelRequested": "Cancellation requested.",
+      "alreadyFinished": "This backfill is no longer active.",
+      "retryScheduled": "Messenger backfill retry scheduled.",
+      "actionFailed": "Could not update the Messenger backfill."
+    }
+  },
   "auditLogs": {
     "title": "Audit Logs",
     "columns": {

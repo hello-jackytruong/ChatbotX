@@ -32,6 +32,8 @@ import type {
   CreateMessageInput,
   CreateMessageResult,
   DistributedLock,
+  EnsureHistoricalMessageAttachmentsInput,
+  EnsureHistoricalMessageAttachmentsResult,
   FindAIContextMessagesOptions,
   FindAttachmentByIdParams,
   FindLastByConversationOptions,
@@ -1283,6 +1285,140 @@ export class ShardedMessageRepository implements IMessageRepository {
           })),
         )
         .returning({ id: attachmentModel.id })
+    })
+  }
+
+  async ensureHistoricalMessageAttachments(
+    input: EnsureHistoricalMessageAttachmentsInput,
+  ): Promise<EnsureHistoricalMessageAttachmentsResult> {
+    if (input.messages.length === 0) {
+      return { messageRows: [], attachmentIds: [] }
+    }
+
+    return await withShardRetry(async () => {
+      const shardDb = await this.shardManager.getShardForWrite(
+        input.workspaceId,
+      )
+
+      return await shardDb.transaction(async (tx) => {
+        const sourceIds = input.messages.map((message) => message.sourceId)
+        const messageRows = await tx
+          .select({
+            id: messageModel.id,
+            sourceId: messageModel.sourceId,
+            createdAt: messageModel.createdAt,
+          })
+          .from(messageModel)
+          .where(
+            and(
+              eq(messageModel.workspaceId, input.workspaceId),
+              eq(messageModel.conversationId, input.conversationId),
+              inArray(messageModel.sourceId, sourceIds),
+            ),
+          )
+
+        const requestedByMessage = new Map(
+          input.messages.map((message) => [
+            `${message.sourceId}:${message.createdAt.getTime()}`,
+            message,
+          ]),
+        )
+        const resolvedMessages = messageRows.filter(
+          (message): message is typeof message & { sourceId: string } =>
+            Boolean(
+              message.sourceId &&
+                requestedByMessage.has(
+                  `${message.sourceId}:${message.createdAt.getTime()}`,
+                ),
+            ),
+        )
+
+        if (resolvedMessages.length === 0) {
+          return { messageRows: [], attachmentIds: [] }
+        }
+
+        const existingAttachments = await tx
+          .select({
+            id: attachmentModel.id,
+            messageId: attachmentModel.messageId,
+            sourceId: attachmentModel.sourceId,
+            fileType: attachmentModel.fileType,
+            originPath: attachmentModel.originPath,
+          })
+          .from(attachmentModel)
+          .where(
+            and(
+              eq(attachmentModel.workspaceId, input.workspaceId),
+              inArray(
+                attachmentModel.messageId,
+                resolvedMessages.map((message) => message.id),
+              ),
+            ),
+          )
+
+        const attachmentKey = (attachment: {
+          messageId: string
+          sourceId?: string | null
+          fileType: string
+          originPath: string
+        }) =>
+          `${attachment.messageId}:${attachment.sourceId ?? `${attachment.fileType}:${attachment.originPath}`}`
+        const existingByKey = new Map(
+          existingAttachments.map((attachment) => [
+            attachmentKey(attachment),
+            attachment.id,
+          ]),
+        )
+        const attachmentIds = new Set<string>()
+        const missing: BulkCreateAttachmentInput[] = []
+
+        for (const message of resolvedMessages) {
+          const requested = requestedByMessage.get(
+            `${message.sourceId}:${message.createdAt.getTime()}`,
+          )
+          if (!requested) {
+            continue
+          }
+          for (const attachment of requested.attachments) {
+            const row: BulkCreateAttachmentInput = {
+              ...attachment,
+              workspaceId: input.workspaceId,
+              conversationId: input.conversationId,
+              messageId: message.id,
+              messageCreatedAt: message.createdAt,
+            }
+            const existingId = existingByKey.get(attachmentKey(row))
+            if (existingId) {
+              attachmentIds.add(existingId)
+            } else {
+              missing.push(row)
+            }
+          }
+        }
+
+        if (missing.length > 0) {
+          const inserted = await tx
+            .insert(attachmentModel)
+            .values(
+              missing.map((attachment) => ({
+                ...attachment,
+                createdAt: attachment.createdAt ?? new Date(),
+              })) as (typeof attachmentModel.$inferInsert)[],
+            )
+            .returning({ id: attachmentModel.id })
+          for (const attachment of inserted) {
+            attachmentIds.add(attachment.id)
+          }
+        }
+
+        return {
+          messageRows: resolvedMessages.map(({ id, sourceId }) => ({
+            id,
+            sourceId,
+          })),
+          attachmentIds: [...attachmentIds],
+        }
+      })
     })
   }
 
