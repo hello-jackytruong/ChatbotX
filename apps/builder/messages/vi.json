@@ -5577,6 +5577,35 @@
       }
     }
   },
+  "messengerPancakeCredential": {
+    "title": "Thông tin xác thực Pancake",
+    "description": "Dùng token Pancake theo Trang làm nguồn ưu tiên để lấy hồ sơ liên hệ Messenger.",
+    "featureName": "thông tin xác thực Pancake",
+    "status": {
+      "configured": "Đã cấu hình",
+      "unconfigured": "Chưa cấu hình"
+    },
+    "verifiedAt": "Xác minh lần cuối {date}",
+    "token": {
+      "label": "Page access token",
+      "placeholder": "Nhập Pancake Page access token",
+      "description": "Token được xác minh cho Trang này, mã hóa và không bao giờ hiển thị lại.",
+      "replaceDescription": "Nhập token mới để thay thế. Nếu xác minh thất bại, token hiện tại vẫn được giữ nguyên."
+    },
+    "actions": {
+      "save": "Lưu thông tin xác thực",
+      "replace": "Thay token"
+    },
+    "messages": {
+      "saved": "Đã lưu thông tin xác thực Pancake.",
+      "deleted": "Đã xóa thông tin xác thực Pancake."
+    },
+    "readOnly": "Chỉ quản trị viên workspace mới có thể thay đổi thông tin xác thực này.",
+    "errors": {
+      "supportSession": "Phiên hỗ trợ nền tảng không thể thay đổi thông tin xác thực Pancake.",
+      "verificationFailed": "Token không thể truy cập Trang Pancake này. Thông tin xác thực hiện tại không bị thay đổi."
+    }
+  },
   "contactScan": {
     "menu": {
       "importFromFile": "Nhập từ tệp",

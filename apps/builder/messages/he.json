@@ -3654,6 +3654,35 @@
       }
     }
   },
+  "messengerPancakeCredential": {
+    "title": "Pancake profile credential",
+    "description": "Use a Page-scoped Pancake token as the preferred Messenger contact profile source.",
+    "featureName": "Pancake credential",
+    "status": {
+      "configured": "Configured",
+      "unconfigured": "Not configured"
+    },
+    "verifiedAt": "Last verified {date}",
+    "token": {
+      "label": "Page access token",
+      "placeholder": "Enter a Pancake Page access token",
+      "description": "The token is verified for this Page, encrypted, and never shown again.",
+      "replaceDescription": "Enter a new token to replace the current credential. A failed verification keeps the current token active."
+    },
+    "actions": {
+      "save": "Save credential",
+      "replace": "Replace credential"
+    },
+    "messages": {
+      "saved": "Pancake credential saved.",
+      "deleted": "Pancake credential deleted."
+    },
+    "readOnly": "Only a workspace administrator can change this credential.",
+    "errors": {
+      "supportSession": "Platform support sessions cannot change Pancake credentials.",
+      "verificationFailed": "The token could not access this Pancake Page. The existing credential was not changed."
+    }
+  },
   "contactScan": {
     "menu": {
       "importFromFile": "Import from File",
