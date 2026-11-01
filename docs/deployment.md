@@ -52,8 +52,9 @@ The script:
 7. waits for health checks and automatically restores the previous application
    image tag when the new containers fail to become healthy.
 
-The script never runs `docker compose down`, removes volumes, or prunes images.
-Old images and database backups are deliberately retained for recovery.
+The deployment commands never run `docker compose down`, remove volumes, or
+prune images. Old images and database backups are deliberately retained for
+recovery.
 The script provides explicit operational commands:
 
 ```bash
@@ -90,17 +91,19 @@ The script provides explicit operational commands:
 
 ## Automatic deployment from GitHub Actions
 
-The preferred production path builds the four application images on GitHub's
-runners, publishes commit-addressed `sha-<commit>` tags to GHCR, and makes the Ubuntu
-server pull and activate that exact release. The server does not compile the
-application and continues to use the existing Compose file, `.env`, database,
-volumes, backup policy, migration step, health checks, and rollback state.
+The preferred production path uses Turborepo's dependency graph to build only
+the application images affected by a push on GitHub's runners. It publishes
+commit-addressed `sha-<commit>` tags to GHCR and makes the Ubuntu server pull
+and activate only those services. The server does not compile the application
+and continues to use the existing Compose file, `.env`, database, volumes,
+backup policy, migration step, health checks, and rollback state.
 
 Every non-documentation push to `dev` runs
 `.github/workflows/deploy-production.yml`. The repository's existing reusable
-CI workflow type-checks, lints, and tests in parallel with the four image
-builds; deployment starts only when both the quality gate and every image build
-succeed. Configure these GitHub Actions secrets before enabling the first run:
+CI workflow type-checks, lints, and tests in parallel with the affected image
+builds; deployment starts only when both the quality gate and every requested
+image build succeed. Configure these GitHub Actions secrets before enabling the
+first run:
 
 | Secret | Value |
 | --- | --- |
@@ -146,23 +149,73 @@ cd /root/apps/ChatbotX
 CHATBOTX_IMAGE_PREFIX=ghcr.io/hello-jackytruong \
 CHATBOTX_IMAGE_TAG=sha-<full-git-sha> \
 CHATBOTX_EXPECTED_GIT_SHA=<full-git-sha> \
+CHATBOTX_DEPLOY_SERVICES=builder,worker \
   ./scripts/deployment/production.sh pull-deploy
 ```
 
-`pull-deploy` first downloads every required image. Only after all four images
-exist locally and their embedded Git revision labels match the requested commit
-does it record the release, start data services, back up PostgreSQL, run
-migrations, activate the new release, wait for health checks, and restore the
-prior image tag when activation fails. Existing commit tags are never rewritten
-by a workflow rerun. The existing `rollback`, `status`, `logs`, and `clean`
-commands remain unchanged.
+`detect-affected-services.mjs` compares the latest successful GitHub deployment
+for the `production` environment with the current commit. Using the deployed
+commit instead of only the preceding push keeps changes cumulative when pushes
+overlap, builds are cancelled, or a stale workflow is rejected. A Builder-only
+change therefore builds and restarts only Builder; a shared-package change
+includes every application that depends on that package. Changes to the
+lockfile, Compose, production scripts, root build configuration,
+dependency-detection logic, or the database/migration package intentionally
+fall back to all four services. Missing or unavailable deployment history and
+dependency-detection errors also fall back to all four instead of risking an
+incomplete release. A documentation-only change does not run this workflow,
+and a change with no production application consumer passes the quality gate
+without activating anything.
+
+`pull-deploy` first downloads only the selected images. It verifies that every
+image's embedded Git revision matches the requested commit before recording it
+as deployable. Untouched services retain their exact running image tags.
+PostgreSQL is backed up and migrations run before cutover; selected services
+then activate one at a time in dependency-safe order with `--no-deps`, so
+Compose cannot restart an unrelated application or datastore. Each selected
+service has independent current and previous image state. A failed health check
+rolls back all services touched by that release while leaving every other
+container unchanged. Existing commit tags are never rewritten by a workflow
+rerun.
+
+A workflow superseded by a newer `dev` commit exits with a temporary-failure
+status rather than reporting a successful deployment. The next workflow then
+continues comparing from the last production commit that actually completed.
+
+The first deployment on a new server must include all four application
+services. A selective deployment refuses to proceed when any untouched
+application service is not already running. Manual service-scoped operations
+use validated names:
+
+```bash
+# Pull and activate only Builder (database safety steps still run).
+CHATBOTX_DEPLOY_SERVICES=builder \
+CHATBOTX_IMAGE_TAG=sha-<full-git-sha> \
+  ./scripts/deployment/production.sh pull-deploy
+
+# Roll back the services touched by the latest deployment.
+./scripts/deployment/production.sh rollback
+
+# Or explicitly roll back a subset.
+CHATBOTX_DEPLOY_SERVICES=builder,realtime \
+  ./scripts/deployment/production.sh rollback
+```
+
+A successful manual rollback marks the server for reconciliation. Selective
+activation is then refused until one full deployment succeeds, because GitHub's
+last successful deployment no longer represents the images actually running
+on the server. Run the workflow manually once (manual runs are full deploys)
+before returning to normal selective pushes.
 
 Normal deployments retain build cache because that makes subsequent builds
 substantially faster. `clean` never removes volumes, active images, the current
 release, the rollback release, or the latest completed build. Review old
 database backups manually when disk usage approaches the 25 GB safety threshold.
-Rollback restores application images only; database migrations are not reversed.
-Use the timestamped PostgreSQL backup when a schema rollback is actually needed.
+Rollback restores application images only; database migrations are not
+reversed automatically because restoring a database after traffic resumes can
+discard new writes. Production migrations must remain backward-compatible with
+the immediately previous application version. Use the verified timestamped
+PostgreSQL backup for a deliberate schema/data recovery when required.
 
 On the 4 CPU / 8 GB production profile, Builder uses a 1024 MB V8 old-space
 limit inside a 1536 MB container (`BUILDER_MEMORY_LIMIT`). This leaves native

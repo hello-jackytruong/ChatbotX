@@ -35,6 +35,12 @@ vi.mock("@/features/conversations/conversation-filter", () => ({
   ConversationFilter: () => <div />,
 }))
 
+vi.mock("@/features/conversations/conversation-inbox-filter", () => ({
+  ConversationInboxFilter: () => (
+    <div data-testid="conversation-inbox-filter" />
+  ),
+}))
+
 vi.mock("@/features/contacts/create-contact-dialog", () => ({
   CreateContactDialog: () => <div />,
 }))

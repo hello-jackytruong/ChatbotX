@@ -174,7 +174,7 @@ services:
   builder:
     <<: *app-common
     init: true
-    image: chatbotx-builder:${CHATBOTX_IMAGE_TAG:-local}
+    image: chatbotx-builder:${CHATBOTX_BUILDER_IMAGE_TAG:-local}
     build:
       <<: *app-build
       dockerfile: apps/builder/docker/Dockerfile
@@ -215,7 +215,7 @@ services:
 
   worker:
     <<: *app-common
-    image: chatbotx-worker:${CHATBOTX_IMAGE_TAG:-local}
+    image: chatbotx-worker:${CHATBOTX_WORKER_IMAGE_TAG:-local}
     build:
       <<: *app-build
       dockerfile: apps/worker/docker/Dockerfile
@@ -238,6 +238,16 @@ services:
       DATABASE_POOL_MAX: ${WORKER_DATABASE_POOL_MAX:-40}
       SHARD_POOL_MAX: ${WORKER_SHARD_POOL_MAX:-20}
       SCHEDULER_BUCKET_RANGE: ${SCHEDULER_BUCKET_RANGE:-0-255}
+    healthcheck:
+      # Tini is PID 1 and the worker entrypoint execs Node as its child. This
+      # catches a missing/crashed worker process without needing an HTTP port.
+      test:
+        - CMD-SHELL
+        - 'set -- $$(cat /proc/1/task/1/children); [ "$$#" -gt 0 ] && kill -0 "$$1"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     stop_grace_period: 1m
     deploy:
       resources:
@@ -247,7 +257,7 @@ services:
           pids: 512
 
   javascript-executor:
-    image: chatbotx-javascript-executor:${CHATBOTX_IMAGE_TAG:-local}
+    image: chatbotx-javascript-executor:${CHATBOTX_JAVASCRIPT_EXECUTOR_IMAGE_TAG:-local}
     build:
       <<: *app-build
       dockerfile: apps/javascript-executor/docker/Dockerfile
@@ -283,7 +293,7 @@ services:
   realtime:
     <<: *app-common
     init: true
-    image: chatbotx-realtime:${CHATBOTX_IMAGE_TAG:-local}
+    image: chatbotx-realtime:${CHATBOTX_REALTIME_IMAGE_TAG:-local}
     build:
       <<: *app-build
       dockerfile: apps/realtime/docker/Dockerfile

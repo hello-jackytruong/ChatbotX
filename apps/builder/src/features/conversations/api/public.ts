@@ -9,6 +9,7 @@ import {
   conversationBotCategories,
   conversationStatuses,
 } from "@chatbotx.io/database/partials"
+import { zodBigintAsString } from "@chatbotx.io/utils"
 import z from "zod"
 import { successResponse } from "@/features/common/schema"
 import { contactFilterCriteriaSchema } from "@/features/contact-filter"
@@ -72,6 +73,14 @@ const listConversationsQueryRequest = z.object({
   channel: channelTypes
     .optional()
     .describe("Restrict to conversations on this channel."),
+  inboxIds: jsonQueryParam(
+    z
+      .array(zodBigintAsString())
+      .optional()
+      .describe(
+        "Restrict to conversations associated with any of these inbox ids. Sent as a JSON-encoded array.",
+      ),
+  ),
   status: jsonQueryParam(
     z
       .array(conversationStatuses)
