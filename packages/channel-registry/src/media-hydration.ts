@@ -12,6 +12,7 @@ import {
   updateAttachmentOrThrow,
   WA_MEDIA_PREFIX,
 } from "@chatbotx.io/business"
+import { resolveMessengerProfile } from "@chatbotx.io/business/messenger-profile-provider"
 import { HTTP_URL_RE } from "@chatbotx.io/business/utils"
 import { db } from "@chatbotx.io/database/client"
 import {
@@ -53,10 +54,12 @@ import {
 import { isUrlOnHosts, META_MEDIA_HOSTS } from "@chatbotx.io/utils/live-media"
 import {
   cancelBodyQuietly,
+  fetchMediaWithLimits,
   MediaEmptyBodyError,
   MediaTooLargeError,
   readBodyWithCap as readBodyWithCapPrimitive,
 } from "@chatbotx.io/utils/media-download"
+import { storeIncomingImage } from "@chatbotx.io/utils/store-incoming-image"
 import {
   type IntegrationRow,
   integrationService,
@@ -1350,20 +1353,49 @@ const mirrorContactAvatar = async (
 
   let avatar: string
   try {
-    const { ctx, integration } =
+    const { ctx, integration, integrationRow } =
       await resolveIntegrationContextFromContactInbox({
         workspaceId: input.workspaceId,
         contactInbox,
       })
-    const profile = await integration.runChannelHandler(
-      "contact",
-      "getProfile",
-      {
+    const getMetaProfile = () =>
+      integration.runChannelHandler("contact", "getProfile", {
         ctx,
         data: { sourceId: contactInbox.sourceId },
-      },
-    )
-    avatar = profile?.avatar || buildNoAvatarSentinel()
+      })
+    if (contactInbox.channel === "messenger" && integrationRow) {
+      const row = integrationRow as typeof integrationRow & {
+        id: string
+        pageId: string
+      }
+      const profile = await resolveMessengerProfile({
+        workspaceId: input.workspaceId,
+        integrationMessengerId: row.id,
+        pageId: row.pageId,
+        sourceId: contactInbox.sourceId,
+        includeAvatar: true,
+        getMetaProfile,
+      })
+      if (profile?.provider === "pancake" && profile.avatarUrl) {
+        const media = await fetchMediaWithLimits(profile.avatarUrl)
+        const stored = media
+          ? await storeIncomingImage({
+              uploader: ctx.uploader,
+              key: `public/space/${ctx.storagePrefix}/avatars/${createId()}`,
+              bytes: Buffer.from(media.bytes),
+              mimeType: media.mimeType,
+              profile: "avatar",
+              acl: "public-read",
+            })
+          : null
+        avatar = stored?.originPath || buildNoAvatarSentinel()
+      } else {
+        avatar = profile?.avatar || buildNoAvatarSentinel()
+      }
+    } else {
+      const profile = await getMetaProfile()
+      avatar = profile?.avatar || buildNoAvatarSentinel()
+    }
   } catch (err) {
     return await storeNoAvatarSentinel(input, contact.id, err)
   }

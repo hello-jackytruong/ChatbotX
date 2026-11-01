@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "Isolated Messenger profile backfill"
-status: pending
+status: completed
 effort: "medium"
 ---
 
@@ -87,10 +87,10 @@ messages or changes the current history-backfill run model.
 
 ## Success Criteria
 
-- [ ] Admin can choose Pancake, Meta, or both; Pancake is the default/first.
-- [ ] Run is workspace/Page scoped, resumable, cancelable, and idempotent.
-- [ ] Existing profile values and all message/history flows are preserved.
-- [ ] Jobs and status surfaces never contain plaintext credentials.
+- [x] Admin can choose Pancake, Meta, or both; Pancake is the default/first.
+- [x] Run is workspace/Page scoped, resumable, cancelable, and idempotent.
+- [x] Existing profile values and all message/history flows are preserved.
+- [x] Jobs and status surfaces never contain plaintext credentials.
 
 ## Risks and rollback
 

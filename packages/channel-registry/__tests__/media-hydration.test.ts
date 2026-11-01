@@ -65,6 +65,15 @@ vi.mock("@chatbotx.io/business", () => ({
   WA_MEDIA_PREFIX: "wa-media:",
 }))
 
+vi.mock("@chatbotx.io/business/messenger-profile-provider", () => ({
+  resolveMessengerProfile: async (input: {
+    getMetaProfile: () => Promise<Record<string, unknown> | null>
+  }) => {
+    const profile = await input.getMetaProfile()
+    return profile ? { ...profile, provider: "meta" } : null
+  },
+}))
+
 vi.mock("@chatbotx.io/database/client", () => ({ db: {} }))
 
 // Mirrored keys are channel-first: workspace/<channel>/<workspace>/<integration>/<date>/<id>.

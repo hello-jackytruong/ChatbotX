@@ -9,6 +9,10 @@ import {
   telegramIntegrationService,
   zaloIntegrationService,
 } from "@chatbotx.io/business"
+import {
+  resolveMessengerProfile,
+  toIncomingContact,
+} from "@chatbotx.io/business/messenger-profile-provider"
 import type { InstagramAuthValue } from "@chatbotx.io/integration-instagram/schema"
 import type { MessengerAuthValue } from "@chatbotx.io/integration-messenger/schema"
 import type { TelegramAuthValue } from "@chatbotx.io/integration-telegram"
@@ -83,14 +87,26 @@ export const profileFetcherFactories: Record<
         inboxId,
         workspaceId,
       })
-      return fetchChannelProfile<MessengerAuthValue>({
+      const profile = await resolveMessengerProfile({
         workspaceId,
+        integrationMessengerId: row.id,
+        pageId: row.pageId,
         sourceId,
-        integrationType: "messenger",
-        row: { ...row, auth: row.auth as MessengerAuthValue },
-        runChannelHandler: (group, name, props) =>
-          integrations.messenger.runChannelHandler(group, name, props),
+        includeAvatar: false,
+        getMetaProfile: async () =>
+          (await fetchChannelProfile<MessengerAuthValue>({
+            workspaceId,
+            sourceId,
+            integrationType: "messenger",
+            row: { ...row, auth: row.auth as MessengerAuthValue },
+            runChannelHandler: (group, name, props) =>
+              integrations.messenger.runChannelHandler(group, name, props),
+          })) ?? null,
       })
+      if (!profile) {
+        return { sourceId }
+      }
+      return toIncomingContact(profile)
     },
   instagram:
     ({ workspaceId, inboxId, sourceId }) =>

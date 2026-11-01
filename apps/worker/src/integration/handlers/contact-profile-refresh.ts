@@ -7,6 +7,10 @@ import {
   resolveInboundProfileNameSource,
 } from "@chatbotx.io/business"
 import { isInboundConversationMessage } from "@chatbotx.io/business/contact-profile-rules"
+import {
+  resolveMessengerProfile,
+  toIncomingContact,
+} from "@chatbotx.io/business/messenger-profile-provider"
 import type { ChannelType } from "@chatbotx.io/database/partials"
 import type { ContactInboxModel, InboxModel } from "@chatbotx.io/database/types"
 import type { IncomingContact, IncomingMessage } from "@chatbotx.io/sdk"
@@ -91,15 +95,37 @@ const inboundProfileFetchers: Record<
   channelApi:
     ({ inbox, contactInbox }) =>
     async () => {
-      const { integration, ctx } =
+      const { integration, ctx, integrationRow } =
         await resolveIntegrationContextFromContactInbox({
           workspaceId: inbox.workspaceId,
           contactInbox,
         })
-      return integration.runChannelHandler("contact", "getProfile", {
-        ctx,
-        data: { sourceId: contactInbox.sourceId },
+      const getMetaProfile = (includeAvatar = false) =>
+        integration.runChannelHandler("contact", "getProfile", {
+          ctx,
+          data: includeAvatar
+            ? { sourceId: contactInbox.sourceId }
+            : { sourceId: contactInbox.sourceId, includeAvatar: false },
+        })
+      if (inbox.channel !== "messenger" || !integrationRow) {
+        return getMetaProfile(true)
+      }
+      const row = integrationRow as typeof integrationRow & {
+        id: string
+        pageId: string
+      }
+      const profile = await resolveMessengerProfile({
+        workspaceId: inbox.workspaceId,
+        integrationMessengerId: row.id,
+        pageId: row.pageId,
+        sourceId: contactInbox.sourceId,
+        includeAvatar: false,
+        getMetaProfile: () => getMetaProfile(false),
       })
+      if (!profile) {
+        return { sourceId: contactInbox.sourceId }
+      }
+      return toIncomingContact(profile)
     },
 }
 

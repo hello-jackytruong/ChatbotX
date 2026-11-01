@@ -23,6 +23,7 @@ export const LowJobAction = {
   coexistAttachmentDownload: "coexistAttachmentDownload",
   updateContactAvatar: "updateContactAvatar",
   replayMissedComment: "replayMissedComment",
+  messengerProfileBackfill: "messengerProfileBackfill",
 } as const
 
 export type LowJobAction = (typeof LowJobAction)[keyof typeof LowJobAction]
@@ -82,10 +83,22 @@ export type LowJobReplayMissedComment = {
   }
 }
 
+export type LowJobMessengerProfileBackfill = {
+  type: typeof LowJobAction.messengerProfileBackfill
+  data: {
+    workspaceId: string
+    runId: string
+  }
+}
+
 export type LowJobData =
   | LowJobCoexistAttachmentDownload
   | LowJobUpdateContactAvatar
   | LowJobReplayMissedComment
+  | LowJobMessengerProfileBackfill
+
+export const buildMessengerProfileBackfillJobId = (runId: string) =>
+  `messenger-profile-backfill-${runId}`
 
 export const lowQueue = isNoRedisEnv()
   ? fakeQueue

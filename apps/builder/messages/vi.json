@@ -5606,6 +5606,44 @@
       "verificationFailed": "Token không thể truy cập Trang Pancake này. Thông tin xác thực hiện tại không bị thay đổi."
     }
   },
+  "messengerProfileBackfill": {
+    "title": "Backfill hồ sơ liên hệ Messenger",
+    "description": "Bổ sung tên, giới tính và avatar còn thiếu cho toàn bộ liên hệ của Trang đã chọn. Lịch sử tin nhắn không bị thay đổi.",
+    "fields": {
+      "page": "Facebook Page",
+      "policy": "Nguồn hồ sơ"
+    },
+    "policies": {
+      "pancake": "Pancake (mặc định)",
+      "meta": "Facebook / Meta",
+      "pancakeThenMeta": "Pancake, sau đó Meta"
+    },
+    "notConfigured": "Chưa cấu hình token Pancake",
+    "missingOnly": "Chỉ bổ sung trường còn thiếu, không ghi đè dữ liệu liên hệ hiện có.",
+    "start": "Bắt đầu backfill hồ sơ",
+    "cancel": "Hủy",
+    "retry": "Thử lại",
+    "empty": "Chưa có lượt backfill hồ sơ nào.",
+    "status": {
+      "init": "Đang chờ",
+      "running": "Đang chạy",
+      "succeeded": "Hoàn thành",
+      "partial": "Hoàn thành một phần",
+      "failed": "Thất bại",
+      "cancelled": "Đã hủy"
+    },
+    "counters": {
+      "currentScan": "Đã quét",
+      "updatedCount": "Đã cập nhật",
+      "avatarCount": "Avatar",
+      "skippedCount": "Bỏ qua",
+      "failedCount": "Thất bại"
+    },
+    "messages": {
+      "scheduled": "Đã lên lịch backfill hồ sơ.",
+      "failed": "Không thể cập nhật lượt backfill hồ sơ."
+    }
+  },
   "contactScan": {
     "menu": {
       "importFromFile": "Nhập từ tệp",
