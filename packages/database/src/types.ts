@@ -107,6 +107,8 @@ export type IntegrationSendGridModel =
   typeof schema.integrationSendGridModel.$inferSelect
 export type IntegrationMessengerModel =
   typeof schema.integrationMessengerModel.$inferSelect
+export type MessengerPancakeCredentialModel =
+  typeof schema.messengerPancakeCredentialModel.$inferSelect
 export type IntegrationOpenAIModel =
   typeof schema.integrationOpenaiModel.$inferSelect
 export type IntegrationOutlookCalendarModel =

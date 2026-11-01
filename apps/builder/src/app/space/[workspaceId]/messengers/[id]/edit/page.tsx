@@ -3,11 +3,13 @@ import {
   aiHandoverSettingsService,
   inboxService,
 } from "@chatbotx.io/business"
+import { messengerPancakeCredentialService } from "@chatbotx.io/business/messenger-pancake-credential"
 import { notFound } from "next/navigation"
 
 import { AiHandoverSettingsCard } from "@/features/integration-ai-handover/components/ai-handover-settings-card"
 import { toApplyToAllStatus } from "@/features/integration-ai-handover/lib/bulk-run-resource"
 import { ConversationRoutingCard } from "@/features/integration-messenger/components/conversation-routing-card"
+import { PancakeCredentialCard } from "@/features/integration-messenger/pancake-credential/components/pancake-credential-card"
 import { findIntegrationMessenger } from "@/features/integration-messenger/queries"
 import { UpdateMessengerForm } from "@/features/integration-messenger/update-messenger-form"
 import { withWorkspaceIdAndIdSchema } from "@/features/workspaces/schema/resource"
@@ -36,16 +38,27 @@ export default async function UpdateMessengerPage(props: {
   // A platform support session sees the AI hand-over card but cannot change it.
   const canEditAiHandover =
     isSuperAdmin && !currentUserAndWorkspace?.isSupportSession
+  const canEditPancakeCredential =
+    isSuperAdmin && !currentUserAndWorkspace?.isSupportSession
   const pageRef = { workspaceId, inboxId: integrationMessenger.inboxId }
-  const [inbox, aiHandoverSettings, activeAiHandoverSettings, applyToAllState] =
-    await Promise.all([
-      inboxService.find({
-        where: { id: integrationMessenger.inboxId, workspaceId },
-      }),
-      aiHandoverSettingsService.find(pageRef),
-      aiHandoverSettingsService.findActive(pageRef),
-      aiHandoverBulkRunService.findStatus(pageRef),
-    ])
+  const [
+    inbox,
+    aiHandoverSettings,
+    activeAiHandoverSettings,
+    applyToAllState,
+    pancakeCredentialStatus,
+  ] = await Promise.all([
+    inboxService.find({
+      where: { id: integrationMessenger.inboxId, workspaceId },
+    }),
+    aiHandoverSettingsService.find(pageRef),
+    aiHandoverSettingsService.findActive(pageRef),
+    aiHandoverBulkRunService.findStatus(pageRef),
+    messengerPancakeCredentialService.getStatus({
+      workspaceId,
+      integrationMessengerId: id,
+    }),
+  ])
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,6 +71,12 @@ export default async function UpdateMessengerPage(props: {
         handoverResumeFlowId={integrationMessenger.handoverResumeFlowId}
         integrationMessengerId={id}
         isSuperAdmin={isSuperAdmin}
+        workspaceId={workspaceId}
+      />
+      <PancakeCredentialCard
+        canEdit={canEditPancakeCredential}
+        integrationMessengerId={id}
+        status={pancakeCredentialStatus}
         workspaceId={workspaceId}
       />
       <AiHandoverSettingsCard

@@ -129,6 +129,7 @@ import { messageRelations } from "./message"
 import { messagingAdOperationRelations } from "./messaging-ad-operation"
 import { messagingAdsConnectionRelations } from "./messaging-ads-connection"
 import { messengerMessageTemplateRelations } from "./messenger-message-template"
+import { messengerPancakeCredentialRelations } from "./messenger-pancake-credential"
 import { messengerWelcomeMessageFlowRelations } from "./messenger-welcome-message-flow"
 import { metaCapiEventRelations } from "./meta-capi-event"
 import { metaCatalogRelations } from "./meta-catalog"
@@ -250,6 +251,7 @@ export const relations = {
   ...aiHandoverBulkRunRelations,
   ...aiHandoverSettingsRelations,
   ...messengerMessageTemplateRelations,
+  ...messengerPancakeCredentialRelations,
   ...integrationWebchatRelations,
   ...integrationZaloRelations,
   ...invitationRelations,
