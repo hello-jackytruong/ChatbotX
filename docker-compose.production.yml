@@ -1,0 +1,330 @@
+name: chatbotx-production
+
+# Production stack built from this checkout so local ChatbotX changes are
+# included. Host Nginx is expected to terminate TLS and proxy:
+#   /         -> http://127.0.0.1:3123
+#   /ws/      -> http://127.0.0.1:1999/   (WebSocket upgrade required)
+#   /storage/ -> http://127.0.0.1:9000/chatbotx/
+#
+# Required in .env before deployment:
+#   APP_URL=https://your-domain.example
+#   POSTGRES_PASSWORD=<strong-random-password>
+# The existing application secrets and provider credentials are also loaded
+# from .env. Never commit that file.
+# Deploy with ./scripts/deployment/production.sh deploy. It builds sequentially inside a
+# resource-limited BuildKit instance before replacing any running container.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-file: "5"
+    max-size: "20m"
+
+x-app-build: &app-build
+  context: .
+
+x-app-common: &app-common
+  env_file:
+    - ./.env
+  restart: unless-stopped
+  networks:
+    - app
+  extra_hosts:
+    - host.docker.internal:host-gateway
+  security_opt:
+    - no-new-privileges:true
+  logging: *default-logging
+
+x-app-environment: &app-environment
+  NODE_ENV: production
+  BETTER_AUTH_URL: ${APP_URL:?Set APP_URL in .env, for example https://app.example.com}
+  NEXT_PUBLIC_BUILDER_URL: ${APP_URL:?Set APP_URL in .env, for example https://app.example.com}
+  NEXT_PUBLIC_STORAGE_URL: ${APP_URL:?Set APP_URL in .env, for example https://app.example.com}/storage
+  NEXT_PUBLIC_INTERNAL_STORAGE_URL: http://filesystem:9000/${S3_BUCKET:-chatbotx}/
+  FORCE_PUBLIC_HTTPS: "true"
+  DATABASE_URL: postgresql://${POSTGRES_USER:-chatbotx}:${POSTGRES_PASSWORD:?Set a strong POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-chatbotx}?schema=public
+  REDIS_URL: redis://redis:6379
+  S3_ENDPOINT: http://filesystem:9000
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set S3_ACCESS_KEY_ID in .env}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3_SECRET_ACCESS_KEY in .env}
+  S3_BUCKET: ${S3_BUCKET:-chatbotx}
+  S3_REGION: ${S3_REGION:-us-west-2}
+  REALTIME_BROADCAST_SECRET: ${REALTIME_BROADCAST_SECRET:?Set REALTIME_BROADCAST_SECRET in .env}
+  JAVASCRIPT_EXECUTOR_URL: http://javascript-executor:3210
+  JAVASCRIPT_EXECUTOR_TOKEN: ${JAVASCRIPT_EXECUTOR_TOKEN:?Set JAVASCRIPT_EXECUTOR_TOKEN in .env}
+
+services:
+  postgres:
+    image: timescale/timescaledb-ha:pg18.4-ts2.27.2-all
+    restart: unless-stopped
+    networks:
+      - app
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatbotx}
+      POSTGRES_USER: ${POSTGRES_USER:-chatbotx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a strong POSTGRES_PASSWORD in .env}
+    command:
+      - postgres
+      - -c
+      - log_statement=${POSTGRES_LOG_STATEMENT:-none}
+    volumes:
+      - postgres-data:/home/postgres/pgdata
+    shm_size: 256mb
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -d "$${POSTGRES_DB}" -U "$${POSTGRES_USER}"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    stop_grace_period: 1m
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1280M
+          pids: 512
+    logging: *default-logging
+
+  redis:
+    image: redis:8.8.0-alpine
+    restart: unless-stopped
+    networks:
+      - app
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+          pids: 256
+    logging: *default-logging
+
+  filesystem:
+    image: rustfs/rustfs:1.0.0-beta.8
+    restart: unless-stopped
+    networks:
+      - app
+    command: server /data --console-address ":9001"
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY_ID:?Set S3_ACCESS_KEY_ID in .env}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3_SECRET_ACCESS_KEY in .env}
+      RUSTFS_API_CORS_ALLOW_ORIGIN: ${APP_URL:?Set APP_URL in .env}
+    ports:
+      - 127.0.0.1:${STORAGE_PORT:-9000}:9000
+      - 127.0.0.1:${STORAGE_CONSOLE_PORT:-9001}:9001
+    volumes:
+      - filesystem-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - sh
+        - -c
+        - curl -fsS http://127.0.0.1:9000/health && curl -fsS http://127.0.0.1:9001/rustfs/console/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+          pids: 256
+    logging: *default-logging
+
+  filesystem-init:
+    image: rustfs/rc:v0.1.22
+    restart: "no"
+    networks:
+      - app
+    depends_on:
+      filesystem:
+        condition: service_healthy
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY_ID:?Set S3_ACCESS_KEY_ID in .env}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3_SECRET_ACCESS_KEY in .env}
+      S3_BUCKET: ${S3_BUCKET:-chatbotx}
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        rc alias set local http://filesystem:9000 "$${RUSTFS_ACCESS_KEY}" "$${RUSTFS_SECRET_KEY}"
+        rc mb "local/$${S3_BUCKET}" --ignore-existing
+        touch /tmp/empty
+        rc cp /tmp/empty "local/$${S3_BUCKET}/public/"
+        rc anonymous set public "local/$${S3_BUCKET}/public"
+    logging: *default-logging
+
+  builder:
+    <<: *app-common
+    init: true
+    image: chatbotx-builder:${CHATBOTX_IMAGE_TAG:-local}
+    build:
+      <<: *app-build
+      dockerfile: apps/builder/docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-environment
+      # scripts/deployment/production.sh backs up and migrates before cutover.
+      RUN_DB_MIGRATE: "false"
+      RUN_DB_SEED: "false"
+      DATABASE_POOL_MAX: ${BUILDER_DATABASE_POOL_MAX:-20}
+    ports:
+      - 127.0.0.1:${APP_PORT:-3123}:3000
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1280M
+          pids: 512
+
+  worker:
+    <<: *app-common
+    image: chatbotx-worker:${CHATBOTX_IMAGE_TAG:-local}
+    build:
+      <<: *app-build
+      dockerfile: apps/worker/docker/Dockerfile
+    networks:
+      - app
+      - javascript-executor
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem-init:
+        condition: service_completed_successfully
+      javascript-executor:
+        condition: service_healthy
+      builder:
+        condition: service_healthy
+    environment:
+      <<: *app-environment
+      DATABASE_POOL_MAX: ${WORKER_DATABASE_POOL_MAX:-40}
+      SHARD_POOL_MAX: ${WORKER_SHARD_POOL_MAX:-20}
+      SCHEDULER_BUCKET_RANGE: ${SCHEDULER_BUCKET_RANGE:-0-255}
+    stop_grace_period: 1m
+    deploy:
+      resources:
+        limits:
+          cpus: "2.50"
+          memory: 1792M
+          pids: 512
+
+  javascript-executor:
+    image: chatbotx-javascript-executor:${CHATBOTX_IMAGE_TAG:-local}
+    build:
+      <<: *app-build
+      dockerfile: apps/javascript-executor/docker/Dockerfile
+    restart: unless-stopped
+    networks:
+      - javascript-executor
+    environment:
+      JAVASCRIPT_EXECUTOR_TOKEN: ${JAVASCRIPT_EXECUTOR_TOKEN:?Set JAVASCRIPT_EXECUTOR_TOKEN in .env}
+      MAX_CONCURRENCY: ${JAVASCRIPT_EXECUTOR_MAX_CONCURRENCY:-2}
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    pids_limit: 128
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+          pids: 128
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:3210/health]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s
+    logging: *default-logging
+
+  realtime:
+    <<: *app-common
+    init: true
+    image: chatbotx-realtime:${CHATBOTX_IMAGE_TAG:-local}
+    build:
+      <<: *app-build
+      dockerfile: apps/realtime/docker/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      builder:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_BUILDER_URL: ${APP_URL:?Set APP_URL in .env}
+      REALTIME_BROADCAST_SECRET: ${REALTIME_BROADCAST_SECRET:?Set REALTIME_BROADCAST_SECRET in .env}
+      REDIS_URL: redis://redis:6379
+      REALTIME_HOST: 0.0.0.0
+      PORT: 1999
+    ports:
+      - 127.0.0.1:${REALTIME_PORT:-1999}:1999
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:1999/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+          pids: 256
+
+networks:
+  app:
+    driver: bridge
+  javascript-executor:
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres-data:
+  redis-data:
+  filesystem-data:
