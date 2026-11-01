@@ -335,6 +335,23 @@ vi.mock("@chatbotx.io/database/schema", () => {
   }
 })
 
+vi.mock("@chatbotx.io/business/messenger-profile-provider", () => ({
+  resolveMessengerProfile: async (input: {
+    getMetaProfile: () => Promise<Record<string, unknown> | null>
+  }) => {
+    try {
+      const profile = await input.getMetaProfile()
+      return profile ? { ...profile, provider: "meta" } : null
+    } catch {
+      return null
+    }
+  },
+  toIncomingContact: (profile: Record<string, unknown>) => {
+    const { provider: _provider, avatarUrl: _avatarUrl, ...contact } = profile
+    return contact
+  },
+}))
+
 // Mirror of the real capability table
 // (packages/business/src/contact/profile-refresh/rules.ts), matching the
 // convention already used in received-message.test.ts.

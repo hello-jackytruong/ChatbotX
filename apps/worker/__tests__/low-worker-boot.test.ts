@@ -22,6 +22,7 @@ const workerState = vi.hoisted(() => ({
   ensureBootstrapped: vi.fn(async () => undefined),
   coexistAttachmentDownload: vi.fn(async () => undefined),
   updateContactAvatar: vi.fn(async () => undefined),
+  runMessengerProfileBackfill: vi.fn(async () => undefined),
   captureContactProfileSnapshot: vi.fn(async () => undefined),
   receiveComment: vi.fn(async () => undefined),
   finishMissedCommentReplay: vi.fn(async () => undefined),
@@ -54,6 +55,7 @@ vi.mock("@chatbotx.io/worker-config", () => ({
   LowJobAction: {
     coexistAttachmentDownload: "coexistAttachmentDownload",
     updateContactAvatar: "updateContactAvatar",
+    messengerProfileBackfill: "messengerProfileBackfill",
     replayMissedComment: "replayMissedComment",
   },
   queueNames: {
@@ -112,6 +114,10 @@ vi.mock("../src/integration/handlers/contact/update-avatar", () => ({
   updateContactAvatar: workerState.updateContactAvatar,
 }))
 
+vi.mock("../src/integration/handlers/messenger-profile-backfill", () => ({
+  runMessengerProfileBackfill: workerState.runMessengerProfileBackfill,
+}))
+
 vi.mock("../src/integration/handlers/capture-contact-profile-snapshot", () => ({
   captureContactProfileSnapshot: workerState.captureContactProfileSnapshot,
 }))
@@ -130,6 +136,7 @@ describe("low worker process boot", () => {
   beforeEach(() => {
     workerState.coexistAttachmentDownload.mockClear()
     workerState.updateContactAvatar.mockClear()
+    workerState.runMessengerProfileBackfill.mockClear()
     workerState.captureContactProfileSnapshot.mockClear()
     workerState.receiveComment.mockClear()
     workerState.finishMissedCommentReplay.mockClear()
@@ -249,6 +256,24 @@ describe("low worker process boot", () => {
     expect(workerState.coexistAttachmentDownload).not.toHaveBeenCalled()
     expect(workerState.withBlockedOwnerGuard).toHaveBeenCalledWith(
       "ws-2",
+      expect.any(Function),
+    )
+  })
+
+  test("routes messengerProfileBackfill to its handler with the job payload", async () => {
+    const [worker] = workerState.capturedWorkers
+    const data = {
+      workspaceId: "ws-3",
+      runId: "run-3",
+    }
+
+    await worker?.processor({
+      data: { type: "messengerProfileBackfill", data },
+    })
+
+    expect(workerState.runMessengerProfileBackfill).toHaveBeenCalledWith(data)
+    expect(workerState.withBlockedOwnerGuard).toHaveBeenCalledWith(
+      "ws-3",
       expect.any(Function),
     )
   })
