@@ -408,6 +408,7 @@ describe("coexistMessengerSync", () => {
     await coexistMessengerSync({ runId, integrationId, workspaceId })
 
     expect(mockListConversations).toHaveBeenCalledOnce()
+    expect(mockBulkImportContacts).toHaveBeenCalledOnce()
     expect(mockListMessages).toHaveBeenCalledOnce()
     expect(mockBulkImportMessages).toHaveBeenCalledOnce()
 
@@ -426,6 +427,39 @@ describe("coexistMessengerSync", () => {
     expect(bulkArgs.contactInboxId).toBe("ci-1")
     expect(bulkArgs.messages).toHaveLength(1)
     expect(bulkArgs.messages[0]?.sourceId).toBe("msg-xyz")
+  })
+
+  it("upserts recent contacts before importing their messages", async () => {
+    mockFindByIdMessenger.mockResolvedValue(fakeIntegration)
+    mockFindOrFail.mockResolvedValue(fakeInbox)
+    mockListConversations.mockResolvedValueOnce({
+      data: [makeConversation("conv-recent", "user-recent")],
+      after: undefined,
+    })
+    wireSelectChain(defaultRunRow(), [
+      { ...defaultContactLink, sourceId: "user-recent" },
+    ])
+    mockListMessages.mockResolvedValueOnce({
+      data: [makeMessage("msg-recent", "user-recent")],
+      after: undefined,
+    })
+
+    await coexistMessengerSync({ runId, integrationId, workspaceId })
+
+    expect(mockBulkImportContacts).toHaveBeenCalledWith({
+      inbox: fakeInbox,
+      workspaceId,
+      contacts: [
+        {
+          sourceId: "user-recent",
+          firstName: "Bob",
+          lastName: "Customer",
+        },
+      ],
+    })
+    expect(mockBulkImportContacts.mock.invocationCallOrder[0]).toBeLessThan(
+      mockListMessages.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
+    )
   })
 
   it("does not eagerly enqueue Messenger attachment downloads after import", async () => {
@@ -777,6 +811,46 @@ describe("coexistMessengerSync", () => {
 
     expect(mockListConversations).not.toHaveBeenCalled()
     expect(mockBulkImportMessages).not.toHaveBeenCalled()
+  })
+
+  it("releases the run before enqueuing a chunk continuation", async () => {
+    mockFindByIdMessenger.mockResolvedValue(fakeIntegration)
+    mockFindOrFail.mockResolvedValue(fakeInbox)
+    const now = vi
+      .spyOn(Date, "now")
+      .mockReturnValueOnce(0)
+      .mockReturnValue(4 * 60 * 1000)
+
+    await coexistMessengerSync({ runId, integrationId, workspaceId })
+
+    now.mockRestore()
+    expect(mockListConversations).not.toHaveBeenCalled()
+    expect(mockUpdateProgress).toHaveBeenCalledWith({
+      runId,
+      fields: { status: "init", lastHeartbeatAt: expect.any(Date) },
+    })
+    expect(mockQueueAdd).toHaveBeenCalledOnce()
+    expect(mockUpdateProgress.mock.invocationCallOrder[0]).toBeLessThan(
+      mockQueueAdd.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
+    )
+  })
+
+  it("does not reset a continuation that may already have been enqueued", async () => {
+    mockFindByIdMessenger.mockResolvedValue(fakeIntegration)
+    mockFindOrFail.mockResolvedValue(fakeInbox)
+    mockQueueAdd.mockRejectedValueOnce(new Error("ambiguous Redis response"))
+    const now = vi
+      .spyOn(Date, "now")
+      .mockReturnValueOnce(0)
+      .mockReturnValue(4 * 60 * 1000)
+
+    await coexistMessengerSync({ runId, integrationId, workspaceId })
+
+    now.mockRestore()
+    const releases = mockUpdateProgress.mock.calls.filter(
+      ([input]) => input.fields?.status === "init",
+    )
+    expect(releases).toHaveLength(1)
   })
 
   it("skips conversations whose updated_time is newer than the within-run frontier", async () => {

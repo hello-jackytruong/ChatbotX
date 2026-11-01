@@ -30,6 +30,15 @@ export const env = createEnv({
       .min(1)
       .max(200)
       .default(10),
+    // Historical messages stored per Messenger conversation, measured back
+    // from that conversation's latest activity. Keep bounded so an accidental
+    // value cannot turn one Page connection into an unbounded Graph crawl.
+    MESSENGER_HISTORY_LOOKBACK_DAYS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(3650)
+      .default(90),
     // Every outbound send (comment replies, flow steps, broadcasts, inbox
     // messages) shares the `chat` queue, so its parallelism caps how fast any
     // of them leave. Defaults to the shared worker default.

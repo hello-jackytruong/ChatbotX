@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "backfill:messenger-avatars": "dotenv -e ../../.env -- tsx scripts/backfill-messenger-avatars.ts",
     "backfill:messenger-webhook-fields": "dotenv -e ../../.env -- tsx scripts/resubscribe-messenger-webhook-fields.ts",
     "backfill:whatsapp-webhook-fields": "dotenv -e ../../.env -- tsx scripts/resubscribe-whatsapp-webhook-fields.ts",
     "build": "tsdown",

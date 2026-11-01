@@ -140,6 +140,7 @@ async function walkConversationsPages(
   phaseName: "contacts" | "messages",
   frontier: Date | null,
   onPage: PageHandler,
+  maxPages = Number.POSITIVE_INFINITY,
 ): Promise<PhaseResult> {
   const { runId, pageId, jobStart } = ctx
   let oldestConvProcessed: Date | null = frontier
@@ -191,15 +192,16 @@ async function walkConversationsPages(
 
     pageCursor = conversations.after
 
-    if (!pageCursor || filtered.stopAll) {
+    if (!pageCursor || filtered.stopAll || pageNumber >= maxPages) {
       return { done: true, oldestConvProcessed, pageNumber }
     }
   }
 }
 
 /**
- * Phase 1 — walk `/me/conversations` DESC, dedup participants, bulk upsert
- * Contacts. Messages are NOT fetched here; avatars hydrate lazily on view.
+ * Phase 1 — prepare only the newest page of Contacts. Phase 2 upserts Contacts
+ * again per page before importing Messages, so recent inbox data becomes
+ * visible immediately instead of waiting for a full historical contact scan.
  */
 async function runContactsPhase(ctx: SyncContext): Promise<PhaseResult> {
   const { runId, workspaceId, pageId, inbox } = ctx
@@ -273,14 +275,15 @@ async function runContactsPhase(ctx: SyncContext): Promise<PhaseResult> {
 
       return filtered.oldestConvProcessed
     },
+    1,
   )
 }
 
 /**
- * Phase 2 — re-walk `/me/conversations` DESC and, per conversation, fetch its
- * messages via Graph, run phone/email discovery, then `bulkImportMessages`
- * with the resolved Contact/ContactInbox/Conversation triple. Frontier resets
- * to NULL on transition so this walk starts from newest.
+ * Phase 2 — re-walk `/me/conversations` DESC. Each page first upserts its
+ * Contacts, then fetches and stores Messages for those same conversations.
+ * Frontier resets to NULL on transition so the newest inbox data appears first
+ * while older history continues importing in the background.
  */
 async function runMessagesPhase(ctx: SyncContext): Promise<PhaseResult> {
   const { runId, workspaceId, pageId, inbox } = ctx
@@ -305,14 +308,40 @@ async function runMessagesPhase(ctx: SyncContext): Promise<PhaseResult> {
     async ({ filtered, pageNumber, currentOldest }) => {
       // Single pass: extract participant per conversation.
       const convsByParticipant = new Map<string, MessengerConversation>()
+      const contactBatch: IncomingContact[] = []
       for (const conv of filtered.convsToProcess) {
         const p = participantSourceId(conv, pageId)
         if (!p) {
           continue
         }
         convsByParticipant.set(p.sourceId, conv)
+        const { firstName, lastName } = splitName(p.name)
+        contactBatch.push({ sourceId: p.sourceId, firstName, lastName })
       }
       const sourceIds = Array.from(convsByParticipant.keys())
+
+      let pageImportedContacts = 0
+      let pageSkippedContacts = 0
+      try {
+        const contactResult = await bulkImportContacts({
+          inbox,
+          workspaceId,
+          contacts: contactBatch,
+        })
+        pageImportedContacts = contactResult.importedContacts
+        pageSkippedContacts = contactResult.skippedContacts
+        if (contactResult.failureReason) {
+          ctx.errorRef.current = `phase=messages page ${pageNumber} contacts: ${contactResult.failureReason}`
+        }
+      } catch (error) {
+        const errMsg =
+          error instanceof Error ? error.message : "Unknown bulk import error"
+        logger.error(
+          { error, runId, pageNumber },
+          "[coexist] Messenger page contact import failed",
+        )
+        ctx.errorRef.current = `phase=messages page ${pageNumber} contact import failed: ${errMsg}`
+      }
 
       // Single JOIN resolves ContactInbox + Conversation in one round trip.
       const linkBySource = new Map<string, ContactImportLink>()
@@ -457,8 +486,9 @@ async function runMessagesPhase(ctx: SyncContext): Promise<PhaseResult> {
       await coexistService.incrementProgress({
         runId,
         increments: {
+          importedContactCount: pageImportedContacts,
           importedMessageCount: pageImported,
-          skippedCount: pageSkipped,
+          skippedCount: pageSkipped + pageSkippedContacts,
           failedCount: pageFailed,
         },
         fields: {
@@ -477,10 +507,9 @@ async function runMessagesPhase(ctx: SyncContext): Promise<PhaseResult> {
 /**
  * Page-per-job historical Messenger sync. Splits into two sequential phases:
  *
- *  - **contacts** — walk `/me/conversations` DESC and bulk-upsert Contacts.
- *    No `/messages` calls; avatars hydrate lazily on view.
- *  - **messages** — re-walk `/me/conversations` DESC; per conv, fetch
- *    `/messages`, run discovery, bulk-insert into the resolved contact.
+ *  - **contacts** — prepare only the newest page of Contacts.
+ *  - **messages** — re-walk DESC; each page upserts Contacts and immediately
+ *    imports Messages before continuing toward older history.
  *
  * Phase boundary is persisted on `CoexistSyncRun.messengerSyncPhase`. When
  * phase=contacts finishes, the run flips to phase=messages with
@@ -702,8 +731,17 @@ export const coexistMessengerSync = async (
       break
     }
 
+    let continuationReleased = false
     if (continueLater) {
       try {
+        // Release the run before hot-chaining. Otherwise the continuation
+        // immediately sees a fresh `running` heartbeat and abandons, leaving
+        // the run parked until the stale-run scheduler eventually recovers it.
+        await coexistService.updateProgress({
+          runId,
+          fields: { status: "init", lastHeartbeatAt: new Date() },
+        })
+        continuationReleased = true
         await integrationQueue.add(
           IntegrationJobAction.coexistMessengerSync,
           {
@@ -726,10 +764,12 @@ export const coexistMessengerSync = async (
           { error, runId },
           "[coexist] Messenger continuation enqueue failed — fallback to scheduler",
         )
-        await coexistService.updateProgress({
-          runId,
-          fields: { status: "init", lastHeartbeatAt: new Date() },
-        })
+        if (!continuationReleased) {
+          await coexistService.updateProgress({
+            runId,
+            fields: { status: "init", lastHeartbeatAt: new Date() },
+          })
+        }
       }
     }
   } catch (error) {

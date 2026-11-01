@@ -13,6 +13,7 @@ import {
   type MessageTemplateEntity,
 } from "@chatbotx.io/sdk"
 import { z } from "zod"
+import { env } from "../../../env"
 import { logger } from "../../../lib/logger"
 import { isRetryable } from "../shared/http-retry"
 import type { HistoricalMessage } from "./bulk-historical-import"
@@ -154,16 +155,17 @@ const parseApiDate = (value: string | undefined): Date | undefined => {
 export const MAX_INLINE_RETRIES = 4
 
 /**
- * Only store messages whose `created_time` is within this window. Older
- * messages are still scanned for phone/email discovery but not persisted.
- * 90 days ≈ 3 months — matches the product spec.
+ * Only store messages whose `created_time` is within this operator-configured
+ * window. Older messages are still scanned for phone/email discovery but not
+ * persisted. Defaults to the original 90-day product window.
  */
-export const STORE_WINDOW_MS = 90 * 24 * 60 * 60 * 1000
+export const STORE_WINDOW_MS =
+  env.MESSENGER_HISTORY_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
 
 /**
- * Maximum number of message pages to scan beyond the 3-month storage window
- * purely for phone/email discovery. Prevents unbounded Graph API calls when
- * a conversation never contains extractable contact info.
+ * Maximum number of message pages to scan beyond the configured storage
+ * window purely for phone/email discovery. Prevents unbounded Graph API calls
+ * when a conversation never contains extractable contact info.
  */
 export const MAX_DISCOVERY_PAGES = 10
 
@@ -242,7 +244,7 @@ export type OnMessagePageFn = (
  *    were imported by a previous successful run; skipped from both storage
  *    and discovery. Setting `hitOlderBoundary=true` enables the discovery
  *    pagination budget.
- *  - `cutoff` (per-conv 3-month boundary): messages older than cutoff are
+ *  - `cutoff` (per-conversation configured boundary): older messages are
  *    skipped from storage but still scanned for phone/email discovery
  *    until `MAX_DISCOVERY_PAGES` is hit or both fields are found.
  *  - `totalMsg <= 100`: keep at least the 100 most recent regardless of
