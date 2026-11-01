@@ -190,6 +190,8 @@ services:
       # scripts/deployment/production.sh backs up and migrates before cutover.
       RUN_DB_MIGRATE: "false"
       RUN_DB_SEED: "false"
+      BUILDER_HOST: 0.0.0.0
+      NODE_OPTIONS: --max-old-space-size=${BUILDER_MAX_OLD_SPACE_MB:-1024}
       DATABASE_POOL_MAX: ${BUILDER_DATABASE_POOL_MAX:-20}
     ports:
       - 127.0.0.1:${APP_PORT:-3123}:3000
@@ -208,7 +210,7 @@ services:
       resources:
         limits:
           cpus: "1.50"
-          memory: 1280M
+          memory: ${BUILDER_MEMORY_LIMIT:-1536M}
           pids: 512
 
   worker:

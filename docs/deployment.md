@@ -164,6 +164,17 @@ database backups manually when disk usage approaches the 25 GB safety threshold.
 Rollback restores application images only; database migrations are not reversed.
 Use the timestamped PostgreSQL backup when a schema rollback is actually needed.
 
+On the 4 CPU / 8 GB production profile, Builder uses a 1024 MB V8 old-space
+limit inside a 1536 MB container (`BUILDER_MEMORY_LIMIT`). This leaves native
+allocation headroom and avoids the restart/502 loop caused by V8 reaching its
+smaller cgroup-derived default. Override `BUILDER_MAX_OLD_SPACE_MB` only with a
+matching container and host capacity; the heap must remain below the container
+limit. `BUILDER_HOST` defaults to `0.0.0.0` independently of Docker's
+container-ID `HOSTNAME`, keeping the loopback health check reachable. Worker,
+Realtime, and JavaScript Executor retain their existing cgroup-aware behavior;
+in particular, the multi-process `worker all` mode has no implicit per-child
+heap cap.
+
 ## Automatic database backups
 
 Install the root cron job once after the first successful deployment:
