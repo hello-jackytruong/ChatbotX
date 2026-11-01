@@ -11,7 +11,7 @@ import { logger } from "@/lib/log"
  * flow requests, so the resulting token can later be reused to list Pages
  * without a second OAuth round-trip. See `tryReuseFacebookSsoToken`.
  */
-export const FACEBOOK_SSO_SCOPES = MESSENGER_SCOPES
+export const FACEBOOK_SSO_SCOPES = ["email", ...MESSENGER_SCOPES]
 
 /**
  * Wired into `createAuth` as `upgradeOAuthAccount` for the Facebook SSO

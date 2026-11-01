@@ -29,6 +29,7 @@ describe("Messenger channel login scopes", () => {
   })
 
   test("still request everything the channel itself needs", () => {
+    expect(MESSENGER_SCOPES).not.toContain("email")
     expect(MESSENGER_SCOPES).toEqual(
       expect.arrayContaining([
         "pages_messaging",
@@ -41,9 +42,7 @@ describe("Messenger channel login scopes", () => {
 
   test("a Facebook SSO token is reusable once it carries every non-identity channel scope", () => {
     expect(MESSENGER_REUSE_REQUIRED_SCOPES).toEqual(
-      MESSENGER_SCOPES.filter(
-        (scope) => scope !== "email" && scope !== "public_profile",
-      ),
+      MESSENGER_SCOPES.filter((scope) => scope !== "public_profile"),
     )
     expect(MESSENGER_REUSE_REQUIRED_SCOPES).not.toContain(PAGE_EVENTS_SCOPE)
   })

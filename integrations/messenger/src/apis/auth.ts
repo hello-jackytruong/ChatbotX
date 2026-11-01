@@ -239,7 +239,6 @@ function sortConnectableFirst(
 const FACEBOOK_OAUTH_BASE = "https://www.facebook.com"
 
 export const MESSENGER_SCOPES = [
-  "email",
   "public_profile",
   "pages_manage_ads",
   "pages_manage_metadata",
@@ -254,14 +253,14 @@ export const MESSENGER_SCOPES = [
 ]
 
 /**
- * `MESSENGER_SCOPES` minus the two identity-only scopes (`email`,
- * `public_profile` are not Graph permissions and are implicitly present on
- * every token). Used to decide whether a Facebook SSO token already carries
- * every permission the Messenger connect flow would otherwise request, so the
- * page-connect step can reuse it instead of re-running OAuth.
+ * `MESSENGER_SCOPES` minus the identity-only `public_profile` scope, which is
+ * not a Graph permission and is implicitly present on every token. Used to
+ * decide whether a Facebook SSO token already carries every permission the
+ * Messenger connect flow would otherwise request, so the page-connect step
+ * can reuse it instead of re-running OAuth.
  */
 export const MESSENGER_REUSE_REQUIRED_SCOPES = MESSENGER_SCOPES.filter(
-  (scope) => scope !== "email" && scope !== "public_profile",
+  (scope) => scope !== "public_profile",
 )
 
 /**
