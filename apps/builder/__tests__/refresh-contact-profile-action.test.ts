@@ -50,6 +50,19 @@ vi.mock("@chatbotx.io/business/errors", () => ({
   notFoundException: (message: string) => new Error(message),
 }))
 
+vi.mock("@chatbotx.io/business/messenger-profile-provider", () => ({
+  resolveMessengerProfile: async (input: {
+    getMetaProfile: () => Promise<Record<string, unknown> | null>
+  }) => {
+    const profile = await input.getMetaProfile()
+    return profile ? { ...profile, provider: "meta" } : null
+  },
+  toIncomingContact: (profile: Record<string, unknown>) => {
+    const { provider: _provider, avatarUrl: _avatarUrl, ...contact } = profile
+    return contact
+  },
+}))
+
 vi.mock("@/integration", () => ({
   integrations: {
     messenger: { runChannelHandler: mocks.messengerRunChannelHandler },
@@ -131,9 +144,13 @@ beforeEach(() => {
   mocks.refresh.mockImplementation(async (input) => {
     try {
       const profile = await input.fetchProfile()
-      return profile
-        ? { status: "updated", contact: { id: input.contactId, ...profile } }
-        : { status: "unavailable" }
+      if (!(profile?.firstName || profile?.lastName)) {
+        return { status: "unavailable" }
+      }
+      return {
+        status: "updated",
+        contact: { id: input.contactId, ...profile },
+      }
     } catch {
       return { status: "failed" }
     }
