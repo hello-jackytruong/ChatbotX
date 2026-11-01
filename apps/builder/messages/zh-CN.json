@@ -5596,6 +5596,84 @@
     "welcomeMessage": "欢迎消息",
     "welcomeMessageDescription": "这是用户将从您的机器人收到的第一则消息。当用户通过点击「开始」按钮第一次与机器人交互时，会发送此消息。"
   },
+  "messengerBackfill": {
+    "title": "Messenger 历史数据回填",
+    "description": "导入一个已连接主页在指定时间范围内仍可获取的 Messenger 联系人和消息历史记录。",
+    "formTitle": "安排数据回填",
+    "formDescription": "选择一个主页以及需要导入的准确时间范围。回溯时间没有上限，但 Meta 可能不会保留全部旧内容。",
+    "submit": "开始回填",
+    "emptyPages": "请先连接一个 Messenger 主页，然后再安排数据回填。",
+    "unknownPage": "已断开连接的主页",
+    "started": "开始时间：",
+    "finished": "完成时间：",
+    "limitation": {
+      "title": "Meta 数据可用性限制",
+      "description": "本次任务会导入 Meta 在所选时间范围内仍提供的全部数据。已删除、已过期或已连接主页不再有权访问的内容无法恢复。"
+    },
+    "fields": {
+      "page": "主页",
+      "pagePlaceholder": "选择一个已连接的主页",
+      "from": "开始时间",
+      "to": "结束时间",
+      "timezoneHint": "时间按您的本地时区显示，并以准确的时间点提交。",
+      "resources": "导入内容",
+      "contacts": "联系人",
+      "messages": "消息",
+      "messagesHint": "系统会自动准备消息所需的联系人和对话。"
+    },
+    "status": {
+      "init": "已排队",
+      "running": "运行中",
+      "succeeded": "成功",
+      "partial": "部分完成",
+      "failed": "失败",
+      "waiting": "等待中"
+    },
+    "phase": {
+      "queued": "等待工作进程",
+      "importing": "正在导入对话",
+      "pageProcessed": "已处理第 {page} 页",
+      "complete": "导入完成"
+    },
+    "counters": {
+      "scanned": "已扫描的对话",
+      "contacts": "已导入的联系人",
+      "messages": "已导入的消息",
+      "duplicates": "已存在 / 重复",
+      "unavailable": "因不可用而跳过",
+      "failed": "实际失败"
+    },
+    "history": {
+      "title": "状态和历史记录",
+      "description": "运行中的任务大约每五秒刷新一次。所有任务完成后将自动停止刷新。",
+      "empty": "尚未运行任何 Messenger 数据回填任务。",
+      "page": "主页",
+      "range": "时间范围和导入内容",
+      "status": "状态和阶段",
+      "progress": "进度",
+      "timing": "时间",
+      "actions": "操作"
+    },
+    "actions": {
+      "cancel": "取消",
+      "cancelling": "正在取消",
+      "cancelLabel": "取消 {page} 正在运行的数据回填任务",
+      "cancelTitle": "要取消此数据回填任务吗？",
+      "cancelDescription": "这会停止 {page} 正在运行的导入任务。已导入的记录将会保留。",
+      "keepRunning": "继续运行",
+      "confirmCancel": "取消数据回填",
+      "retry": "重试",
+      "retryLabel": "使用相同设置重试 {page} 的数据回填任务"
+    },
+    "messages": {
+      "scheduled": "已安排 Messenger 数据回填任务。",
+      "scheduleFailed": "无法安排 Messenger 数据回填任务。",
+      "cancelRequested": "已请求取消。",
+      "alreadyFinished": "此数据回填任务已不再运行。",
+      "retryScheduled": "已安排重试 Messenger 数据回填任务。",
+      "actionFailed": "无法更新 Messenger 数据回填任务。"
+    }
+  },
   "metaCatalog": {
     "catalogId": "Meta目录ID",
     "catalogIdPlaceholder": "从 Commerce Manager 输入目录 ID",
