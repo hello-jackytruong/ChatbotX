@@ -88,6 +88,75 @@ The script provides explicit operational commands:
 ./scripts/deployment/production.sh clean
 ```
 
+## Automatic deployment from GitHub Actions
+
+The preferred production path builds the four application images on GitHub's
+runners, publishes commit-addressed `sha-<commit>` tags to GHCR, and makes the Ubuntu
+server pull and activate that exact release. The server does not compile the
+application and continues to use the existing Compose file, `.env`, database,
+volumes, backup policy, migration step, health checks, and rollback state.
+
+Every non-documentation push to `dev` runs
+`.github/workflows/deploy-production.yml`. The repository's existing reusable
+CI workflow type-checks, lints, and tests in parallel with the four image
+builds; deployment starts only when both the quality gate and every image build
+succeed. Configure these GitHub Actions secrets before enabling the first run:
+
+| Secret | Value |
+| --- | --- |
+| `PROD_HOST` | Production server IP or DNS name |
+| `PROD_PORT` | SSH port, normally `22` |
+| `PROD_USER` | `root` while the checkout remains under `/root/apps/ChatbotX` |
+| `PROD_SSH_KEY` | Dedicated private SSH key used only by GitHub Actions |
+| `PROD_SSH_KNOWN_HOSTS` | Verified `known_hosts` entry for the server |
+
+Generate a dedicated key on a trusted workstation and install only its public
+half on the server:
+
+```bash
+ssh-keygen -t ed25519 -C chatbotx-github-actions -f ./chatbotx-github-actions -N ''
+ssh-copy-id -i ./chatbotx-github-actions.pub root@SERVER_IP
+ssh-keyscan -H -p 22 SERVER_IP > ./chatbotx-known-hosts
+```
+
+Verify the host fingerprint through the server console before saving the
+private-key and known-hosts file contents as GitHub secrets. Delete the local
+private-key copy after storing it in GitHub if it is no longer needed.
+
+GHCR packages are private by default. Create a classic GitHub personal access
+token with only `read:packages`, then authenticate Docker once on the server:
+
+```bash
+printf '%s' 'GHCR_READ_TOKEN' | docker login ghcr.io \
+  --username hello-jackytruong --password-stdin
+```
+
+Do not store that token in the repository or `.env`. Docker retains the login
+under the server account. The workflow uses its built-in `GITHUB_TOKEN` with
+`packages: write` to publish images and does not need a separate write token.
+
+The deployment job updates the server checkout only when `origin/dev` still
+matches the image commit. The production script checks the remote branch again
+after pulling the images and before touching the database, so a superseded
+workflow exits without deploying stale images. The server then performs the
+equivalent of:
+
+```bash
+cd /root/apps/ChatbotX
+CHATBOTX_IMAGE_PREFIX=ghcr.io/hello-jackytruong \
+CHATBOTX_IMAGE_TAG=sha-<full-git-sha> \
+CHATBOTX_EXPECTED_GIT_SHA=<full-git-sha> \
+  ./scripts/deployment/production.sh pull-deploy
+```
+
+`pull-deploy` first downloads every required image. Only after all four images
+exist locally and their embedded Git revision labels match the requested commit
+does it record the release, start data services, back up PostgreSQL, run
+migrations, activate the new release, wait for health checks, and restore the
+prior image tag when activation fails. Existing commit tags are never rewritten
+by a workflow rerun. The existing `rollback`, `status`, `logs`, and `clean`
+commands remain unchanged.
+
 Normal deployments retain build cache because that makes subsequent builds
 substantially faster. `clean` never removes volumes, active images, the current
 release, the rollback release, or the latest completed build. Review old

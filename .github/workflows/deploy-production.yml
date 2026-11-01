@@ -1,0 +1,208 @@
+name: Build and deploy production
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  workflow_dispatch:
+
+env:
+  BUILD_PLATFORMS: linux/amd64
+  DOCKER_REGISTRY: ghcr.io
+
+jobs:
+  check:
+    name: Quality gate
+    if: github.ref == 'refs/heads/dev'
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  build-image:
+    name: Build ${{ matrix.label }}
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    concurrency:
+      group: production-build-${{ matrix.label }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: builder
+            image: chatbotx-builder
+            dockerfile: ./apps/builder/docker/Dockerfile
+          - label: worker
+            image: chatbotx-worker
+            dockerfile: ./apps/worker/docker/Dockerfile
+          - label: realtime
+            image: chatbotx-realtime
+            dockerfile: ./apps/realtime/docker/Dockerfile
+          - label: javascript-executor
+            image: chatbotx-javascript-executor
+            dockerfile: ./apps/javascript-executor/docker/Dockerfile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set lowercase image namespace
+        id: image-namespace
+        shell: bash
+        run: echo "prefix=${DOCKER_REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Add swap for the builder compile
+        if: matrix.label == 'builder'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          swap_gb=16
+          reserve_gb=20
+          swapfile=""
+          for dir in /mnt /; do
+            [ -d "$dir" ] || continue
+            fstype=$(findmnt -n -o FSTYPE -T "$dir")
+            free_gb=$(df -BG --output=avail "$dir" | tail -1 | tr -dc '0-9')
+            if [ "$fstype" != "tmpfs" ] && [ "$free_gb" -ge $((swap_gb + reserve_gb)) ]; then
+              swapfile="${dir%/}/ci-build.swap"
+              break
+            fi
+          done
+          if [ -z "$swapfile" ]; then
+            echo "::warning::No disk has room for the optional ${swap_gb}G swapfile"
+            exit 0
+          fi
+          sudo fallocate -l "${swap_gb}G" "$swapfile"
+          sudo chmod 600 "$swapfile"
+          sudo mkswap "$swapfile"
+          sudo swapon "$swapfile"
+          free -h
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for an existing commit image
+        id: existing-image
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="${{ steps.image-namespace.outputs.prefix }}/${{ matrix.image }}:sha-${{ github.sha }}"
+          if lookup_output="$(docker buildx imagetools inspect "$image" 2>&1)"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Keeping existing commit image: $image"
+          elif grep -Eqi 'manifest unknown|not found' <<<"$lookup_output"; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "No existing commit image: $image"
+          else
+            printf '%s\n' "$lookup_output" >&2
+            echo "Could not determine whether $image already exists; refusing to overwrite it" >&2
+            exit 1
+          fi
+
+      - name: Build and push commit image
+        if: steps.existing-image.outputs.exists != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          tags: |
+            ${{ steps.image-namespace.outputs.prefix }}/${{ matrix.image }}:sha-${{ github.sha }}
+            ${{ steps.image-namespace.outputs.prefix }}/${{ matrix.image }}:dev
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=production-${{ matrix.label }}
+          cache-to: type=gha,scope=production-${{ matrix.label }},mode=min
+
+  deploy:
+    name: Deploy to production
+    if: github.ref == 'refs/heads/dev'
+    needs:
+      - check
+      - build-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: chatbotx-production-deploy
+      cancel-in-progress: false
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - name: Configure deployment SSH key
+        env:
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$PROD_SSH_KEY" || { echo "Missing PROD_SSH_KEY" >&2; exit 1; }
+          test -n "$PROD_SSH_KNOWN_HOSTS" || { echo "Missing PROD_SSH_KNOWN_HOSTS" >&2; exit 1; }
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$PROD_SSH_KEY" | tr -d '\r' > "$HOME/.ssh/chatbotx-production"
+          printf '%s\n' "$PROD_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/chatbotx-production" "$HOME/.ssh/known_hosts"
+
+      - name: Pull and activate release
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_PORT: ${{ secrets.PROD_PORT }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+          RELEASE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${PROD_HOST:?Missing PROD_HOST}"
+          : "${PROD_USER:?Missing PROD_USER}"
+          PROD_PORT="${PROD_PORT:-22}"
+          [[ "$PROD_PORT" =~ ^[0-9]+$ ]] || { echo "PROD_PORT must be numeric" >&2; exit 1; }
+          [[ "$PROD_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] || { echo "Invalid PROD_USER" >&2; exit 1; }
+          image_prefix="${DOCKER_REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}"
+
+          ssh \
+            -i "$HOME/.ssh/chatbotx-production" \
+            -p "$PROD_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$PROD_USER@$PROD_HOST" \
+            "bash -s -- '$RELEASE_SHA' '$image_prefix'" <<'REMOTE'
+          set -Eeuo pipefail
+          release_sha="$1"
+          image_prefix="$2"
+          cd /root/apps/ChatbotX
+
+          git fetch --quiet origin dev
+          remote_sha="$(git rev-parse origin/dev)"
+          if [ "$remote_sha" != "$release_sha" ]; then
+            echo "Skipping stale release $release_sha; origin/dev is now $remote_sha"
+            exit 0
+          fi
+
+          git checkout dev
+          git merge --ff-only "$release_sha"
+          checked_out_sha="$(git rev-parse HEAD)"
+          if [ "$checked_out_sha" != "$release_sha" ]; then
+            echo "Server dev branch is at $checked_out_sha, expected $release_sha" >&2
+            exit 1
+          fi
+          CHATBOTX_IMAGE_PREFIX="$image_prefix" \
+          CHATBOTX_IMAGE_TAG="sha-$release_sha" \
+          CHATBOTX_EXPECTED_GIT_SHA="$release_sha" \
+            ./scripts/deployment/production.sh pull-deploy
+          REMOTE

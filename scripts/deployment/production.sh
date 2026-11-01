@@ -8,6 +8,8 @@ readonly SCRIPT_DIR
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 readonly REPO_ROOT
 readonly COMPOSE_FILE="$REPO_ROOT/docker-compose.production.yml"
+IMAGE_PREFIX="${CHATBOTX_IMAGE_PREFIX:-ghcr.io/hello-jackytruong}"
+readonly IMAGE_PREFIX
 readonly BUILDER_NAME="${CHATBOTX_BUILDER_NAME:-chatbotx-production-limited}"
 readonly BUILD_MEMORY="${CHATBOTX_BUILD_MEMORY:-4608m}"
 readonly BUILD_CPU_QUOTA="${CHATBOTX_BUILD_CPU_QUOTA:-300000}"
@@ -50,8 +52,10 @@ Usage: ./scripts/deployment/production.sh <command> [options]
 Commands:
   check               Validate Docker, Compose, host capacity and configuration
   build [--refresh]   Build all application images sequentially; keep cache
+  pull                 Pull a complete release from GHCR without activating it
   up                  Activate the latest successfully built image tag
   deploy [--refresh]  Build, backup, migrate and activate in one safe command
+  pull-deploy          Pull from GHCR, backup, migrate and activate safely
   rollback            Restore the previous application image tag
   backup              Create and verify a database backup immediately
   install-cron        Install automatic backups at 02:00 and 14:00 daily
@@ -63,6 +67,9 @@ Commands:
 
 Normal deployment:
   ./scripts/deployment/production.sh deploy
+
+Deploy an image already built by GitHub Actions:
+  CHATBOTX_IMAGE_TAG=sha-<git-sha> ./scripts/deployment/production.sh pull-deploy
 
 Refresh base images before building:
   ./scripts/deployment/production.sh deploy --refresh
@@ -181,6 +188,84 @@ build_release() {
 
   state_set built-tag "$deploy_tag"
   log "Build completed. Activate it with: $0 up"
+}
+
+service_image_repository() {
+  case "$1" in
+    builder) printf '%s' 'chatbotx-builder' ;;
+    worker) printf '%s' 'chatbotx-worker' ;;
+    realtime) printf '%s' 'chatbotx-realtime' ;;
+    javascript-executor) printf '%s' 'chatbotx-javascript-executor' ;;
+    *) fail "Unknown application service: $1" ;;
+  esac
+}
+
+pull_release() {
+  local deploy_tag service repository remote_image local_image downloaded_image index
+  local expected_revision actual_revision
+  local -a remote_images=()
+  local -a local_images=()
+
+  deploy_tag="${CHATBOTX_IMAGE_TAG:-}"
+  [[ -n "$deploy_tag" ]] || fail "CHATBOTX_IMAGE_TAG is required for pull and pull-deploy."
+  [[ "$deploy_tag" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]] || fail "Invalid image tag: $deploy_tag"
+  [[ "$IMAGE_PREFIX" =~ ^[a-z0-9.-]+(:[0-9]+)?/[a-z0-9._/-]+$ ]] || fail "Invalid CHATBOTX_IMAGE_PREFIX: $IMAGE_PREFIX"
+
+  for service in "${APP_SERVICES[@]}"; do
+    repository="$(service_image_repository "$service")"
+    remote_image="${IMAGE_PREFIX%/}/$repository:$deploy_tag"
+    local_image="$repository:$deploy_tag"
+    log "Pulling $remote_image"
+    if ! docker pull "$remote_image"; then
+      for downloaded_image in "${remote_images[@]}"; do
+        docker image rm "$downloaded_image" >/dev/null 2>&1 || true
+      done
+      fail "Could not pull $remote_image. For private GHCR packages, run 'docker login ghcr.io' on this server first."
+    fi
+    remote_images+=("$remote_image")
+    if [[ "$deploy_tag" =~ ^sha-([0-9a-f]{40})$ ]]; then
+      expected_revision="${BASH_REMATCH[1]}"
+      if ! actual_revision="$(docker image inspect \
+        --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
+        "$remote_image")"; then
+        for downloaded_image in "${remote_images[@]}"; do
+          docker image rm "$downloaded_image" >/dev/null 2>&1 || true
+        done
+        fail "Could not inspect the Git revision label for $remote_image"
+      fi
+      if [[ "$actual_revision" != "$expected_revision" ]]; then
+        for downloaded_image in "${remote_images[@]}"; do
+          docker image rm "$downloaded_image" >/dev/null 2>&1 || true
+        done
+        fail "Image revision mismatch for $remote_image: expected $expected_revision, received ${actual_revision:-<missing>}"
+      fi
+    fi
+    local_images+=("$local_image")
+  done
+
+  for ((index = 0; index < ${#remote_images[@]}; index += 1)); do
+    docker image tag "${remote_images[$index]}" "${local_images[$index]}"
+  done
+  for remote_image in "${remote_images[@]}"; do
+    docker image rm "$remote_image" >/dev/null 2>&1 || true
+  done
+
+  log "Release $deploy_tag downloaded and verified for all application services."
+}
+
+release_matches_expected_git_sha() {
+  local expected_sha="${CHATBOTX_EXPECTED_GIT_SHA:-}" remote_sha
+  [[ -n "$expected_sha" ]] || return 0
+  [[ "$expected_sha" =~ ^[0-9a-f]{40}$ ]] || fail "Invalid CHATBOTX_EXPECTED_GIT_SHA: $expected_sha"
+
+  git fetch --quiet origin dev || fail "Could not refresh origin/dev before deployment."
+  if ! remote_sha="$(git rev-parse origin/dev)"; then
+    fail "Could not resolve origin/dev before deployment."
+  fi
+  if [[ "$remote_sha" != "$expected_sha" ]]; then
+    log "Skipping stale release $expected_sha; origin/dev is now $remote_sha"
+    return 1
+  fi
 }
 
 start_datastores() {
@@ -343,7 +428,7 @@ rollback_to() {
 activate_built_release() {
   local deploy_tag previous_tag
   deploy_tag="$(state_get built-tag)"
-  [[ -n "$deploy_tag" ]] || fail "No completed build found. Run '$0 build' first."
+  [[ -n "$deploy_tag" ]] || fail "No completed release found. Run '$0 build' or '$0 pull' first."
   previous_tag="$(running_tag)"
   [[ -n "$previous_tag" ]] || previous_tag="$(state_get current-tag)"
   export CHATBOTX_IMAGE_TAG="$deploy_tag"
@@ -462,6 +547,11 @@ main() {
       ensure_limited_builder
       build_release "$refresh"
       ;;
+    pull)
+      acquire_lock
+      pull_release
+      state_set built-tag "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}"
+      ;;
     up)
       acquire_lock
       activate_built_release
@@ -472,6 +562,15 @@ main() {
       check_build_capacity
       ensure_limited_builder
       build_release "$refresh"
+      activate_built_release
+      ;;
+    pull-deploy)
+      acquire_lock
+      pull_release
+      if ! release_matches_expected_git_sha; then
+        return 0
+      fi
+      state_set built-tag "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}"
       activate_built_release
       ;;
     rollback)
