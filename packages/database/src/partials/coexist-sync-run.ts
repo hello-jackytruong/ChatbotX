@@ -9,7 +9,7 @@ import { z } from "zod"
  * in `packages/utils`) since only `packages/database` and
  * `@chatbotx.io/business` need it.
  */
-export const coexistRunTypes = z.enum(["coexist", "contact_scan"])
+export const coexistRunTypes = z.enum(["coexist", "contact_scan", "backfill"])
 
 export type CoexistRunType = z.infer<typeof coexistRunTypes>
 

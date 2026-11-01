@@ -52,6 +52,7 @@ import { purgeInboundWebhookRequests } from "./handlers/purge-inbound-webhook-re
 import { purgeWhatsappSignupSessions } from "./handlers/purge-whatsapp-signup-sessions"
 import { purgeWorkspaces } from "./handlers/purge-workspaces"
 import { reconcileBroadcasts } from "./handlers/reconcile-broadcasts"
+import { reconcileMessengerHistory } from "./handlers/reconcile-messenger-history"
 import { reconcileMetaCatalogSyncs } from "./handlers/reconcile-meta-catalog-syncs"
 import { reconcileTenants } from "./handlers/reconcile-tenants"
 import { redispatchInboundWebhookRequests } from "./handlers/redispatch-inbound-webhook-requests"
@@ -199,6 +200,10 @@ async function startScheduleWorker() {
 
             case ScheduleJobData.scanContactScans:
               await scanContactScans()
+              return
+
+            case ScheduleJobData.reconcileMessengerHistory:
+              await reconcileMessengerHistory()
               return
 
             case ScheduleJobData.scanAiHandoverBulkRuns:

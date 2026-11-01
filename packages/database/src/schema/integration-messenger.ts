@@ -80,6 +80,9 @@ export const integrationMessengerModel = pgTable(
     }),
     syncTagEnabledAt: timestamp(timestampConfig),
     tokenRefreshError: text(),
+    // Successful auto-backfill checkpoint. Failed/interrupted runs leave this
+    // untouched so the next scheduler tick catches up from the older window.
+    lastAutoBackfillAt: timestamp(timestampConfig),
     // Flow started when a partner hands a conversation back (control_passed).
     handoverResumeFlowId: bigintAsString().references(() => flowModel.id, {
       onDelete: "set null",

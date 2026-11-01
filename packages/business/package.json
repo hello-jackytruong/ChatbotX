@@ -22,6 +22,7 @@
     "./contact-profile-rules": "./src/contact/profile-refresh/rules.ts",
     "./contact-utils": "./src/contact/utils.ts",
     "./contact-scan": "./src/contact-scan/index.ts",
+    "./messenger-backfill": "./src/messenger-backfill/index.ts",
     "./contact-sequence": "./src/contact-sequence/index.ts",
     "./coexist": "./src/coexist/index.ts",
     "./coexist/history": "./src/coexist/history-window.ts",

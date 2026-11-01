@@ -1,0 +1,1 @@
+ALTER TYPE "coexistRunType" ADD VALUE 'backfill';

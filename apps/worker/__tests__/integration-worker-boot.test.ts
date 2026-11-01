@@ -105,6 +105,7 @@ vi.mock("@chatbotx.io/automated-response", () => ({
 }))
 
 vi.mock("@chatbotx.io/business", () => ({
+  bulkImportChannelContacts: vi.fn(),
   flushAllPendingWorkspaceRealtimeEvents: vi.fn(),
   buildContext: vi.fn(),
   conversationService: { ensureActive: vi.fn() },

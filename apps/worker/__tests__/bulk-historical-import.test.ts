@@ -22,6 +22,7 @@ const {
   mockEmit,
   mockBulkCreate,
   mockBulkCreateAttachments,
+  mockEnsureHistoricalMessageAttachments,
   mockBulkUpdateTracking,
   mockCreateMessageRepository,
   mockBulkImportChannelContacts,
@@ -31,15 +32,18 @@ const {
 } = vi.hoisted(() => {
   const mockBulkCreate = vi.fn().mockResolvedValue([])
   const mockBulkCreateAttachments = vi.fn().mockResolvedValue([])
+  const mockEnsureHistoricalMessageAttachments = vi.fn()
   const mockCreateMessageRepository = vi.fn().mockResolvedValue({
     bulkCreate: mockBulkCreate,
     bulkCreateAttachments: mockBulkCreateAttachments,
+    ensureHistoricalMessageAttachments: mockEnsureHistoricalMessageAttachments,
   })
   return {
     mockEmitContactCreated: vi.fn(() => Promise.resolve()),
     mockEmit: vi.fn(() => Promise.resolve()),
     mockBulkCreate,
     mockBulkCreateAttachments,
+    mockEnsureHistoricalMessageAttachments,
     mockBulkUpdateTracking: vi.fn().mockResolvedValue(null),
     mockCreateMessageRepository,
     mockBulkImportChannelContacts: vi.fn(),
@@ -158,11 +162,25 @@ describe("bulkImportHistorical", () => {
     vi.clearAllMocks()
     // Re-wire repository mock after clearAllMocks.
     mockBulkCreate.mockResolvedValue([])
+    mockEnsureHistoricalMessageAttachments.mockImplementation(
+      async ({
+        messages,
+      }: {
+        messages: Array<{ attachments: Array<{ id: string }> }>
+      }) => ({
+        messageRows: (await mockBulkCreate.mock.results.at(-1)?.value) ?? [],
+        attachmentIds: messages.flatMap((message) =>
+          message.attachments.map((attachment) => attachment.id),
+        ),
+      }),
+    )
     mockBulkUpdateTracking.mockResolvedValue(null)
     mockBulkAdvanceActivityAndAiContextMarker.mockResolvedValue(undefined)
     mockCreateMessageRepository.mockResolvedValue({
       bulkCreate: mockBulkCreate,
       bulkCreateAttachments: vi.fn().mockResolvedValue([]),
+      ensureHistoricalMessageAttachments:
+        mockEnsureHistoricalMessageAttachments,
     })
     mockEnrichIfNull.mockResolvedValue(undefined)
     // Matches the real `bulkImportChannelContacts`'s early-return shape for
@@ -248,6 +266,8 @@ describe("bulkImportHistorical", () => {
     mockCreateMessageRepository.mockResolvedValue({
       bulkCreate: mockBulkCreate,
       bulkCreateAttachments: mockBulkCreateAttachments,
+      ensureHistoricalMessageAttachments:
+        mockEnsureHistoricalMessageAttachments,
     })
     mockBulkCreate.mockResolvedValueOnce([{ id: "m-1", sourceId: "m-src-1" }])
 
@@ -286,10 +306,20 @@ describe("bulkImportHistorical", () => {
       ],
     })
 
-    const [rows] = mockBulkCreateAttachments.mock.calls[0] as [
-      { sourceId: string; keepOriginal: boolean | null }[],
+    const [{ messages }] = mockEnsureHistoricalMessageAttachments.mock
+      .calls[0] as [
+      {
+        messages: Array<{
+          attachments: Array<{
+            sourceId: string
+            keepOriginal: boolean | null
+          }>
+        }>
+      },
     ]
-    expect(rows.map((row) => [row.sourceId, row.keepOriginal])).toEqual([
+    expect(
+      messages[0].attachments.map((row) => [row.sourceId, row.keepOriginal]),
+    ).toEqual([
       ["att-photo", false],
       ["att-scan", true],
     ])

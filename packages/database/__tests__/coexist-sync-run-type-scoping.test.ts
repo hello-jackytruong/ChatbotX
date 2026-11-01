@@ -77,9 +77,14 @@ vi.mock("../src/schema", () => ({
     importedMessageCount: "importedMessageCount",
     skippedCount: "skippedCount",
     failedCount: "failedCount",
+    skippedUnavailableCount: "skippedUnavailableCount",
     claimToken: "claimToken",
     type: "type",
     scanFromAt: "scanFromAt",
+    rangeFromAt: "rangeFromAt",
+    rangeToAt: "rangeToAt",
+    includeContacts: "includeContacts",
+    includeMessages: "includeMessages",
     requestedByUserId: "requestedByUserId",
     resumeCursor: "resumeCursor",
     workspaceId: "workspaceId",
@@ -492,5 +497,109 @@ describe("CoexistSyncRun type-discriminator scoping", () => {
       }),
     )
     expect(result).toEqual({ data: [{ id: "scan-1" }], pageCount: 3 })
+  })
+
+  // --- Messenger manual backfill set-queries: `type = 'backfill'` --------
+
+  test("createBackfillRun persists the exact range and selected resources", async () => {
+    const returning = vi.fn().mockResolvedValue([{ id: "backfill-1" }])
+    const onConflictDoNothing = vi.fn(() => ({ returning }))
+    const values = vi.fn(() => ({ onConflictDoNothing }))
+    const insert = vi.fn(() => ({ values }))
+    const repository = new CoexistSyncRunRepository()
+    const rangeFromAt = new Date("2020-01-01T00:00:00Z")
+    const rangeToAt = new Date("2026-01-01T00:00:00Z")
+
+    await repository.createBackfillRun({
+      workspaceId: "workspace-1",
+      integrationId: "integration-1",
+      requestedByUserId: "user-1",
+      rangeFromAt,
+      rangeToAt,
+      includeContacts: false,
+      includeMessages: true,
+      triggerSource: "manual",
+      tx: { insert } as never,
+    })
+
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "messenger",
+        type: "backfill",
+        rangeFromAt,
+        rangeToAt,
+        includeContacts: false,
+        includeMessages: true,
+        requestedByUserId: "user-1",
+      }),
+    )
+  })
+
+  test("claimBackfillRun filters type: backfill in its update WHERE", async () => {
+    const returning = vi.fn().mockResolvedValue([{ id: "backfill-1" }])
+    const where = vi.fn(() => ({ returning }))
+    const set = vi.fn(() => ({ where }))
+    const update = vi.fn(() => ({ set }))
+    const repository = new CoexistSyncRunRepository()
+
+    await repository.claimBackfillRun({
+      runId: "backfill-1",
+      tx: { update } as never,
+    })
+
+    expect(where).toHaveBeenCalledWith(
+      expect.objectContaining({
+        and: expect.arrayContaining([{ eq: ["type", "backfill"] }]),
+      }),
+    )
+  })
+
+  test("findLatestBackfillRun is workspace, integration, and type scoped", async () => {
+    const findFirst = vi.fn().mockResolvedValue(null)
+    const repository = new CoexistSyncRunRepository()
+
+    await repository.findLatestBackfillRun({
+      workspaceId: "workspace-1",
+      integrationId: "integration-1",
+      tx: { query: { coexistSyncRunModel: { findFirst } } } as never,
+    })
+
+    expect(findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          workspaceId: "workspace-1",
+          integrationId: "integration-1",
+          channel: "messenger",
+          type: "backfill",
+        },
+      }),
+    )
+  })
+
+  test("listBackfillRuns never returns coexist or contact-scan rows", async () => {
+    const findMany = vi.fn().mockResolvedValue([])
+    const $count = vi.fn().mockResolvedValue(0)
+    const repository = new CoexistSyncRunRepository()
+
+    const result = await repository.listBackfillRuns({
+      workspaceId: "workspace-1",
+      page: 1,
+      perPage: 10,
+      tx: {
+        query: { coexistSyncRunModel: { findMany } },
+        $count,
+      } as never,
+    })
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          workspaceId: "workspace-1",
+          channel: "messenger",
+          type: "backfill",
+        },
+      }),
+    )
+    expect(result).toEqual({ data: [], pageCount: 0 })
   })
 })

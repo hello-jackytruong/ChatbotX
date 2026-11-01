@@ -128,6 +128,18 @@ class MessengerIntegrationService extends BaseService {
     )
   }
 
+  listConnectedForAutoBackfill(input: { afterId?: string; limit: number }) {
+    return integrationMessengerRepository.listConnectedForAutoBackfill(input)
+  }
+
+  advanceAutoBackfillCheckpoint(input: {
+    id: string
+    workspaceId: string
+    checkpoint: Date
+  }) {
+    return integrationMessengerRepository.advanceAutoBackfillCheckpoint(input)
+  }
+
   findForTokenRefreshByWorkspaceIds(workspaceIds: string[]) {
     if (workspaceIds.length === 0) {
       return Promise.resolve([])

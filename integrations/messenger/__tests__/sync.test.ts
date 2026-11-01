@@ -161,6 +161,19 @@ describe("listMessages", () => {
     expect(options.searchParams.after).toBe("msg-cursor")
   })
 
+  test("an explicit page limit overrides the default for adaptive shrinking", async () => {
+    mockGet.mockResolvedValueOnce({ data: [], paging: {} })
+
+    await listMessages({
+      conversationId: CONVERSATION_ID,
+      accessToken: ACCESS_TOKEN,
+      limit: 125,
+    })
+
+    const [, options] = mockGet.mock.calls[0]
+    expect(options.searchParams.limit).toBe("125")
+  })
+
   test("paging.next absent → result.after is undefined", async () => {
     mockGet.mockResolvedValueOnce({
       data: [{ id: "m1", message: "hello" }],

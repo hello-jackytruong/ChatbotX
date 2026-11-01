@@ -2147,6 +2147,13 @@ class ConversationService extends BaseService {
    * sync for that conversation (either direction) — never backwards, and
    * never to an arbitrary id — so a stale/replayed batch can never regress
    * it. Callers dedup rows by `conversationId` before calling this.
+   *
+   * Passive history imports may opt into preserving each row's unread state.
+   * The read-state check and both cursor advances happen in this same UPDATE,
+   * so a conversation that was read (including a new row with no activity)
+   * stays read while a conversation that was already unread stays unread.
+   * The default remains the coexist/live behavior: only activity and the AI
+   * marker advance.
    */
   async bulkAdvanceActivityAndAiContextMarker(props: {
     workspaceId: string
@@ -2156,9 +2163,10 @@ class ConversationService extends BaseService {
       /** Id of the newest sync-inserted message (either direction); null = leave marker untouched. */
       aiMarkerMessageId: string | null
     }>
+    preserveUnreadState?: boolean
     tx?: DatabaseClient
   }): Promise<void> {
-    const { workspaceId, rows, tx = db } = props
+    const { preserveUnreadState = false, workspaceId, rows, tx = db } = props
     if (rows.length === 0) {
       return
     }
@@ -2171,17 +2179,43 @@ class ConversationService extends BaseService {
       )`,
     )
 
-    await tx.execute(sql`
-      UPDATE "Conversation" AS t
-      SET "lastActivityAt" = CASE
-            WHEN u.ts IS NOT NULL AND (t."lastActivityAt" IS NULL OR t."lastActivityAt" < u.ts) THEN u.ts
-            ELSE t."lastActivityAt" END,
-          "aiContextLastMessageId" = CASE
-            WHEN u.marker IS NOT NULL AND (t."aiContextLastMessageId" IS NULL OR t."aiContextLastMessageId" < u.marker) THEN u.marker
-            ELSE t."aiContextLastMessageId" END
-      FROM (VALUES ${sql.join(valueRows, sql`, `)}) AS u(id, ts, marker)
-      WHERE t."id" = u.id AND t."workspaceId" = ${workspaceId}::int8
-    `)
+    if (preserveUnreadState) {
+      await tx.execute(sql`
+        UPDATE "Conversation" AS t
+        SET "lastActivityAt" = CASE
+              WHEN u.ts IS NOT NULL AND (t."lastActivityAt" IS NULL OR t."lastActivityAt" < u.ts) THEN u.ts
+              ELSE t."lastActivityAt" END,
+            "aiContextLastMessageId" = CASE
+              WHEN u.marker IS NOT NULL AND (t."aiContextLastMessageId" IS NULL OR t."aiContextLastMessageId" < u.marker) THEN u.marker
+              ELSE t."aiContextLastMessageId" END,
+            "agentLastReadAt" = CASE
+            WHEN u.ts IS NOT NULL
+              AND (t."lastActivityAt" IS NULL OR t."lastActivityAt" < u.ts)
+              AND (
+                t."lastActivityAt" IS NULL
+                OR (
+                  t."agentLastReadAt" IS NOT NULL
+                  AND t."lastActivityAt" <= t."agentLastReadAt"
+                )
+              )
+              THEN GREATEST(COALESCE(t."agentLastReadAt", u.ts), u.ts)
+              ELSE t."agentLastReadAt" END
+        FROM (VALUES ${sql.join(valueRows, sql`, `)}) AS u(id, ts, marker)
+        WHERE t."id" = u.id AND t."workspaceId" = ${workspaceId}::int8
+      `)
+    } else {
+      await tx.execute(sql`
+        UPDATE "Conversation" AS t
+        SET "lastActivityAt" = CASE
+              WHEN u.ts IS NOT NULL AND (t."lastActivityAt" IS NULL OR t."lastActivityAt" < u.ts) THEN u.ts
+              ELSE t."lastActivityAt" END,
+            "aiContextLastMessageId" = CASE
+              WHEN u.marker IS NOT NULL AND (t."aiContextLastMessageId" IS NULL OR t."aiContextLastMessageId" < u.marker) THEN u.marker
+              ELSE t."aiContextLastMessageId" END
+        FROM (VALUES ${sql.join(valueRows, sql`, `)}) AS u(id, ts, marker)
+        WHERE t."id" = u.id AND t."workspaceId" = ${workspaceId}::int8
+      `)
+    }
 
     await this.invalidate({
       workspaceId,

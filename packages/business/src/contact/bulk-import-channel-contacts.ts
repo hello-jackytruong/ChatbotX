@@ -58,8 +58,17 @@ export const bulkImportChannelContacts = async (props: {
   inbox: InboxModel
   workspaceId: string
   contacts: IncomingContact[]
+  /** Historical backfills disable creation events so imported history cannot
+   * start live automations. Existing callers keep the prior behavior. */
+  emitCreatedEvents?: boolean
 }): Promise<BulkImportChannelContactsResult> => {
-  const { inbox, workspaceId, contacts, captureProfileSnapshot = false } = props
+  const {
+    inbox,
+    workspaceId,
+    contacts,
+    captureProfileSnapshot = false,
+    emitCreatedEvents = true,
+  } = props
 
   const empty: BulkImportChannelContactsResult = {
     importedContacts: 0,
@@ -136,7 +145,7 @@ export const bulkImportChannelContacts = async (props: {
   }
 
   // Post-commit side effects.
-  for (const ev of newContactCreatedEvents) {
+  for (const ev of emitCreatedEvents ? newContactCreatedEvents : []) {
     emitContactCreated(
       ev.workspaceId,
       ev.contactId,

@@ -5631,6 +5631,84 @@
       "empty": "Chưa có lượt quét nào được chạy."
     }
   },
+  "messengerBackfill": {
+    "title": "Nhập lại lịch sử Messenger",
+    "description": "Nhập các liên hệ và lịch sử tin nhắn Messenger còn khả dụng cho một Trang đã kết nối trong khoảng thời gian đã chọn.",
+    "formTitle": "Lên lịch nhập lại",
+    "formDescription": "Chọn một Trang và khoảng thời gian chính xác cần nhập. Không giới hạn thời gian nhìn lại, nhưng Meta có thể không còn lưu toàn bộ nội dung cũ.",
+    "submit": "Bắt đầu nhập lại",
+    "emptyPages": "Hãy kết nối một Trang Messenger trước khi lên lịch nhập lại.",
+    "unknownPage": "Trang đã ngắt kết nối",
+    "started": "Bắt đầu:",
+    "finished": "Hoàn tất:",
+    "limitation": {
+      "title": "Giới hạn dữ liệu từ Meta",
+      "description": "Lượt chạy sẽ nhập mọi dữ liệu Meta vẫn cung cấp trong khoảng thời gian đã chọn. Hệ thống không thể khôi phục nội dung đã bị xóa, hết hạn hoặc không còn được Trang đã kết nối truy cập."
+    },
+    "fields": {
+      "page": "Trang",
+      "pagePlaceholder": "Chọn một Trang đã kết nối",
+      "from": "Từ",
+      "to": "Đến",
+      "timezoneHint": "Thời gian được hiển thị theo múi giờ địa phương của bạn và gửi dưới dạng thời điểm chính xác.",
+      "resources": "Dữ liệu cần nhập",
+      "contacts": "Liên hệ",
+      "messages": "Tin nhắn",
+      "messagesHint": "Các liên hệ và cuộc hội thoại cần thiết cho tin nhắn sẽ được chuẩn bị tự động."
+    },
+    "status": {
+      "init": "Đang chờ",
+      "running": "Đang chạy",
+      "succeeded": "Thành công",
+      "partial": "Một phần",
+      "failed": "Thất bại",
+      "waiting": "Đang đợi"
+    },
+    "phase": {
+      "queued": "Đang chờ tiến trình xử lý",
+      "importing": "Đang nhập các cuộc hội thoại",
+      "pageProcessed": "Đã xử lý trang {page}",
+      "complete": "Đã hoàn tất nhập dữ liệu"
+    },
+    "counters": {
+      "scanned": "Cuộc hội thoại đã quét",
+      "contacts": "Liên hệ đã nhập",
+      "messages": "Tin nhắn đã nhập",
+      "duplicates": "Đã có / trùng lặp",
+      "unavailable": "Bỏ qua do không khả dụng",
+      "failed": "Lỗi thực tế"
+    },
+    "history": {
+      "title": "Trạng thái và lịch sử",
+      "description": "Lượt chạy đang hoạt động được làm mới khoảng năm giây một lần. Quá trình làm mới tự dừng khi tất cả lượt chạy hoàn tất.",
+      "empty": "Chưa có lượt nhập lại Messenger nào.",
+      "page": "Trang",
+      "range": "Khoảng thời gian và dữ liệu",
+      "status": "Trạng thái và giai đoạn",
+      "progress": "Tiến độ",
+      "timing": "Thời gian",
+      "actions": "Hành động"
+    },
+    "actions": {
+      "cancel": "Hủy",
+      "cancelling": "Đang hủy",
+      "cancelLabel": "Hủy lượt nhập lại đang chạy cho {page}",
+      "cancelTitle": "Hủy lượt nhập lại này?",
+      "cancelDescription": "Thao tác này dừng lượt nhập đang chạy cho {page}. Các bản ghi đã nhập vẫn được giữ lại.",
+      "keepRunning": "Tiếp tục chạy",
+      "confirmCancel": "Hủy lượt nhập lại",
+      "retry": "Thử lại",
+      "retryLabel": "Chạy lại lượt nhập cho {page} với cùng thiết lập"
+    },
+    "messages": {
+      "scheduled": "Đã lên lịch nhập lại Messenger.",
+      "scheduleFailed": "Không thể lên lịch nhập lại Messenger.",
+      "cancelRequested": "Đã yêu cầu hủy.",
+      "alreadyFinished": "Lượt nhập lại này không còn hoạt động.",
+      "retryScheduled": "Đã lên lịch thử lại lượt nhập Messenger.",
+      "actionFailed": "Không thể cập nhật lượt nhập lại Messenger."
+    }
+  },
   "errorLogs": {
     "title": "Nhật ký lỗi",
     "unknownContact": "Liên hệ không xác định"

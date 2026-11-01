@@ -10,7 +10,6 @@ import {
 } from "@chatbotx.io/business"
 import { describeDatabaseError } from "@chatbotx.io/database/client"
 import type {
-  BulkCreateAttachmentInput,
   CreateMessageInput,
   IMessageRepository,
 } from "@chatbotx.io/database/repositories"
@@ -150,10 +149,7 @@ export const maxNumericId = (
 }
 
 /** Ids are time-ordered snowflakes (ORDER BY id ≡ ORDER BY createdAt), so the
- *  max id over the rows bulkCreate actually inserted IS the newest
- *  sync-inserted message — direction-agnostic (incoming and outgoing both
- *  count). Duplicates skipped by onConflictDoNothing are absent from
- *  insertedRows and never drive the marker. */
+ *  max resolved id is the newest sync-inserted message. */
 const maxMessageId = (rows: ReadonlyArray<{ id: string }>): string | null =>
   rows.reduce<string | null>((max, row) => maxNumericId(max, row.id), null)
 
@@ -302,9 +298,9 @@ export type HistoricalMessage = IncomingMessage & { createdAt?: Date }
 export type BulkImportMessagesResult = {
   importedMessages: number
   skippedMessages: number
-  /** Attachment row IDs inserted alongside imported messages. Empty when no
-   *  message in this call carried an `attachments[]` payload. Callers enqueue
-   *  one `coexistAttachmentDownload` job per ID to mirror bytes to S3. */
+  /** Attachment row IDs resolved or inserted for these messages. Empty when
+   *  no message carried an `attachments[]` payload. Callers enqueue one
+   *  `coexistAttachmentDownload` job per ID to mirror bytes to S3. */
   insertedAttachmentIds: string[]
   /** Newest API-provided message createdAt in this call (null when none).
    *  Returned so a batching caller can defer the per-row ContactInbox/
@@ -317,11 +313,8 @@ export type BulkImportMessagesResult = {
   /** Newest API-provided incoming message createdAt in this call (null when
    *  none). Used only for ContactInbox.lastIncomingMessageAt. */
   newestIncomingMessageAt: Date | null
-  /** Id of the newest message actually inserted by this call, either
-   *  direction; null when nothing was inserted. Computed from ALL
-   *  `insertedRows`, independent of `newestMessageAt` — a message inserted
-   *  with `fallbackCreatedAt` (invalid/missing API timestamp) still counts
-   *  here even though it never counts toward `newestMessageAt`. */
+  /** Id of the newest message resolved after this call, either direction;
+   *  includes rows already committed by an interrupted prior attempt. */
   newestMessageId: string | null
 }
 
@@ -449,7 +442,11 @@ const mergeConversationUpdate = (
  */
 export const applyCoexistActivityUpdates = async (
   updates: CoexistActivityUpdate[],
-  options: { workspaceId: string },
+  options: {
+    workspaceId: string
+    /** Passive imports keep read conversations read without changing coexist/live defaults. */
+    preserveUnreadState?: boolean
+  },
 ): Promise<void> => {
   if (updates.length === 0) {
     return
@@ -502,6 +499,7 @@ export const applyCoexistActivityUpdates = async (
     newestByConversation.size > 0
       ? conversationService.bulkAdvanceActivityAndAiContextMarker({
           workspaceId: options.workspaceId,
+          preserveUnreadState: options.preserveUnreadState,
           rows: [...newestByConversation.entries()].map(
             ([conversationId, v]) => ({
               conversationId,
@@ -702,22 +700,6 @@ export const bulkImportMessages = async (props: {
   const importedMessages = insertedRows.length
   const skippedMessages = messages.length - importedMessages
 
-  const insertedMessageBySourceId = new Map<string, string>()
-  for (const row of insertedRows) {
-    if (row.sourceId) {
-      insertedMessageBySourceId.set(row.sourceId, row.id)
-    }
-  }
-
-  // Build messageCreatedAt lookup so attachments can be routed to the correct
-  // DB (shard requires messageCreatedAt as partition key; main DB ignores it).
-  const messageCreatedAtBySourceId = new Map<string, Date>()
-  for (const input of messageInputs) {
-    if (input.sourceId) {
-      messageCreatedAtBySourceId.set(input.sourceId, input.createdAt as Date)
-    }
-  }
-
   // Contact enrichment — routed through the repository so it gets the exact
   // same COALESCE/WHERE-guarded semantics in its own main-DB transaction.
   if (hasEnrichment && contactEnrichment) {
@@ -728,51 +710,45 @@ export const bulkImportMessages = async (props: {
     })
   }
 
-  // Insert Attachment rows for newly-inserted messages only via repository so
-  // they land in the same DB as the messages. Previously these were inserted
-  // via a direct tx.insert(), which broke when Message rows lived in a shard.
-  if (attachmentsBySourceId.size > 0 && repository) {
-    const attachmentRows: BulkCreateAttachmentInput[] = []
-    for (const [sourceId, atts] of attachmentsBySourceId) {
-      const messageId = insertedMessageBySourceId.get(sourceId)
-      if (!messageId) {
-        continue
-      }
-      const messageCreatedAt = messageCreatedAtBySourceId.get(sourceId)
-      if (!messageCreatedAt) {
-        continue
-      }
-      for (const att of atts) {
-        attachmentRows.push({
-          id: createId(),
-          workspaceId,
-          conversationId,
-          messageId,
-          messageCreatedAt,
-          sourceId: att.sourceId,
-          fileType: att.fileType,
-          mimeType: att.mimeType,
-          originPath: att.originPath,
-          size: att.size,
-          width: att.width ?? undefined,
-          height: att.height ?? undefined,
-          name: att.name,
-          keepOriginal: toKeepOriginal(att),
-        })
-      }
-    }
-    if (attachmentRows.length > 0) {
-      const insertedAtt = await repository.bulkCreateAttachments(attachmentRows)
-      for (const r of insertedAtt) {
-        insertedAttachmentIds.push(r.id)
-      }
-    }
-  }
+  // Resolve from the write shard after insertion, including rows a previous
+  // attempt already committed. This closes the message/attachment crash gap and
+  // returns existing attachment ids so a replay can re-enqueue downloads.
+  const ensured = repository
+    ? await repository.ensureHistoricalMessageAttachments({
+        workspaceId,
+        conversationId,
+        messages: messageInputs.flatMap((message) =>
+          message.sourceId && message.createdAt instanceof Date
+            ? [
+                {
+                  sourceId: message.sourceId,
+                  createdAt: message.createdAt,
+                  attachments: (
+                    attachmentsBySourceId.get(message.sourceId) ?? []
+                  ).map((attachment) => ({
+                    id: createId(),
+                    sourceId: attachment.sourceId,
+                    fileType: attachment.fileType,
+                    mimeType: attachment.mimeType,
+                    originPath: attachment.originPath,
+                    size: attachment.size,
+                    width: attachment.width ?? undefined,
+                    height: attachment.height ?? undefined,
+                    name: attachment.name,
+                    keepOriginal: toKeepOriginal(attachment),
+                  })),
+                },
+              ]
+            : [],
+        ),
+      })
+    : { messageRows: [], attachmentIds: [] }
+  insertedAttachmentIds.push(...ensured.attachmentIds)
 
-  // Newest API-provided message times. Activity-timestamp bumps are NOT done
-  // here — the caller batches them once per table via
-  // applyCoexistActivityUpdates. Messages with no valid API timestamp are still
-  // inserted with a persistence fallback, but never drive activity timestamps.
+  // Newest API-provided message times. The caller applies them after each
+  // durable page before advancing its resume cursor. Messages with no valid
+  // API timestamp are still inserted with a persistence fallback, but never
+  // drive activity timestamps.
   const newestMessageAt = messagesWithApiTime.reduce<Date | null>(
     (max, m) => (!max || m.createdAt > max ? m.createdAt : max),
     null,
@@ -789,10 +765,9 @@ export const bulkImportMessages = async (props: {
     null,
   )
 
-  // Independent of `newestMessageAt` — computed from ALL insertedRows so a
-  // message inserted with `fallbackCreatedAt` (no valid API timestamp) still
-  // counts for the AI-context marker. See `maxMessageId` doc comment.
-  const newestMessageId = maxMessageId(insertedRows)
+  // Resolve already-committed rows too: a replay must repair an activity/AI
+  // marker even when the message insert itself deduplicates.
+  const newestMessageId = maxMessageId(ensured.messageRows)
 
   return {
     importedMessages,

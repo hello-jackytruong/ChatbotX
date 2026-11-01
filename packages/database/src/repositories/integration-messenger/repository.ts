@@ -372,4 +372,46 @@ export const integrationMessengerRepository = {
       .orderBy(integrationMessengerModel.id)
       .limit(input.limit)
   },
+
+  /** Stable keyset page for the ten-minute Messenger reconciliation sweep. */
+  listConnectedForAutoBackfill(
+    input: { afterId?: string; limit: number },
+    tx: DatabaseClient = db,
+  ) {
+    return tx
+      .select({
+        id: integrationMessengerModel.id,
+        workspaceId: integrationMessengerModel.workspaceId,
+        lastAutoBackfillAt: integrationMessengerModel.lastAutoBackfillAt,
+      })
+      .from(integrationMessengerModel)
+      .innerJoin(
+        inboxModel,
+        eq(inboxModel.id, integrationMessengerModel.inboxId),
+      )
+      .where(
+        and(
+          eq(inboxModel.status, inboxStatuses.enum.connected),
+          input.afterId
+            ? gt(integrationMessengerModel.id, input.afterId)
+            : undefined,
+        ),
+      )
+      .orderBy(integrationMessengerModel.id)
+      .limit(input.limit)
+  },
+
+  async advanceAutoBackfillCheckpoint(
+    input: WorkspaceIntegrationRef & { checkpoint: Date },
+    tx: DatabaseClient = db,
+  ): Promise<boolean> {
+    const rows = await tx
+      .update(integrationMessengerModel)
+      .set({
+        lastAutoBackfillAt: sql`GREATEST(COALESCE(${integrationMessengerModel.lastAutoBackfillAt}, ${input.checkpoint}), ${input.checkpoint})`,
+      })
+      .where(workspaceIntegrationFilter(input))
+      .returning({ id: integrationMessengerModel.id })
+    return rows.length > 0
+  },
 }

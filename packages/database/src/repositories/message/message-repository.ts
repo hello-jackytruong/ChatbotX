@@ -45,6 +45,24 @@ export interface CreateAttachmentInput {
 
 export type BulkCreateAttachmentInput = CreateAttachmentInput & { id: string }
 
+export type EnsureHistoricalMessageAttachmentsInput = {
+  workspaceId: string
+  conversationId: string
+  messages: Array<{
+    sourceId: string
+    createdAt: Date
+    attachments: Omit<
+      BulkCreateAttachmentInput,
+      "workspaceId" | "conversationId" | "messageId" | "messageCreatedAt"
+    >[]
+  }>
+}
+
+export type EnsureHistoricalMessageAttachmentsResult = {
+  messageRows: Array<{ id: string; sourceId: string | null }>
+  attachmentIds: string[]
+}
+
 export interface MessageWithAttachments extends MessageModel {
   attachmentCount?: number
   attachments: AttachmentModel[]
@@ -283,6 +301,15 @@ export interface IMessageRepository {
     workspaceId: string,
     createdAt: Date,
   ): Promise<{ conversationId: string; id: string }[]>
+
+  /**
+   * Resolves historical messages on the authoritative write shard and inserts
+   * only attachments still missing from those rows. Returning existing as well
+   * as inserted attachment ids makes a replay repair a prior enqueue failure.
+   */
+  ensureHistoricalMessageAttachments(
+    input: EnsureHistoricalMessageAttachmentsInput,
+  ): Promise<EnsureHistoricalMessageAttachmentsResult>
 
   findAIContextMessages(
     options: FindAIContextMessagesOptions,

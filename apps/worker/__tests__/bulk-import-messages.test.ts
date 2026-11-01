@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 const {
   mockBulkCreate,
   mockBulkCreateAttachments,
+  mockEnsureHistoricalMessageAttachments,
   mockCreateMessageRepository,
   mockDbInsert,
   mockTxInsert,
@@ -43,9 +44,11 @@ const {
 
   const mockBulkCreate = vi.fn().mockResolvedValue([])
   const mockBulkCreateAttachments = vi.fn().mockResolvedValue([])
+  const mockEnsureHistoricalMessageAttachments = vi.fn()
   const mockCreateMessageRepository = vi.fn().mockResolvedValue({
     bulkCreate: mockBulkCreate,
     bulkCreateAttachments: mockBulkCreateAttachments,
+    ensureHistoricalMessageAttachments: mockEnsureHistoricalMessageAttachments,
   })
 
   const updateChain = { set: vi.fn(), where: vi.fn() }
@@ -56,6 +59,7 @@ const {
   return {
     mockBulkCreate,
     mockBulkCreateAttachments,
+    mockEnsureHistoricalMessageAttachments,
     mockCreateMessageRepository,
     mockDbInsert,
     mockTxInsert,
@@ -207,9 +211,23 @@ describe("bulkImportMessages", () => {
     vi.clearAllMocks()
     mockBulkCreate.mockResolvedValue([])
     mockBulkCreateAttachments.mockResolvedValue([])
+    mockEnsureHistoricalMessageAttachments.mockImplementation(
+      async ({
+        messages,
+      }: {
+        messages: Array<{ attachments: Array<{ id: string }> }>
+      }) => ({
+        messageRows: (await mockBulkCreate.mock.results.at(-1)?.value) ?? [],
+        attachmentIds: messages.flatMap((message) =>
+          message.attachments.map((attachment) => attachment.id),
+        ),
+      }),
+    )
     mockCreateMessageRepository.mockResolvedValue({
       bulkCreate: mockBulkCreate,
       bulkCreateAttachments: mockBulkCreateAttachments,
+      ensureHistoricalMessageAttachments:
+        mockEnsureHistoricalMessageAttachments,
     })
     mockDbTransaction.mockImplementation(
       (fn: (tx: unknown) => Promise<unknown>) =>
@@ -281,7 +299,7 @@ describe("bulkImportMessages", () => {
     expect(result.skippedMessages).toBe(1)
   })
 
-  test("inserts attachments via repository.bulkCreateAttachments (shard-aware, not tx.insert)", async () => {
+  test("repairs attachments through the shard-aware repository before advancing", async () => {
     mockBulkCreate.mockResolvedValue([{ id: "msg-1", sourceId: "src-1" }])
 
     await bulkImportMessages({
@@ -306,13 +324,12 @@ describe("bulkImportMessages", () => {
       ],
     })
 
-    expect(mockBulkCreateAttachments).toHaveBeenCalledTimes(1)
-    const [rows] = mockBulkCreateAttachments.mock.calls[0]
-    expect(rows).toHaveLength(1)
-    expect(rows[0].messageId).toBe("msg-1")
-    expect(rows[0].workspaceId).toBe("ws-1")
-    // messageCreatedAt must be set so shard repository can partition by it
-    expect(rows[0].messageCreatedAt).toBeInstanceOf(Date)
+    expect(mockEnsureHistoricalMessageAttachments).toHaveBeenCalledOnce()
+    const [input] = mockEnsureHistoricalMessageAttachments.mock.calls[0]
+    expect(input.workspaceId).toBe("ws-1")
+    expect(input.messages).toHaveLength(1)
+    expect(input.messages[0].sourceId).toBe("src-1")
+    expect(input.messages[0].attachments).toHaveLength(1)
     // attachments must NOT go through main-DB tx.insert (causes FK violation when sharding)
     expect(mockTxInsert).not.toHaveBeenCalled()
   })
@@ -499,15 +516,20 @@ describe("bulkImportMessages", () => {
     expect(mockBulkCreate).toHaveBeenCalledTimes(1)
   })
 
-  test("newestMessageId returns null when nothing is inserted", async () => {
+  test("replay resolves an existing message and attachment after the insert deduplicates", async () => {
     mockBulkCreate.mockResolvedValue([])
+    mockEnsureHistoricalMessageAttachments.mockResolvedValue({
+      messageRows: [{ id: "500000000000005", sourceId: "src-1" }],
+      attachmentIds: ["existing-attachment"],
+    })
 
     const result = await bulkImportMessages({
       ...BASE_PROPS,
       messages: [makeMessage("src-1")],
     })
 
-    expect(result.newestMessageId).toBeNull()
+    expect(result.newestMessageId).toBe("500000000000005")
+    expect(result.insertedAttachmentIds).toEqual(["existing-attachment"])
   })
 
   test("newestMessageId is the OUTGOING message's id when the newest inserted message is outgoing", async () => {
@@ -671,6 +693,30 @@ describe("applyCoexistActivityUpdates", () => {
     expect(conversationSql?.strings?.join("")).not.toContain("unnest")
     expect(conversationSql?.strings?.join("")).toContain(
       '"aiContextLastMessageId"',
+    )
+  })
+
+  test("opts passive imports into atomic unread-state preservation", async () => {
+    await applyCoexistActivityUpdates(
+      [
+        {
+          contactInboxId: "ci-1",
+          contactId: "contact-1",
+          conversationId: "conv-1",
+          newestMessageAt: new Date("2026-06-20T10:00:00.000Z"),
+          oldestMessageAt: new Date("2026-06-20T09:00:00.000Z"),
+          newestIncomingMessageAt: null,
+          aiMarkerMessageId: "100000000000001",
+        },
+      ],
+      { workspaceId: "ws-1", preserveUnreadState: true },
+    )
+
+    const conversationSql = mockDbExecute.mock.calls[1]?.[0] as
+      | { strings?: TemplateStringsArray }
+      | undefined
+    expect(conversationSql?.strings?.join("")).toContain(
+      '"agentLastReadAt" = CASE',
     )
   })
 

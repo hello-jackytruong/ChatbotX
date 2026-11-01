@@ -173,12 +173,15 @@ export const listMessages = (props: {
   accessToken: string
   version?: string
   after?: string
+  /** Optional adaptive page size; defaults to Graph's normal bulk size. */
+  limit?: number
 }): Promise<PaginatedResult<MessengerHistoryMessage>> => {
   const {
     conversationId,
     accessToken,
     version = DEFAULT_API_VERSION,
     after,
+    limit = PAGE_LIMIT,
   } = props
   const endpoint = `${version}/${conversationId}/messages`
 
@@ -191,7 +194,7 @@ export const listMessages = (props: {
         searchParams: {
           fields:
             "id,message,from,created_time,attachments{id,name,mime_type,size,image_data,video_data,file_url,generic_template}",
-          limit: String(PAGE_LIMIT),
+          limit: String(limit),
           ...(after ? { after } : {}),
         },
       })
