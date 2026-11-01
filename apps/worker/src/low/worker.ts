@@ -14,6 +14,7 @@ import { env } from "../env"
 import { captureContactProfileSnapshot } from "../integration/handlers/capture-contact-profile-snapshot"
 import { coexistAttachmentDownload } from "../integration/handlers/coexist/attachment-download"
 import { updateContactAvatar } from "../integration/handlers/contact/update-avatar"
+import { runMessengerProfileBackfill } from "../integration/handlers/messenger-profile-backfill"
 import { receiveComment } from "../integration/handlers/received-message"
 import { processLeaderboardJob } from "../leaderboard/process-job"
 import { createQueueWorker } from "../lib/create-queue-worker"
@@ -41,6 +42,10 @@ async function processLowJob(job: Job<LowJobData>): Promise<void> {
           }
           case LowJobAction.replayMissedComment: {
             await receiveComment(job.data.data)
+            return
+          }
+          case LowJobAction.messengerProfileBackfill: {
+            await runMessengerProfileBackfill(job.data.data)
             return
           }
           default: {

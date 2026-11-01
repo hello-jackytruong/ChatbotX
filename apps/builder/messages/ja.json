@@ -5880,6 +5880,44 @@
       "verificationFailed": "The token could not access this Pancake Page. The existing credential was not changed."
     }
   },
+  "messengerProfileBackfill": {
+    "title": "Backfill Messenger contact profiles",
+    "description": "Fill missing names, gender and avatars for every contact on the selected Page. Message history is not changed.",
+    "fields": {
+      "page": "Facebook Page",
+      "policy": "Profile source"
+    },
+    "policies": {
+      "pancake": "Pancake (default)",
+      "meta": "Facebook / Meta",
+      "pancakeThenMeta": "Pancake, then Meta"
+    },
+    "notConfigured": "Pancake token not configured",
+    "missingOnly": "Only missing fields are filled. Existing contact data is never overwritten.",
+    "start": "Start profile backfill",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "empty": "No profile backfill has been run yet.",
+    "status": {
+      "init": "Queued",
+      "running": "Running",
+      "succeeded": "Completed",
+      "partial": "Completed with errors",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "counters": {
+      "currentScan": "Scanned",
+      "updatedCount": "Updated",
+      "avatarCount": "Avatars",
+      "skippedCount": "Skipped",
+      "failedCount": "Failed"
+    },
+    "messages": {
+      "scheduled": "Profile backfill scheduled.",
+      "failed": "Could not update the profile backfill."
+    }
+  },
   "contactScan": {
     "menu": {
       "importFromFile": "Import from File",

@@ -4,9 +4,14 @@ import {
   type ContactProfileNameSource,
   contactProfileRefreshService,
   hasEmptyProfileName,
+  messengerIntegrationService,
   resolveInboundProfileNameSource,
 } from "@chatbotx.io/business"
 import { isInboundConversationMessage } from "@chatbotx.io/business/contact-profile-rules"
+import {
+  resolveMessengerProfile,
+  toIncomingContact,
+} from "@chatbotx.io/business/messenger-profile-provider"
 import type { ChannelType } from "@chatbotx.io/database/partials"
 import type { ContactInboxModel, InboxModel } from "@chatbotx.io/database/types"
 import type { IncomingContact, IncomingMessage } from "@chatbotx.io/sdk"
@@ -96,10 +101,30 @@ const inboundProfileFetchers: Record<
           workspaceId: inbox.workspaceId,
           contactInbox,
         })
-      return integration.runChannelHandler("contact", "getProfile", {
-        ctx,
-        data: { sourceId: contactInbox.sourceId },
+      const getMetaProfile = () =>
+        integration.runChannelHandler("contact", "getProfile", {
+          ctx,
+          data: { sourceId: contactInbox.sourceId, includeAvatar: false },
+        })
+      if (inbox.channel !== "messenger") {
+        return getMetaProfile()
+      }
+      const row = await messengerIntegrationService.findByInboxIdForWorkspace({
+        workspaceId: inbox.workspaceId,
+        inboxId: inbox.id,
       })
+      const profile = await resolveMessengerProfile({
+        workspaceId: inbox.workspaceId,
+        integrationMessengerId: row.id,
+        pageId: row.pageId,
+        sourceId: contactInbox.sourceId,
+        includeAvatar: false,
+        getMetaProfile,
+      })
+      if (!profile) {
+        return { sourceId: contactInbox.sourceId }
+      }
+      return toIncomingContact(profile)
     },
 }
 

@@ -35,6 +35,10 @@ import {
 } from "@chatbotx.io/business/contact-locale"
 import { isInboundConversationMessage } from "@chatbotx.io/business/contact-profile-rules"
 import {
+  resolveMessengerProfile,
+  toIncomingContact,
+} from "@chatbotx.io/business/messenger-profile-provider"
+import {
   type ChannelType,
   type CommentAutomationType,
   type ContactSource,
@@ -2535,20 +2539,32 @@ const createNewContactAndContactInbox = async (props: {
         integration: integrationRow,
       })
       try {
-        const userProfile = await profileIntegration.runChannelHandler(
-          "contact",
-          "getProfile",
-          {
+        const getChannelProfile = () =>
+          profileIntegration.runChannelHandler("contact", "getProfile", {
             ctx: profileCtx,
             data: {
               sourceId: incomingContact.sourceId,
               includeProfileSnapshot: supportsProfileSnapshot(inbox.channel),
-              // A lazy-avatar channel creates the contact without its picture:
-              // it is fetched the first time the inbox or a system field asks.
               includeAvatar: !isLazyAvatarChannel(inbox.channel),
             },
-          },
-        )
+          })
+        let userProfile: IncomingContact
+        if (inbox.channel === "messenger") {
+          const resolvedProfile = await resolveMessengerProfile({
+            workspaceId: inbox.workspaceId,
+            integrationMessengerId: integrationRow.id,
+            pageId: String(integrationRow.pageId),
+            sourceId: incomingContact.sourceId,
+            includeAvatar: false,
+            getMetaProfile: getChannelProfile,
+          })
+          if (!resolvedProfile) {
+            throw new Error("Contact profile unavailable")
+          }
+          userProfile = toIncomingContact(resolvedProfile)
+        } else {
+          userProfile = await getChannelProfile()
+        }
         const {
           profileSnapshot: resolvedProfileSnapshot,
           referral: resolvedReferral,

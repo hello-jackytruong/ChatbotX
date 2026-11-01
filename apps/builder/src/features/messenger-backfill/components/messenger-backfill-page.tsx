@@ -14,6 +14,7 @@ import {
 } from "@chatbotx.io/ui/components/ui/card"
 import { InfoIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { MessengerProfileBackfillCard } from "@/features/messenger-profile-backfill/components/messenger-profile-backfill-card"
 import type { getMessengerBackfillPageData } from "../queries/get-messenger-backfill-page-data.query"
 import { MessengerBackfillForm } from "./messenger-backfill-form"
 import { MessengerBackfillRuns } from "./messenger-backfill-runs"
@@ -24,6 +25,7 @@ export function MessengerBackfillPage({
   workspaceId,
   pages,
   runs,
+  profileRuns,
 }: PageData & { workspaceId: string }) {
   const t = useTranslations("messengerBackfill")
 
@@ -43,6 +45,12 @@ export function MessengerBackfillPage({
         <AlertTitle>{t("limitation.title")}</AlertTitle>
         <AlertDescription>{t("limitation.description")}</AlertDescription>
       </Alert>
+
+      <MessengerProfileBackfillCard
+        pages={pages}
+        runs={profileRuns}
+        workspaceId={workspaceId}
+      />
 
       <Card>
         <CardHeader>

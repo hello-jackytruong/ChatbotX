@@ -24,6 +24,8 @@
     "./contact-scan": "./src/contact-scan/index.ts",
     "./messenger-backfill": "./src/messenger-backfill/index.ts",
     "./messenger-pancake-credential": "./src/messenger-pancake-credential/index.ts",
+    "./messenger-profile-provider": "./src/messenger-profile-provider/index.ts",
+    "./messenger-profile-backfill": "./src/messenger-profile-backfill/index.ts",
     "./contact-sequence": "./src/contact-sequence/index.ts",
     "./coexist": "./src/coexist/index.ts",
     "./coexist/history": "./src/coexist/history-window.ts",
