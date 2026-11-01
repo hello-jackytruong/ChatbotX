@@ -140,7 +140,7 @@ export function buildConversationWhere(
           { lastActivityAt: { lt: cursor.lastActivityAt } },
           { lastActivityAt: { isNull: true } },
           {
-            lastActivityAt: cursor.lastActivityAt,
+            lastActivityAt: { eq: cursor.lastActivityAt },
             id: { lt: cursor.id },
           },
         ]
