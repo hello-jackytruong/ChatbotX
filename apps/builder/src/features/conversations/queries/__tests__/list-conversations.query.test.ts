@@ -117,6 +117,45 @@ describe("buildConversationWhere channel filter", () => {
     expect(where.contactInboxes).toEqual({ channel: "messenger" })
   })
 
+  test("restricts by any selected inbox across channels", () => {
+    const where = buildConversationWhere(
+      "1",
+      { ...baseInput, inboxIds: ["inbox-1", "inbox-2"] },
+      null,
+    )
+
+    expect(where.contactInboxes).toEqual({
+      inboxId: { in: ["inbox-1", "inbox-2"] },
+    })
+  })
+
+  test("composes a channel and selected inboxes on the same relation", () => {
+    const where = buildConversationWhere(
+      "1",
+      {
+        ...baseInput,
+        channel: "messenger",
+        inboxIds: ["inbox-1", "inbox-2"],
+      },
+      null,
+    )
+
+    expect(where.contactInboxes).toEqual({
+      channel: "messenger",
+      inboxId: { in: ["inbox-1", "inbox-2"] },
+    })
+  })
+
+  test("an empty inbox selection keeps the omnichannel result", () => {
+    const where = buildConversationWhere(
+      "1",
+      { ...baseInput, inboxIds: [] },
+      null,
+    )
+
+    expect(where.contactInboxes).toBeUndefined()
+  })
+
   test("composes keyword and contact filter OR branches without overwriting either", () => {
     vi.mocked(applyContactFilter).mockReturnValueOnce({
       OR: [{ email: { ilike: "%ada%" } }],

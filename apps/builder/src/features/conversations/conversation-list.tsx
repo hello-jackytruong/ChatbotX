@@ -25,6 +25,7 @@ import { useChatStore } from "../chat/store/chat-store-provider"
 import { CreateContactDialog } from "../contacts/create-contact-dialog"
 import { useContactAssigneeOptions } from "../users/provider/user-hook"
 import { ConversationFilter } from "./conversation-filter"
+import { ConversationInboxFilter } from "./conversation-inbox-filter"
 import ConversationItem from "./conversation-item"
 import { useConversationIdParam } from "./hooks/use-conversation-id-param"
 
@@ -104,6 +105,7 @@ export default function ConversationList({
       keyword: "",
       botCategory: conversationBotCategories.enum.all,
       channel: channelTypes.enum.omnichannel,
+      inboxIds: [],
       assignedId: assignerFilterTypes.enum.all,
       tags: [],
       contactFilter: {
@@ -166,6 +168,8 @@ export default function ConversationList({
 
           <ConversationFilter canViewEmailAndPhone={canViewEmailAndPhone} />
         </div>
+
+        <ConversationInboxFilter />
 
         {/* A sibling of the scroller, not a child of it: inside the `flex-1`
             block this would stack on top of Virtuoso's `height: 100%` scroller

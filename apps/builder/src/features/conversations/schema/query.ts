@@ -13,6 +13,7 @@ export const listConversationsRequest = z.object({
   botCategory: conversationBotCategories.optional(),
   assignedId: z.string().nullable().optional(),
   channel: z.union([channelTypes]).optional(),
+  inboxIds: z.array(zodBigintAsString()).optional(),
   status: z.array(conversationStatuses).optional(),
   keyword: z.string().optional(),
   botEnabled: z.boolean().nullish(),
