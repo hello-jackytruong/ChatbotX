@@ -29,6 +29,7 @@ const mocks = vi.hoisted(() => {
     loggerError: vi.fn(),
     messengerDisconnect: vi.fn().mockResolvedValue(undefined),
     messengerDisconnectSafe: vi.fn(() => false),
+    messengerBackfillTearDown: vi.fn().mockResolvedValue(undefined),
     messengerExists: vi.fn().mockResolvedValue(false),
     messengerServiceDisconnect: vi.fn(
       (props: {
@@ -74,6 +75,9 @@ vi.mock("@chatbotx.io/business", () => ({
     existsForPage: mocks.messengerExists,
     findByIdForWorkspace: mocks.findOrFail,
     disconnect: mocks.messengerServiceDisconnect,
+  },
+  messengerBackfillService: {
+    tearDownForIntegration: mocks.messengerBackfillTearDown,
   },
   workspaceService: { findById: mocks.workspaceFindById },
 }))
