@@ -4,7 +4,6 @@ import {
   type ContactProfileNameSource,
   contactProfileRefreshService,
   hasEmptyProfileName,
-  messengerIntegrationService,
   resolveInboundProfileNameSource,
 } from "@chatbotx.io/business"
 import { isInboundConversationMessage } from "@chatbotx.io/business/contact-profile-rules"
@@ -96,30 +95,32 @@ const inboundProfileFetchers: Record<
   channelApi:
     ({ inbox, contactInbox }) =>
     async () => {
-      const { integration, ctx } =
+      const { integration, ctx, integrationRow } =
         await resolveIntegrationContextFromContactInbox({
           workspaceId: inbox.workspaceId,
           contactInbox,
         })
-      const getMetaProfile = () =>
+      const getMetaProfile = (includeAvatar = false) =>
         integration.runChannelHandler("contact", "getProfile", {
           ctx,
-          data: { sourceId: contactInbox.sourceId, includeAvatar: false },
+          data: includeAvatar
+            ? { sourceId: contactInbox.sourceId }
+            : { sourceId: contactInbox.sourceId, includeAvatar: false },
         })
-      if (inbox.channel !== "messenger") {
-        return getMetaProfile()
+      if (inbox.channel !== "messenger" || !integrationRow) {
+        return getMetaProfile(true)
       }
-      const row = await messengerIntegrationService.findByInboxIdForWorkspace({
-        workspaceId: inbox.workspaceId,
-        inboxId: inbox.id,
-      })
+      const row = integrationRow as typeof integrationRow & {
+        id: string
+        pageId: string
+      }
       const profile = await resolveMessengerProfile({
         workspaceId: inbox.workspaceId,
         integrationMessengerId: row.id,
         pageId: row.pageId,
         sourceId: contactInbox.sourceId,
         includeAvatar: false,
-        getMetaProfile,
+        getMetaProfile: () => getMetaProfile(false),
       })
       if (!profile) {
         return { sourceId: contactInbox.sourceId }

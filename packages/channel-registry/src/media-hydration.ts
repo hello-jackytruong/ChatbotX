@@ -8,7 +8,6 @@ import {
   isFailedOriginPath,
   isNoAvatarSentinelFresh,
   isPendingOriginPath,
-  messengerIntegrationService,
   parseNoAvatarSentinel,
   updateAttachmentOrThrow,
   WA_MEDIA_PREFIX,
@@ -1354,7 +1353,7 @@ const mirrorContactAvatar = async (
 
   let avatar: string
   try {
-    const { ctx, integration } =
+    const { ctx, integration, integrationRow } =
       await resolveIntegrationContextFromContactInbox({
         workspaceId: input.workspaceId,
         contactInbox,
@@ -1364,11 +1363,11 @@ const mirrorContactAvatar = async (
         ctx,
         data: { sourceId: contactInbox.sourceId },
       })
-    if (contactInbox.channel === "messenger") {
-      const row = await messengerIntegrationService.findByInboxIdForWorkspace({
-        workspaceId: input.workspaceId,
-        inboxId: contactInbox.inboxId,
-      })
+    if (contactInbox.channel === "messenger" && integrationRow) {
+      const row = integrationRow as typeof integrationRow & {
+        id: string
+        pageId: string
+      }
       const profile = await resolveMessengerProfile({
         workspaceId: input.workspaceId,
         integrationMessengerId: row.id,

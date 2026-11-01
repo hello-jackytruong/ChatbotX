@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Non-blocking realtime profile fallback"
-status: pending
+status: completed
 effort: "medium"
 ---
 
@@ -81,10 +81,10 @@ rather than interrupting message processing.
 
 ## Success Criteria
 
-- [ ] Provider order is deterministic and exact-identity safe.
-- [ ] Both providers failing never drops the inbound message.
-- [ ] A missing credential produces the same Meta behavior as today.
-- [ ] Realtime path never downloads or stores avatar bytes inline.
+- [x] Provider order is deterministic and exact-identity safe.
+- [x] Both providers failing never drops the inbound message.
+- [x] A missing credential produces the same Meta behavior as today.
+- [x] Realtime path never downloads or stores avatar bytes inline.
 
 ## Risks and rollback
 

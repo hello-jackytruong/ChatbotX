@@ -25,7 +25,8 @@ const enqueue = async (workspaceId: string, runId: string) => {
       },
       {
         jobId: buildMessengerProfileBackfillJobId(runId),
-        attempts: 1,
+        attempts: 3,
+        backoff: { type: "exponential", delay: 30_000 },
         removeOnComplete: true,
         removeOnFail: { count: 100 },
       },

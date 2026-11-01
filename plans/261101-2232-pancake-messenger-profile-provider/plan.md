@@ -1,7 +1,7 @@
 ---
 title: "Pancake Messenger profile provider"
 description: "Write-only Page credentials, non-blocking realtime fallback, and isolated profile backfill"
-status: pending
+status: completed
 priority: P1
 branch: "dev"
 tags: [messenger, pancake, contact-profile, security, backfill]
@@ -55,9 +55,9 @@ history-import run model.
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | [encrypted-page-credential](./phase-01-encrypted-page-credential.md) | Pending |
-| 2 | [realtime-profile-fallback](./phase-02-realtime-profile-fallback.md) | Pending |
-| 3 | [isolated-profile-backfill](./phase-03-isolated-profile-backfill.md) | Pending |
+| 1 | [encrypted-page-credential](./phase-01-encrypted-page-credential.md) | Completed |
+| 2 | [realtime-profile-fallback](./phase-02-realtime-profile-fallback.md) | Completed |
+| 3 | [isolated-profile-backfill](./phase-03-isolated-profile-backfill.md) | Completed |
 
 ## Dependencies
 

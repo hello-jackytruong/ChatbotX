@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Encrypted Page credential"
-status: pending
+status: completed
 effort: "medium"
 ---
 
@@ -81,11 +81,11 @@ Messenger Page, plus a small settings card on the Page edit screen.
 
 ## Success Criteria
 
-- [ ] DB and all public DTOs contain no plaintext token.
-- [ ] Failed verification cannot destroy a working token.
-- [ ] Workspace/Page isolation and real-superAdmin-only mutation are enforced
+- [x] DB and all public DTOs contain no plaintext token.
+- [x] Failed verification cannot destroy a working token.
+- [x] Workspace/Page isolation and real-superAdmin-only mutation are enforced
   server-side.
-- [ ] No existing Messenger integration schema or auth JSON is changed.
+- [x] No existing Messenger integration schema or auth JSON is changed.
 
 ## Risks and rollback
 

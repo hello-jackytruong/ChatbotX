@@ -1,4 +1,12 @@
-import { and, db, desc, eq, isUniqueViolationError, sql } from "../../client"
+import {
+  and,
+  db,
+  desc,
+  eq,
+  inArray,
+  isUniqueViolationError,
+  sql,
+} from "../../client"
 import { messengerProfileBackfillRunModel } from "../../schema"
 import type { MessengerProfileBackfillRunModel } from "../../types"
 
@@ -61,14 +69,14 @@ export const messengerProfileBackfillRunRepository = {
       .update(messengerProfileBackfillRunModel)
       .set({
         status: "running",
-        startedAt: new Date(),
+        startedAt: sql`COALESCE(${messengerProfileBackfillRunModel.startedAt}, NOW())`,
         lastHeartbeatAt: new Date(),
       })
       .where(
         and(
           eq(messengerProfileBackfillRunModel.id, input.runId),
           eq(messengerProfileBackfillRunModel.workspaceId, input.workspaceId),
-          eq(messengerProfileBackfillRunModel.status, "init"),
+          inArray(messengerProfileBackfillRunModel.status, ["init", "running"]),
         ),
       )
       .returning()

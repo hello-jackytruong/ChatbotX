@@ -65,6 +65,9 @@ export const messengerProfileBackfillRunModel = pgTable(
     index("MessengerProfileBackfillRun_integration_idx").on(
       table.integrationMessengerId,
     ),
+    index("MessengerProfileBackfillRun_requestedByUserId_idx")
+      .on(table.requestedByUserId)
+      .where(sql`${table.requestedByUserId} IS NOT NULL`),
     uniqueIndex("MessengerProfileBackfillRun_active_uq")
       .on(table.integrationMessengerId)
       .where(sql`${table.status} IN ('init', 'running')`),

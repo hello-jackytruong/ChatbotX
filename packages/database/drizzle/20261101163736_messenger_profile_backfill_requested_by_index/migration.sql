@@ -1,0 +1,1 @@
+CREATE INDEX "MessengerProfileBackfillRun_requestedByUserId_idx" ON "MessengerProfileBackfillRun" ("requestedByUserId") WHERE "requestedByUserId" IS NOT NULL;
