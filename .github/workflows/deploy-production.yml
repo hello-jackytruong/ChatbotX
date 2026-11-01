@@ -20,9 +20,104 @@ jobs:
     permissions:
       contents: read
 
+  detect:
+    name: Detect affected services
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      deployments: read
+    outputs:
+      has_services: ${{ steps.affected.outputs.has_services }}
+      services: ${{ steps.affected.outputs.services }}
+      matrix: ${{ steps.affected.outputs.matrix }}
+      full_deploy: ${{ steps.affected.outputs.full_deploy }}
+      reason: ${{ steps.affected.outputs.reason }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Set up pnpm
+        if: github.event_name == 'push'
+        uses: pnpm/action-setup@v6.1.0
+
+      - name: Set up Node.js
+        if: github.event_name == 'push'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependency graph
+        if: github.event_name == 'push'
+        run: pnpm install --frozen-lockfile
+
+      - name: Detect affected production services
+        id: affected
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_SHA=""
+          if [ "${{ github.event_name }}" = "push" ]; then
+            if ! BASE_SHA="$(node scripts/deployment/detect-affected-services.mjs \
+              --resolve-production-baseline \
+              --github-repository "$GITHUB_REPOSITORY" \
+              --environment production)"; then
+              echo "::warning::Could not read production deployment history; using a full deployment"
+              BASE_SHA=""
+            fi
+          fi
+
+          if [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            node scripts/deployment/detect-affected-services.mjs \
+              --full \
+              --head "$HEAD_SHA" \
+              --github-output "$GITHUB_OUTPUT"
+          else
+            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+              if ! git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
+                echo "::warning::Could not fetch the production baseline; using a full deployment"
+                BASE_SHA=""
+              fi
+            fi
+            if [ -z "$BASE_SHA" ]; then
+              node scripts/deployment/detect-affected-services.mjs \
+                --full \
+                --head "$HEAD_SHA" \
+                --github-output "$GITHUB_OUTPUT"
+            else
+              node scripts/deployment/detect-affected-services.mjs \
+                --base "$BASE_SHA" \
+                --head "$HEAD_SHA" \
+                --github-output "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Summarize deployment scope
+        env:
+          HAS_SERVICES: ${{ steps.affected.outputs.has_services }}
+          SERVICES: ${{ steps.affected.outputs.services }}
+          FULL_DEPLOY: ${{ steps.affected.outputs.full_deploy }}
+          REASON: ${{ steps.affected.outputs.reason }}
+        run: |
+          {
+            echo "### Production deployment scope"
+            echo "- Reason: $REASON"
+            echo "- Full deployment: $FULL_DEPLOY"
+            echo "- Services: ${SERVICES:-none}"
+            echo "- Application deployment required: $HAS_SERVICES"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build-image:
     name: Build ${{ matrix.label }}
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev' && needs.detect.outputs.has_services == 'true'
+    needs: detect
     runs-on: ubuntu-latest
     timeout-minutes: 45
     concurrency:
@@ -33,20 +128,7 @@ jobs:
       packages: write
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - label: builder
-            image: chatbotx-builder
-            dockerfile: ./apps/builder/docker/Dockerfile
-          - label: worker
-            image: chatbotx-worker
-            dockerfile: ./apps/worker/docker/Dockerfile
-          - label: realtime
-            image: chatbotx-realtime
-            dockerfile: ./apps/realtime/docker/Dockerfile
-          - label: javascript-executor
-            image: chatbotx-javascript-executor
-            dockerfile: ./apps/javascript-executor/docker/Dockerfile
+      matrix: ${{ fromJSON(needs.detect.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -131,9 +213,14 @@ jobs:
 
   deploy:
     name: Deploy to production
-    if: github.ref == 'refs/heads/dev'
+    if: >-
+      github.ref == 'refs/heads/dev' &&
+      needs.detect.outputs.has_services == 'true' &&
+      needs.check.result == 'success' &&
+      needs.build-image.result == 'success'
     needs:
       - check
+      - detect
       - build-image
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -164,6 +251,7 @@ jobs:
           PROD_PORT: ${{ secrets.PROD_PORT }}
           PROD_USER: ${{ secrets.PROD_USER }}
           RELEASE_SHA: ${{ github.sha }}
+          DEPLOY_SERVICES: ${{ needs.detect.outputs.services }}
         shell: bash
         run: |
           set -euo pipefail
@@ -181,17 +269,18 @@ jobs:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
             "$PROD_USER@$PROD_HOST" \
-            "bash -s -- '$RELEASE_SHA' '$image_prefix'" <<'REMOTE'
+            "bash -s -- '$RELEASE_SHA' '$image_prefix' '$DEPLOY_SERVICES'" <<'REMOTE'
           set -Eeuo pipefail
           release_sha="$1"
           image_prefix="$2"
+          deploy_services="$3"
           cd /root/apps/ChatbotX
 
           git fetch --quiet origin dev
           remote_sha="$(git rev-parse origin/dev)"
           if [ "$remote_sha" != "$release_sha" ]; then
             echo "Skipping stale release $release_sha; origin/dev is now $remote_sha"
-            exit 0
+            exit 75
           fi
 
           git checkout dev
@@ -204,5 +293,6 @@ jobs:
           CHATBOTX_IMAGE_PREFIX="$image_prefix" \
           CHATBOTX_IMAGE_TAG="sha-$release_sha" \
           CHATBOTX_EXPECTED_GIT_SHA="$release_sha" \
+          CHATBOTX_DEPLOY_SERVICES="$deploy_services" \
             ./scripts/deployment/production.sh pull-deploy
           REMOTE

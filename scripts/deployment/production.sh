@@ -28,13 +28,25 @@ readonly BACKUP_CRON_FILE="${BACKUP_CRON_FILE:-/etc/cron.d/chatbotx-production-b
 readonly BACKUP_LOG_FILE="${BACKUP_LOG_FILE:-/var/log/chatbotx-production-backup.log}"
 readonly BACKUP_LOGROTATE_FILE="${BACKUP_LOGROTATE_FILE:-/etc/logrotate.d/chatbotx-production-backup}"
 
+# Compose resolves image variables before it executes a command. Keep one tag
+# per application so a selective deployment never changes an untouched
+# service's desired image. CHATBOTX_IMAGE_TAG remains the release tag supplied
+# by CI (and the backwards-compatible default for a full manual deployment).
+export CHATBOTX_BUILDER_IMAGE_TAG="${CHATBOTX_BUILDER_IMAGE_TAG:-${CHATBOTX_IMAGE_TAG:-local}}"
+export CHATBOTX_WORKER_IMAGE_TAG="${CHATBOTX_WORKER_IMAGE_TAG:-${CHATBOTX_IMAGE_TAG:-local}}"
+export CHATBOTX_JAVASCRIPT_EXECUTOR_IMAGE_TAG="${CHATBOTX_JAVASCRIPT_EXECUTOR_IMAGE_TAG:-${CHATBOTX_IMAGE_TAG:-local}}"
+export CHATBOTX_REALTIME_IMAGE_TAG="${CHATBOTX_REALTIME_IMAGE_TAG:-${CHATBOTX_IMAGE_TAG:-local}}"
+
 COMPOSE=(
   docker compose
   --project-directory "$REPO_ROOT"
   -f "$COMPOSE_FILE"
 )
 
-APP_SERVICES=(builder worker javascript-executor realtime)
+# Dependency-safe activation order: public API first, its isolated executor,
+# realtime after Builder is healthy, and Worker last.
+APP_SERVICES=(builder javascript-executor realtime worker)
+RESOLVED_DEPLOY_SERVICES=()
 
 log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
@@ -51,12 +63,12 @@ Usage: ./scripts/deployment/production.sh <command> [options]
 
 Commands:
   check               Validate Docker, Compose, host capacity and configuration
-  build [--refresh]   Build all application images sequentially; keep cache
-  pull                 Pull a complete release from GHCR without activating it
+  build [--refresh]   Build selected application images sequentially; keep cache
+  pull                 Pull selected release images without activating them
   up                  Activate the latest successfully built image tag
   deploy [--refresh]  Build, backup, migrate and activate in one safe command
-  pull-deploy          Pull from GHCR, backup, migrate and activate safely
-  rollback            Restore the previous application image tag
+  pull-deploy          Pull, backup, migrate and activate selected services
+  rollback            Restore previous images of the last/selected services
   backup              Create and verify a database backup immediately
   install-cron        Install automatic backups at 02:00 and 14:00 daily
   cron-status         Show backup cron status and retained backup count
@@ -71,6 +83,10 @@ Normal deployment:
 Deploy an image already built by GitHub Actions:
   CHATBOTX_IMAGE_TAG=sha-<git-sha> ./scripts/deployment/production.sh pull-deploy
 
+Deploy only selected services (validated comma-separated names):
+  CHATBOTX_DEPLOY_SERVICES=builder,realtime \
+    CHATBOTX_IMAGE_TAG=sha-<git-sha> ./scripts/deployment/production.sh pull-deploy
+
 Refresh base images before building:
   ./scripts/deployment/production.sh deploy --refresh
 EOF
@@ -82,6 +98,7 @@ require_command() {
 
 check_tools() {
   local command
+  (( BASH_VERSINFO[0] >= 4 )) || fail "Bash 4 or newer is required."
   for command in awk chmod chown cut df docker du find flock git grep install mktemp sed sort tr wc; do
     require_command "$command"
   done
@@ -159,13 +176,129 @@ state_set() {
   mv -- "$temporary" "$STATE_DIR/$name"
 }
 
+state_unset() {
+  rm -f -- "$STATE_DIR/$1"
+}
+
+is_app_service() {
+  case "$1" in
+    builder | worker | realtime | javascript-executor) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+service_tag_variable() {
+  case "$1" in
+    builder) printf '%s' 'CHATBOTX_BUILDER_IMAGE_TAG' ;;
+    worker) printf '%s' 'CHATBOTX_WORKER_IMAGE_TAG' ;;
+    realtime) printf '%s' 'CHATBOTX_REALTIME_IMAGE_TAG' ;;
+    javascript-executor) printf '%s' 'CHATBOTX_JAVASCRIPT_EXECUTOR_IMAGE_TAG' ;;
+    *) fail "Unknown application service: $1" ;;
+  esac
+}
+
+set_service_tag() {
+  local service="$1" tag="$2" variable
+  variable="$(service_tag_variable "$service")"
+  printf -v "$variable" '%s' "$tag"
+  export "${variable?}"
+}
+
 running_tag() {
-  local container_id image
-  container_id="$("${COMPOSE[@]}" ps -q builder 2>/dev/null || true)"
+  local service="${1:-builder}" container_id image repository
+  repository="$(service_image_repository "$service")"
+  container_id="$("${COMPOSE[@]}" ps -q "$service" 2>/dev/null || true)"
   [[ -n "$container_id" ]] || return 0
   image="$(docker inspect --format '{{.Config.Image}}' "$container_id" 2>/dev/null || true)"
-  [[ "$image" == chatbotx-builder:* ]] || return 0
-  printf '%s' "${image#chatbotx-builder:}"
+  [[ "$image" == "$repository:"* ]] || return 0
+  printf '%s' "${image#"$repository:"}"
+}
+
+current_tag_for_service() {
+  local service="$1" tag
+  tag="$(running_tag "$service")"
+  [[ -n "$tag" ]] || tag="$(state_get "current-tag-$service")"
+  # Migration path from the original single-release state files.
+  [[ -n "$tag" ]] || tag="$(state_get current-tag)"
+  printf '%s' "$tag"
+}
+
+previous_tag_for_service() {
+  local service="$1" tag
+  tag="$(state_get "previous-tag-$service")"
+  [[ -n "$tag" ]] || tag="$(state_get previous-tag)"
+  printf '%s' "$tag"
+}
+
+built_tag_for_service() {
+  local service="$1" tag
+  tag="$(state_get "built-tag-$service")"
+  [[ -n "$tag" ]] || tag="$(state_get built-tag)"
+  printf '%s' "$tag"
+}
+
+resolve_deploy_services() {
+  local raw="${CHATBOTX_DEPLOY_SERVICES:-}" service seen=','
+  local -a requested=()
+  RESOLVED_DEPLOY_SERVICES=()
+  if [[ -z "$raw" ]]; then
+    RESOLVED_DEPLOY_SERVICES=("${APP_SERVICES[@]}")
+    return 0
+  fi
+
+  while IFS= read -r service; do
+    service="$(printf '%s' "$service" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    [[ -n "$service" ]] || continue
+    is_app_service "$service" || fail "Invalid CHATBOTX_DEPLOY_SERVICES entry: $service"
+    if [[ "$seen" != *",$service,"* ]]; then
+      requested+=("$service")
+      seen+="$service,"
+    fi
+  done < <(printf '%s\n' "$raw" | tr ',' '\n')
+  RESOLVED_DEPLOY_SERVICES=("${requested[@]}")
+}
+
+join_services() {
+  local joined="" service
+  for service in "$@"; do
+    [[ -n "$joined" ]] && joined+=','
+    joined+="$service"
+  done
+  printf '%s' "$joined"
+}
+
+deployment_scope_is_full() {
+  local service
+  (( $# == ${#APP_SERVICES[@]} )) || return 1
+  for service in "${APP_SERVICES[@]}"; do
+    service_is_selected "$service" "$@" || return 1
+  done
+}
+
+require_full_deploy_after_manual_rollback() {
+  [[ "$(state_get force-full-next-deploy)" != "1" ]] && return 0
+  deployment_scope_is_full "$@" || fail \
+    "A manual rollback changed the production baseline. Run one full deployment before using selective deployment again."
+}
+
+configure_compose_tags_from_current() {
+  local service tag
+  for service in "${APP_SERVICES[@]}"; do
+    tag="$(current_tag_for_service "$service")"
+    set_service_tag "$service" "${tag:-local}"
+  done
+}
+
+ensure_untouched_services_are_running() {
+  local selected="," service
+  for service in "$@"; do
+    selected+="$service,"
+  done
+  for service in "${APP_SERVICES[@]}"; do
+    if [[ "$selected" != *",$service,"* ]] && [[ -z "$(running_tag "$service")" ]]; then
+      fail "Cannot selectively deploy while $service is not running. Run a full deployment first."
+    fi
+  done
 }
 
 new_release_tag() {
@@ -175,19 +308,23 @@ new_release_tag() {
 build_release() {
   local refresh="$1" service deploy_tag
   local -a build_options=(--builder "$BUILDER_NAME")
+  shift
+  local -a services=("$@")
   [[ "$refresh" == "true" ]] && build_options+=(--pull)
 
   deploy_tag="${CHATBOTX_IMAGE_TAG:-$(new_release_tag)}"
   export CHATBOTX_IMAGE_TAG="$deploy_tag"
+  configure_compose_tags_from_current
 
-  for service in "${APP_SERVICES[@]}"; do
+  for service in "${services[@]}"; do
+    set_service_tag "$service" "$deploy_tag"
     log "Building $service sequentially with tag $deploy_tag"
     COMPOSE_PARALLEL_LIMIT=1 \
       "${COMPOSE[@]}" build "${build_options[@]}" "$service"
   done
 
-  state_set built-tag "$deploy_tag"
-  log "Build completed. Activate it with: $0 up"
+  record_built_release "$deploy_tag" "${services[@]}"
+  log "Build completed for $(join_services "${services[@]}"). Activate it with: $0 up"
 }
 
 service_image_repository() {
@@ -203,6 +340,7 @@ service_image_repository() {
 pull_release() {
   local deploy_tag service repository remote_image local_image downloaded_image index
   local expected_revision actual_revision
+  local -a services=("$@")
   local -a remote_images=()
   local -a local_images=()
 
@@ -211,7 +349,7 @@ pull_release() {
   [[ "$deploy_tag" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]] || fail "Invalid image tag: $deploy_tag"
   [[ "$IMAGE_PREFIX" =~ ^[a-z0-9.-]+(:[0-9]+)?/[a-z0-9._/-]+$ ]] || fail "Invalid CHATBOTX_IMAGE_PREFIX: $IMAGE_PREFIX"
 
-  for service in "${APP_SERVICES[@]}"; do
+  for service in "${services[@]}"; do
     repository="$(service_image_repository "$service")"
     remote_image="${IMAGE_PREFIX%/}/$repository:$deploy_tag"
     local_image="$repository:$deploy_tag"
@@ -250,7 +388,18 @@ pull_release() {
     docker image rm "$remote_image" >/dev/null 2>&1 || true
   done
 
-  log "Release $deploy_tag downloaded and verified for all application services."
+  log "Release $deploy_tag downloaded and verified for: $(join_services "${services[@]}")."
+}
+
+record_built_release() {
+  local deploy_tag="$1" service
+  shift
+  local -a services=("$@")
+  for service in "${services[@]}"; do
+    state_set "built-tag-$service" "$deploy_tag"
+  done
+  state_set built-tag "$deploy_tag"
+  state_set built-services "$(join_services "${services[@]}")"
 }
 
 release_matches_expected_git_sha() {
@@ -410,88 +559,158 @@ run_migrations() {
   "${COMPOSE[@]}" run --rm --no-deps builder migrate
 }
 
-start_apps() {
-  "${COMPOSE[@]}" up \
-    -d --no-build --remove-orphans --wait --wait-timeout 300
+service_is_selected() {
+  local wanted="$1" service
+  shift
+  for service in "$@"; do
+    [[ "$service" == "$wanted" ]] && return 0
+  done
+  return 1
 }
 
-rollback_to() {
-  local target_tag="$1"
-  [[ -n "$target_tag" ]] || return 1
-  log "Restoring application image tag $target_tag"
-  CHATBOTX_IMAGE_TAG="$target_tag" \
-    "${COMPOSE[@]}" up \
-    -d --no-build --wait --wait-timeout 300 \
-    "${APP_SERVICES[@]}"
+start_selected_apps() {
+  local service
+  local -a selected=("$@")
+  for service in "${APP_SERVICES[@]}"; do
+    service_is_selected "$service" "${selected[@]}" || continue
+    log "Activating $service with image tag $(current_compose_tag "$service")."
+    # --no-deps is essential for a selective release: Compose must not
+    # recreate an untouched dependency merely because another service changed.
+    if ! "${COMPOSE[@]}" up \
+      -d --no-build --no-deps --wait --wait-timeout 300 \
+      "$service"; then
+      log "Health-checked activation failed for $service."
+      return 1
+    fi
+  done
+}
+
+current_compose_tag() {
+  local variable
+  variable="$(service_tag_variable "$1")"
+  printf '%s' "${!variable}"
+}
+
+rollback_services_to_map() {
+  local map_name="$1" service tag rollback_failed=false
+  shift
+  local -a services=("$@")
+  local -a restorable=()
+  # shellcheck disable=SC2178
+  local -n rollback_tag_map="$map_name"
+
+  for service in "${services[@]}"; do
+    tag="${rollback_tag_map[$service]:-}"
+    if [[ -z "$tag" ]]; then
+      log "No previous image is available for $service; automatic rollback is incomplete."
+      rollback_failed=true
+      continue
+    fi
+    set_service_tag "$service" "$tag"
+    restorable+=("$service")
+  done
+
+  if (( ${#restorable[@]} > 0 )); then
+    log "Restoring previous images for: $(join_services "${restorable[@]}")."
+    # Try every touched service even if one rollback health check fails. This
+    # avoids needlessly leaving later services on the failed release.
+    for service in "${APP_SERVICES[@]}"; do
+      service_is_selected "$service" "${restorable[@]}" || continue
+      start_selected_apps "$service" || rollback_failed=true
+    done
+  fi
+  [[ "$rollback_failed" == "false" ]]
 }
 
 activate_built_release() {
-  local deploy_tag previous_tag
-  deploy_tag="$(state_get built-tag)"
-  [[ -n "$deploy_tag" ]] || fail "No completed release found. Run '$0 build' or '$0 pull' first."
-  previous_tag="$(running_tag)"
-  [[ -n "$previous_tag" ]] || previous_tag="$(state_get current-tag)"
-  export CHATBOTX_IMAGE_TAG="$deploy_tag"
+  local service deploy_tag
+  local -a services=("$@")
+  declare -A previous_tags=()
+
+  ensure_untouched_services_are_running "${services[@]}"
+  configure_compose_tags_from_current
+  for service in "${services[@]}"; do
+    previous_tags["$service"]="$(current_tag_for_service "$service")"
+    deploy_tag="$(built_tag_for_service "$service")"
+    [[ -n "$deploy_tag" ]] || fail "No completed image exists for $service. Run '$0 build' or '$0 pull' first."
+    set_service_tag "$service" "$deploy_tag"
+  done
 
   start_datastores
   backup_database
   run_migrations
 
-  log "Activating application image tag $deploy_tag"
-  if ! start_apps; then
-    log "New release failed health checks."
-    rollback_to "$previous_tag" || true
-    fail "Activation failed; previous application images were restored when available."
+  log "Activating application services: $(join_services "${services[@]}")."
+  if ! start_selected_apps "${services[@]}"; then
+    log "New release failed health checks; starting service-scoped rollback."
+    rollback_services_to_map previous_tags "${services[@]}" || true
+    fail "Activation failed; previous images were restored when available. Database migrations were not reversed."
   fi
 
-  [[ -n "$previous_tag" ]] && state_set previous-tag "$previous_tag"
-  state_set current-tag "$deploy_tag"
-  log "Production is healthy on image tag $deploy_tag"
+  for service in "${services[@]}"; do
+    [[ -n "${previous_tags[$service]}" ]] && \
+      state_set "previous-tag-$service" "${previous_tags[$service]}"
+    state_set "current-tag-$service" "$(current_compose_tag "$service")"
+  done
+  state_set last-deployed-services "$(join_services "${services[@]}")"
+  if deployment_scope_is_full "${services[@]}"; then
+    [[ -n "${previous_tags[builder]}" ]] && state_set previous-tag "${previous_tags[builder]}"
+    state_set current-tag "$(current_compose_tag builder)"
+    state_unset force-full-next-deploy
+  fi
+  log "Production is healthy after activating: $(join_services "${services[@]}")."
   "${COMPOSE[@]}" ps
 }
 
 rollback_release() {
-  local current_tag previous_tag
-  current_tag="$(running_tag)"
-  [[ -n "$current_tag" ]] || current_tag="$(state_get current-tag)"
-  previous_tag="$(state_get previous-tag)"
-  [[ -n "$previous_tag" ]] || fail "No previous release tag is recorded."
+  local service current_tag previous_tag
+  local -a services=("$@")
+  declare -A current_tags=()
+  declare -A previous_tags=()
 
-  rollback_to "$previous_tag" || fail "Rollback failed."
-  state_set current-tag "$previous_tag"
-  [[ -n "$current_tag" ]] && state_set previous-tag "$current_tag"
-  log "Rollback completed: $previous_tag"
+  configure_compose_tags_from_current
+  for service in "${services[@]}"; do
+    current_tag="$(current_tag_for_service "$service")"
+    previous_tag="$(previous_tag_for_service "$service")"
+    [[ -n "$previous_tag" ]] || fail "No previous image tag is recorded for $service."
+    current_tags["$service"]="$current_tag"
+    previous_tags["$service"]="$previous_tag"
+  done
+
+  # Set this before touching containers. A partially failed manual rollback is
+  # still a production-baseline change and must force reconciliation.
+  state_set force-full-next-deploy 1
+  rollback_services_to_map previous_tags "${services[@]}" || fail "Rollback failed."
+  for service in "${services[@]}"; do
+    state_set "current-tag-$service" "${previous_tags[$service]}"
+    [[ -n "${current_tags[$service]}" ]] && \
+      state_set "previous-tag-$service" "${current_tags[$service]}"
+  done
+  state_set last-deployed-services "$(join_services "${services[@]}")"
+  log "Rollback completed for: $(join_services "${services[@]}")."
 }
 
 clean_old_releases() {
-  local current_tag previous_tag built_tag tag repository kept=0
-  local -a repositories=(
-    chatbotx-builder
-    chatbotx-worker
-    chatbotx-javascript-executor
-    chatbotx-realtime
-  )
-  declare -A protected=()
+  local service repository current_tag previous_tag built_tag tag kept
 
-  current_tag="$(running_tag)"
-  [[ -n "$current_tag" ]] || current_tag="$(state_get current-tag)"
-  previous_tag="$(state_get previous-tag)"
-  built_tag="$(state_get built-tag)"
-  for tag in "$current_tag" "$previous_tag" "$built_tag" local; do
-    [[ -n "$tag" ]] && protected["$tag"]=1
-  done
+  for service in "${APP_SERVICES[@]}"; do
+    repository="$(service_image_repository "$service")"
+    current_tag="$(current_tag_for_service "$service")"
+    previous_tag="$(previous_tag_for_service "$service")"
+    built_tag="$(built_tag_for_service "$service")"
+    kept=0
 
-  while IFS= read -r tag; do
-    [[ -n "$tag" && "$tag" != "<none>" ]] || continue
-    if [[ -n "${protected[$tag]:-}" ]] || (( kept < KEEP_RELEASES )); then
-      ((kept += 1))
-      continue
-    fi
-    log "Removing old application image tag: $tag"
-    for repository in "${repositories[@]}"; do
+    while IFS= read -r tag; do
+      [[ -n "$tag" && "$tag" != "<none>" ]] || continue
+      if [[ "$tag" == "$current_tag" || "$tag" == "$previous_tag" || \
+        "$tag" == "$built_tag" || "$tag" == "local" || $kept -lt $KEEP_RELEASES ]]; then
+        ((kept += 1))
+        continue
+      fi
+      log "Removing old $service image tag: $tag"
       docker image rm "$repository:$tag" >/dev/null 2>&1 || true
-    done
-  done < <(docker image ls chatbotx-builder --format '{{.Tag}}')
+    done < <(docker image ls "$repository" --format '{{.Tag}}')
+  done
 }
 
 clean_cache() {
@@ -524,6 +743,7 @@ show_status() {
 
 main() {
   local command="${1:-help}" refresh=false
+  local -a deploy_services=()
   shift || true
 
   if [[ "$command" == "help" || "$command" == "-h" || "$command" == "--help" ]]; then
@@ -533,6 +753,20 @@ main() {
 
   check_tools
   check_project
+
+  if [[ "$command" =~ ^(build|pull|up|deploy|pull-deploy|rollback)$ ]]; then
+    if [[ -z "${CHATBOTX_DEPLOY_SERVICES:-}" && "$command" == "up" ]]; then
+      CHATBOTX_DEPLOY_SERVICES="$(state_get built-services)"
+      export CHATBOTX_DEPLOY_SERVICES
+    elif [[ -z "${CHATBOTX_DEPLOY_SERVICES:-}" && "$command" == "rollback" ]]; then
+      CHATBOTX_DEPLOY_SERVICES="$(state_get last-deployed-services)"
+      export CHATBOTX_DEPLOY_SERVICES
+    fi
+    resolve_deploy_services
+    deploy_services=("${RESOLVED_DEPLOY_SERVICES[@]}")
+    (( ${#deploy_services[@]} > 0 )) || fail "No valid application service was selected."
+    log "Selected application services: $(join_services "${deploy_services[@]}")."
+  fi
 
   case "$command" in
     check)
@@ -545,37 +779,44 @@ main() {
       acquire_lock
       check_build_capacity
       ensure_limited_builder
-      build_release "$refresh"
+      build_release "$refresh" "${deploy_services[@]}"
       ;;
     pull)
       acquire_lock
-      pull_release
-      state_set built-tag "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}"
+      pull_release "${deploy_services[@]}"
+      record_built_release \
+        "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}" \
+        "${deploy_services[@]}"
       ;;
     up)
       acquire_lock
-      activate_built_release
+      require_full_deploy_after_manual_rollback "${deploy_services[@]}"
+      activate_built_release "${deploy_services[@]}"
       ;;
     deploy)
       [[ "${1:-}" == "--refresh" ]] && refresh=true
       acquire_lock
+      require_full_deploy_after_manual_rollback "${deploy_services[@]}"
       check_build_capacity
       ensure_limited_builder
-      build_release "$refresh"
-      activate_built_release
+      build_release "$refresh" "${deploy_services[@]}"
+      activate_built_release "${deploy_services[@]}"
       ;;
     pull-deploy)
       acquire_lock
-      pull_release
+      require_full_deploy_after_manual_rollback "${deploy_services[@]}"
+      pull_release "${deploy_services[@]}"
       if ! release_matches_expected_git_sha; then
-        return 0
+        return 75
       fi
-      state_set built-tag "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}"
-      activate_built_release
+      record_built_release \
+        "${CHATBOTX_IMAGE_TAG:?CHATBOTX_IMAGE_TAG is required}" \
+        "${deploy_services[@]}"
+      activate_built_release "${deploy_services[@]}"
       ;;
     rollback)
       acquire_lock
-      rollback_release
+      rollback_release "${deploy_services[@]}"
       ;;
     backup)
       acquire_backup_lock
