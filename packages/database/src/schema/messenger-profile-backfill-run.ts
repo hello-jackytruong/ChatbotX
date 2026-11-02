@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm"
 import {
+  boolean,
   index,
   integer,
   pgEnum,
@@ -47,6 +48,7 @@ export const messengerProfileBackfillRunModel = pgTable(
       onUpdate: "cascade",
     }),
     policy: messengerProfileBackfillPolicy().notNull().default("pancake"),
+    overwriteExisting: boolean().notNull().default(false),
     status: messengerProfileBackfillStatus().notNull().default("init"),
     cursorContactInboxId: bigintAsString(),
     currentScan: integer().notNull().default(0),

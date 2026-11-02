@@ -5915,6 +5915,11 @@
     },
     "notConfigured": "Pancake token not configured",
     "missingOnly": "Only missing fields are filled. Existing contact data is never overwritten.",
+    "overwriteWarning": "Replace existing names, gender and avatars when the provider returns a value. Missing provider values are preserved.",
+    "modes": {
+      "missingOnly": "Missing fields only",
+      "overwrite": "Overwrite existing"
+    },
     "start": "Start profile backfill",
     "cancel": "Cancel",
     "retry": "Retry",

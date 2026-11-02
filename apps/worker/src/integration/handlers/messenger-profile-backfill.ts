@@ -4,13 +4,17 @@ import {
 } from "@chatbotx.io/business"
 import { sanitizePublicText } from "@chatbotx.io/business/errors"
 import { messengerProfileBackfillService } from "@chatbotx.io/business/messenger-profile-backfill"
-import { resolveMessengerProfile } from "@chatbotx.io/business/messenger-profile-provider"
+import {
+  loadPancakeMessengerProfileIndex,
+  resolveIndexedMessengerProfile,
+} from "@chatbotx.io/business/messenger-profile-provider"
 import { messengerProfileBackfillRunRepository } from "@chatbotx.io/database/repositories"
 import type { MessengerAuthValue } from "@chatbotx.io/integration-messenger"
 import { createId } from "@chatbotx.io/utils"
 import { fetchMediaWithLimits } from "@chatbotx.io/utils/media-download"
 import { storeIncomingImage } from "@chatbotx.io/utils/store-incoming-image"
 import type { LowJobMessengerProfileBackfill } from "@chatbotx.io/worker-config"
+import { logger } from "../../lib/logger"
 import { allIntegrations } from "../../services/integrations"
 
 const BATCH_SIZE = 20
@@ -52,6 +56,32 @@ export async function runMessengerProfileBackfill(
       },
     })
 
+    let pancakeProfiles: Awaited<
+      ReturnType<typeof loadPancakeMessengerProfileIndex>
+    >
+    try {
+      pancakeProfiles =
+        run.policy === "meta"
+          ? undefined
+          : await loadPancakeMessengerProfileIndex({
+              workspaceId: data.workspaceId,
+              integrationMessengerId: integrationRow.id,
+              pageId: integrationRow.pageId,
+              includeAvatar: true,
+            })
+    } catch {
+      if (run.policy === "pancake") {
+        throw new Error("Pancake conversations could not be read")
+      }
+      logger.warn(
+        { pageId: integrationRow.pageId },
+        "Pancake conversations could not be read; profile backfill will use Meta",
+      )
+    }
+    if (run.policy === "pancake" && !pancakeProfiles) {
+      throw new Error("Pancake credential is unavailable")
+    }
+
     let cursor = run.cursorContactInboxId
     let totalFailed = 0
     while (true) {
@@ -70,6 +100,7 @@ export async function runMessengerProfileBackfill(
           inboxId: integrationRow.inboxId,
           cursorContactInboxId: cursor,
           limit: BATCH_SIZE,
+          overwriteExisting: run.overwriteExisting,
         })
       if (candidates.length === 0) {
         break
@@ -81,13 +112,10 @@ export async function runMessengerProfileBackfill(
       let failed = 0
       for (const candidate of candidates) {
         try {
-          const profile = await resolveMessengerProfile({
-            workspaceId: data.workspaceId,
-            integrationMessengerId: integrationRow.id,
-            pageId: integrationRow.pageId,
+          const profile = await resolveIndexedMessengerProfile({
             sourceId: candidate.sourceId,
             policy: run.policy,
-            includeAvatar: true,
+            pancakeProfiles,
             getMetaProfile: () =>
               integration.runChannelHandler("contact", "getProfile", {
                 ctx,
@@ -101,30 +129,42 @@ export async function runMessengerProfileBackfill(
 
           let avatar = profile.avatar
           if (profile.provider === "pancake" && profile.avatarUrl) {
-            const media = await fetchMediaWithLimits(profile.avatarUrl)
-            if (media) {
-              avatar = (
-                await storeIncomingImage({
-                  uploader: ctx.uploader,
-                  key: `public/space/${ctx.storagePrefix}/avatars/${createId()}`,
-                  bytes: Buffer.from(media.bytes),
-                  mimeType: media.mimeType,
-                  profile: "avatar",
-                  acl: "public-read",
-                })
-              ).originPath
+            try {
+              const media = await fetchMediaWithLimits(profile.avatarUrl)
+              if (media) {
+                avatar = (
+                  await storeIncomingImage({
+                    uploader: ctx.uploader,
+                    key: `public/space/${ctx.storagePrefix}/avatars/${createId()}`,
+                    bytes: Buffer.from(media.bytes),
+                    mimeType: media.mimeType,
+                    profile: "avatar",
+                    acl: "public-read",
+                  })
+                ).originPath
+              }
+            } catch {
+              logger.warn(
+                {
+                  pageId: integrationRow.pageId,
+                  sourceId: candidate.sourceId,
+                },
+                "Pancake avatar could not be mirrored during profile backfill",
+              )
             }
           }
 
-          const result =
-            await messengerProfileBackfillRunRepository.fillMissingProfile({
-              workspaceId: data.workspaceId,
-              contactId: candidate.contactId,
-              firstName: profile.firstName,
-              lastName: profile.lastName,
-              gender: validGender(profile.gender),
-              avatar,
-            })
+          const updateProfile = run.overwriteExisting
+            ? messengerProfileBackfillRunRepository.overwriteProfile
+            : messengerProfileBackfillRunRepository.fillMissingProfile
+          const result = await updateProfile({
+            workspaceId: data.workspaceId,
+            contactId: candidate.contactId,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            gender: validGender(profile.gender),
+            avatar,
+          })
           if (result.updated) {
             updated += 1
           } else {

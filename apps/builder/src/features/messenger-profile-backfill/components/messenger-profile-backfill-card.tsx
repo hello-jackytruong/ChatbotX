@@ -1,6 +1,7 @@
 "use client"
 
 import { SelectField } from "@chatbotx.io/ui/components/form/select-field"
+import { SwitchField } from "@chatbotx.io/ui/components/form/switch-field"
 import { Button } from "@chatbotx.io/ui/components/ui/button"
 import {
   Card,
@@ -38,6 +39,7 @@ type Run = {
   id: string
   integrationMessengerId: string
   policy: "pancake" | "meta" | "pancakeThenMeta"
+  overwriteExisting: boolean
   status: "init" | "running" | "succeeded" | "partial" | "failed" | "cancelled"
   currentScan: number
   updatedCount: number
@@ -72,6 +74,7 @@ export function MessengerProfileBackfillCard({
         defaultValues: {
           integrationMessengerId: pages[0]?.id ?? "",
           policy: "pancake",
+          overwriteExisting: false,
         } satisfies ScheduleMessengerProfileBackfillRequest,
       },
       actionProps: {
@@ -118,7 +121,7 @@ export function MessengerProfileBackfillCard({
       <CardContent className="space-y-6">
         <Form {...form}>
           <form
-            className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end"
+            className="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end"
             onSubmit={handleSubmitWithAction}
           >
             <SelectField
@@ -129,6 +132,10 @@ export function MessengerProfileBackfillCard({
                 label: `${page.name} (${page.pageId})${page.pancakeConfigured ? "" : ` — ${t("notConfigured")}`}`,
               }))}
               required
+            />
+            <SwitchField
+              label={t("modes.overwrite")}
+              name="overwriteExisting"
             />
             <SelectField
               label={t("fields.policy")}
@@ -154,7 +161,11 @@ export function MessengerProfileBackfillCard({
             </Button>
           </form>
         </Form>
-        <p className="text-muted-foreground text-xs">{t("missingOnly")}</p>
+        <p className="text-muted-foreground text-xs">
+          {form.watch("overwriteExisting")
+            ? t("overwriteWarning")
+            : t("missingOnly")}
+        </p>
 
         <div className="space-y-3">
           {runs.length === 0 ? (
@@ -173,7 +184,12 @@ export function MessengerProfileBackfillCard({
                     </p>
                     <p className="text-muted-foreground text-xs">
                       {t(`policies.${run.policy}`)} ·{" "}
-                      {t(`status.${run.status}`)} ·{" "}
+                      {t(
+                        run.overwriteExisting
+                          ? "modes.overwrite"
+                          : "modes.missingOnly",
+                      )}{" "}
+                      · {t(`status.${run.status}`)} ·{" "}
                       {formatter.dateTime(run.createdAt, {
                         dateStyle: "medium",
                         timeStyle: "short",

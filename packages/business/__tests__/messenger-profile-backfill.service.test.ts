@@ -4,11 +4,12 @@ const mocks = vi.hoisted(() => ({
   findIntegration: vi.fn(),
   getCredentialStatus: vi.fn(),
   create: vi.fn(),
+  findById: vi.fn(),
 }))
 vi.mock("@chatbotx.io/database/repositories", () => ({
   messengerProfileBackfillRunRepository: {
     create: mocks.create,
-    findById: vi.fn(),
+    findById: mocks.findById,
     listHistory: vi.fn(),
     claim: vi.fn(),
     requestCancel: vi.fn(),
@@ -43,7 +44,10 @@ describe("messengerProfileBackfillService", () => {
       }),
     ).resolves.toEqual({ runId: "run-1" })
     expect(mocks.create).toHaveBeenCalledWith(
-      expect.objectContaining({ policy: "pancake" }),
+      expect.objectContaining({
+        policy: "pancake",
+        overwriteExisting: false,
+      }),
     )
 
     mocks.getCredentialStatus.mockResolvedValue({ configured: false })
@@ -64,5 +68,35 @@ describe("messengerProfileBackfillService", () => {
       policy: "meta",
     })
     expect(mocks.getCredentialStatus).not.toHaveBeenCalled()
+  })
+
+  test("stores overwrite mode and preserves it when retrying", async () => {
+    await messengerProfileBackfillService.schedule({
+      workspaceId: "ws-1",
+      integrationMessengerId: "im-1",
+      requestedByUserId: "user-1",
+      overwriteExisting: true,
+    })
+    expect(mocks.create).toHaveBeenCalledWith(
+      expect.objectContaining({ overwriteExisting: true }),
+    )
+
+    mocks.findById.mockResolvedValue({
+      integrationMessengerId: "im-1",
+      policy: "pancakeThenMeta",
+      overwriteExisting: true,
+      status: "failed",
+    })
+    await messengerProfileBackfillService.retry({
+      workspaceId: "ws-1",
+      runId: "run-old",
+      requestedByUserId: "user-1",
+    })
+    expect(mocks.create).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        policy: "pancakeThenMeta",
+        overwriteExisting: true,
+      }),
+    )
   })
 })

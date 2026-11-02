@@ -5620,6 +5620,11 @@
     },
     "notConfigured": "Chưa cấu hình token Pancake",
     "missingOnly": "Chỉ bổ sung trường còn thiếu, không ghi đè dữ liệu liên hệ hiện có.",
+    "overwriteWarning": "Thay tên, giới tính và avatar hiện có khi nguồn trả về giá trị. Trường nguồn không trả về sẽ được giữ nguyên.",
+    "modes": {
+      "missingOnly": "Chỉ bổ sung trường thiếu",
+      "overwrite": "Ghi đè thông tin hiện có"
+    },
     "start": "Bắt đầu backfill hồ sơ",
     "cancel": "Hủy",
     "retry": "Thử lại",
