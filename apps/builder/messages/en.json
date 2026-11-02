@@ -1530,6 +1530,15 @@
       "label": "Custom Field",
       "savePayloadTo": "Save response to Custom Field",
       "set_value": "Set value",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Append to the end",
       "prepend": "Prepend to the beginning",
       "increase": "Increase by",
@@ -1649,7 +1658,8 @@
       "label": "Flows",
       "placeholder": "Select flow",
       "aiGenerateTextAgent": "{aiName}: Generate Text Agent",
-      "aiDeleteMessageHistory": "{aiName}: Delete Message History"
+      "aiDeleteMessageHistory": "{aiName}: Delete Message History",
+      "aiSegmentImage": "{aiName}: Segment Image"
     },
     "steps": {
       "label": "Node",
@@ -2860,6 +2870,39 @@
     },
     "empty": {
       "label": "Empty"
+    },
+    "aiSegmentImage": {
+      "description": "Finds an object in an image with SAM 3.1 and saves a cropped image of it.",
+      "inputFieldId": {
+        "label": "Source image"
+      },
+      "target": {
+        "label": "Object to find",
+        "description": "A short noun phrase such as \"red car\" or \"product box\". Not a question or a command.",
+        "placeholder": "product box"
+      },
+      "matchSelection": {
+        "label": "Matches",
+        "options": {
+          "largest": "Largest object only",
+          "all": "All matching objects (one crop around them)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Save image to"
+      },
+      "detailsOutputFieldId": {
+        "label": "Save details to",
+        "description": "Optional. Receives JSON with the match count and boxes.",
+        "sameAsOutput": "Choose a different field from the output image.",
+        "sameAsInput": "Choose a different field from the source image."
+      },
+      "overwriteWarning": "The result will replace the source image in this field.",
+      "states": {
+        "success": "Found",
+        "skip": "Not found",
+        "error": "Failed"
+      }
     }
   },
   "metaConversions": {
@@ -3948,6 +3991,9 @@
       "comment": "Comment",
       "destinationPipeline": "Destination pipeline",
       "destinationStage": "Destination stage"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segment Image"
     },
     "aiSpeechToText": {
       "muse": {
@@ -5461,6 +5507,9 @@
     "maxCharacters": "Maximum {max} characters.",
     "invalidApiKey": "Invalid API key",
     "maxMustBeGreaterThanMin": "{maxField} must be greater than or equal to {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Choose an inbox.",
       "inboxNotFound": "The selected inbox was not found.",
@@ -5494,6 +5543,7 @@
   "webchat": {
     "chatUnavailable": "This chat is currently unavailable.",
     "description": "Let your customers get instant automated responses from your business directly from your website",
+    "loadMessagesError": "Couldn't load messages. Check your connection and try again.",
     "rateLimitExceeded": "Too many requests. Please try again in a moment.",
     "title": "Web Chat",
     "workspaceUnavailable": "This workspace is no longer available.",
@@ -6492,6 +6542,7 @@
       "setCustomField": "Set Custom Field",
       "clearCustomField": "Clear Custom Field",
       "startAnotherFlow": "Start Another Flow",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notify Admins",
       "sendMetaCapiEvent": "Send Meta CAPI Event",
       "transferConversationToHuman": "Transfer Conversation to Human",
@@ -6796,7 +6847,36 @@
       "pageTitle": "Page keywords",
       "page": "Automatically reply when you send a message containing a keyword to a contact."
     },
-    "pageWarning": "Message content containing a Page keyword can cause messages to be sent to the customer in an infinite loop. Disable the Page keyword immediately if you encounter this situation!"
+    "pageWarning": "Message content containing a Page keyword can cause messages to be sent to the customer in an infinite loop. Disable the Page keyword immediately if you encounter this situation!",
+    "conditions": {
+      "operators": {
+        "is": "Message is",
+        "similarTo": "Message similar to",
+        "contains": "Message contains",
+        "containsPhone": "Message contains phone",
+        "containsEmail": "Message contains email",
+        "containsImage": "Message contains image",
+        "containsVideo": "Message contains video",
+        "containsLink": "Message contains link",
+        "containsWholeWord": "Message contains whole word",
+        "beginsWith": "Message begins with",
+        "endsWith": "Message ends with",
+        "isThumbsUp": "Message is thumbs up",
+        "notContains": "Message doesn't contain",
+        "matchesRegex": "Message matching regex"
+      },
+      "and": "and",
+      "addCondition": "Message condition",
+      "removeCondition": "Remove condition",
+      "note": "Keywords are not case-sensitive and ignore accents, e.g. \"Tư vấn\" and \"tu van\" are recognised as the same.",
+      "keywordPlaceholder": "+ Keyword",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Add at least one keyword.",
+        "keywordConditionTakesNoValues": "This condition takes no keywords.",
+        "invalidKeywordRegex": "Invalid regular expression."
+      }
+    }
   },
   "triggers": {
     "title": "Triggers"

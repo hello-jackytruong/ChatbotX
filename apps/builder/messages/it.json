@@ -289,6 +289,15 @@
       "label": "Campo personalizzato",
       "savePayloadTo": "Salva la risposta nel campo personalizzato",
       "set_value": "Imposta valore",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Aggiungi alla fine",
       "prepend": "Aggiungi all'inizio",
       "increase": "Aumenta di",
@@ -408,7 +417,8 @@
       "label": "Flussi",
       "placeholder": "Seleziona flusso",
       "aiGenerateTextAgent": "{aiName}: Genera agente testuale",
-      "aiDeleteMessageHistory": "{aiName}: Elimina cronologia messaggi"
+      "aiDeleteMessageHistory": "{aiName}: Elimina cronologia messaggi",
+      "aiSegmentImage": "{aiName}: Segmenta immagine"
     },
     "steps": {
       "label": "Nodo",
@@ -1628,6 +1638,39 @@
     },
     "empty": {
       "label": "Vuoto"
+    },
+    "aiSegmentImage": {
+      "description": "Trova un oggetto in un'immagine con SAM 3.1 e ne salva un ritaglio.",
+      "inputFieldId": {
+        "label": "Immagine di origine"
+      },
+      "target": {
+        "label": "Oggetto da trovare",
+        "description": "Una breve frase nominale come \"auto rossa\" o \"scatola del prodotto\". Non una domanda né un comando.",
+        "placeholder": "scatola del prodotto"
+      },
+      "matchSelection": {
+        "label": "Corrispondenze",
+        "options": {
+          "largest": "Solo l'oggetto più grande",
+          "all": "Tutti gli oggetti corrispondenti (un ritaglio che li comprende)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Salva immagine in"
+      },
+      "detailsOutputFieldId": {
+        "label": "Salva dettagli in",
+        "description": "Facoltativo. Riceve un JSON con il numero di corrispondenze e i riquadri.",
+        "sameAsOutput": "Scegli un campo diverso dall'immagine di output.",
+        "sameAsInput": "Scegli un campo diverso dall'immagine di origine."
+      },
+      "overwriteWarning": "Il risultato sostituirà l'immagine di origine in questo campo.",
+      "states": {
+        "success": "Trovato",
+        "skip": "Non trovato",
+        "error": "Non riuscito"
+      }
     }
   },
   "actions": {
@@ -3110,6 +3153,9 @@
       "comment": "Commento",
       "destinationPipeline": "Pipeline di destinazione",
       "destinationStage": "Fase di destinazione"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmenta immagine"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Massimo {max} caratteri.",
     "invalidApiKey": "Chiave API non valida",
     "maxMustBeGreaterThanMin": "{maxField} deve essere maggiore o uguale a {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Scegli una casella di posta.",
       "inboxNotFound": "La casella di posta selezionata non è stata trovata.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Questa chat non è al momento disponibile.",
     "description": "Consenti ai tuoi clienti di ricevere risposte automatiche immediate dalla tua attività direttamente sul tuo sito web",
+    "loadMessagesError": "Impossibile caricare i messaggi. Controlla la tua connessione e riprova.",
     "rateLimitExceeded": "Troppe richieste. Riprova tra poco.",
     "title": "Chat web",
     "workspaceUnavailable": "Questa area di lavoro non è più disponibile.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Imposta campo personalizzato",
       "clearCustomField": "Cancella campo personalizzato",
       "startAnotherFlow": "Avvia un altro flusso",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notifica gli amministratori",
       "transferConversationToHuman": "Trasferisci la conversazione a un operatore",
       "sendMetaCapiEvent": "Invia evento Meta CAPI",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Parole chiave pagina",
       "page": "Rispondi automaticamente quando invii un messaggio contenente una parola chiave a un contatto."
     },
-    "pageWarning": "Il contenuto di un messaggio con una parola chiave Page può causare l'invio di messaggi al cliente in un ciclo infinito. Disattiva immediatamente la parola chiave Page se riscontri questa situazione!"
+    "pageWarning": "Il contenuto di un messaggio con una parola chiave Page può causare l'invio di messaggi al cliente in un ciclo infinito. Disattiva immediatamente la parola chiave Page se riscontri questa situazione!",
+    "conditions": {
+      "operators": {
+        "is": "Il messaggio è",
+        "similarTo": "Il messaggio è simile a",
+        "contains": "Il messaggio contiene",
+        "containsPhone": "Il messaggio contiene un telefono",
+        "containsEmail": "Il messaggio contiene un'e-mail",
+        "containsImage": "Il messaggio contiene un'immagine",
+        "containsVideo": "Il messaggio contiene un video",
+        "containsLink": "Il messaggio contiene un link",
+        "containsWholeWord": "Il messaggio contiene la parola intera",
+        "beginsWith": "Il messaggio inizia con",
+        "endsWith": "Il messaggio termina con",
+        "isThumbsUp": "Il messaggio è 👍",
+        "notContains": "Il messaggio non contiene",
+        "matchesRegex": "Il messaggio corrisponde alla regex"
+      },
+      "and": "e",
+      "addCondition": "Condizione del messaggio",
+      "removeCondition": "Rimuovi condizione",
+      "note": "Le parole chiave non distinguono maiuscole/minuscole e ignorano gli accenti, ad es. \"Tư vấn\" e \"tu van\" sono riconosciute come uguali.",
+      "keywordPlaceholder": "+ Parola chiave",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Aggiungi almeno una parola chiave.",
+        "keywordConditionTakesNoValues": "Questa condizione non usa parole chiave.",
+        "invalidKeywordRegex": "Espressione regolare non valida."
+      }
+    }
   },
   "triggers": {
     "title": "Trigger"

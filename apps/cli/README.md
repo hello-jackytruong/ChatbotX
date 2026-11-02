@@ -182,6 +182,8 @@ chatbotx bot-fields edit <idOrName>                  # [--name --type --descript
 chatbotx bot-fields set <idOrName> --value <value>   # Set one bot field value (PUT /v1/bot-fields/{idOrName})
 chatbotx bot-fields delete <idOrName>                # Delete the bot field (definition and value)
 chatbotx bot-fields reset <idOrName>                 # Clear one bot field value, keep the field
+chatbotx bot-fields operations <idOrName> --operation <operation> --value <value>
+                                                     # Same operations as the contact batch, by field type (atomic for increase/decrease/append/prepend)
 chatbotx bot-fields bulk-reset --ids <ids>           # Clear up to 100 bot field values by id
 ```
 
@@ -248,7 +250,8 @@ chatbotx contacts by-name add <identifier> --tags <tags>  # Add tags by name (cr
 # Custom fields
 chatbotx contacts custom-fields list <identifier>    # Get all custom fields from contact
 chatbotx contacts custom-fields update <identifier> --operations <operations>
-                                                     # Batch set/append/prepend/increase/decrease
+                                                     # Batch by field type: set, append, prepend, increase, decrease, clear, formula,
+                                                     # setNow, dateExpression, addMinutes, addHours, addDays (all-or-nothing)
 chatbotx contacts custom-field get <identifier> <idOrName>
 chatbotx contacts set-custom-field <identifier> <idOrName> --value <value>   # Set one custom field
 chatbotx contacts custom-field delete <identifier> <idOrName>                # Clear ONE custom field
@@ -458,10 +461,15 @@ chatbotx integrations find-by-ai --provider <provider>  # Get AI provider integr
 
 ```bash
 chatbotx keywords list                               # List keywords (automated responses) [--type]
-chatbotx keywords get <id>                           # [--type]  type: inbound|comment, default inbound
-chatbotx keywords create --keywords <keywords>       # [--type --text --flowId --folderId]
+chatbotx keywords get <id>                           # [--type]  type: inbound|outbound, default inbound
+chatbotx keywords create --keywords <keywords>       # [--type --conditions --text --flowId --folderId]
                                                      # keywords: JSON array of phrases; text or flowId (not both)
-chatbotx keywords update <id>                        # [--type --keywords --text --flowId --folderId]
+chatbotx keywords create --conditions <conditions>   # inbound only, instead of --keywords. JSON array of
+                                                     # {"operator","values"}: conditions are ANDed, values ORed
+                                                     # operators: is, similarTo, contains, containsWholeWord,
+                                                     # beginsWith, endsWith, notContains, matchesRegex,
+                                                     # containsPhone|Email|Link|Image|Video, isThumbsUp (no values)
+chatbotx keywords update <id>                        # [--type --keywords | --conditions --text --flowId --folderId]
 chatbotx keywords status update <id> --status <status>  # [--type]  enable/disable without touching other fields
 chatbotx keywords delete <id>                        # [--type]
 ```
@@ -475,7 +483,9 @@ chatbotx triggers list                               # [--page --perPage]
 chatbotx triggers get <id>                           # Includes real conditions/actions
 chatbotx triggers create --name <name>               # [--folderId]  creates an empty trigger
 chatbotx triggers update <id> --conditions <conditions> --actions <actions>
-                                                     # Replaces the full condition/action set — JSON arrays
+                                                     # Replaces the full condition/action set — JSON arrays.
+                                                     # Action `type`s include setCustomField (O01–O12), startExternalStep (flowId + nodeId from `flows nodes`),
+                                                     # and pipeline (the Pipelines flow-step actions); a NEW action that points at a missing record is rejected
 chatbotx triggers settings update <id>               # [--name --active]  name/active only, conditions untouched
 chatbotx triggers delete <id>
 ```
