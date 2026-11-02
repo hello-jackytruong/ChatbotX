@@ -11,7 +11,10 @@ import { conversationService } from "../conversation/service"
 import { notFoundException } from "../errors"
 import { logger } from "../logger"
 import { resolveAttachmentFallbackUrl, resolveMediaUrl } from "../media"
-import { HTTP_URL_RE } from "../utils"
+import { resolveTenantSettings } from "../platform/settings"
+import { HTTP_URL_RE, toPublicStorageUrl } from "../utils"
+
+const PUBLIC_OBJECT_PREFIX = "public/"
 
 type PresignedAttachmentUrls = {
   url: string | null
@@ -22,7 +25,12 @@ type PresignedAttachmentUrls = {
 
 async function presignAttachments<T extends { id: string; originPath: string }>(
   attachments: T[],
-  context: { channel: string; workspaceId: string; messageCreatedAt: Date },
+  context: {
+    channel: string
+    workspaceId: string
+    messageCreatedAt: Date
+    storageUrl: string
+  },
 ): Promise<Array<T & PresignedAttachmentUrls>> {
   return await Promise.all(
     attachments.map(async (attachment) => {
@@ -35,9 +43,15 @@ async function presignAttachments<T extends { id: string; originPath: string }>(
       }
       let url: string | null = null
       try {
-        url = await resolveMediaUrl({ kind: "attachment", ...ref }, (key) =>
-          HTTP_URL_RE.test(key) ? key : uploader.getPresignedDownload(key),
-        )
+        url = await resolveMediaUrl({ kind: "attachment", ...ref }, (key) => {
+          if (HTTP_URL_RE.test(key)) {
+            return key
+          }
+          if (key.startsWith(PUBLIC_OBJECT_PREFIX)) {
+            return toPublicStorageUrl(key, context.storageUrl)
+          }
+          return uploader.getPresignedDownload(key)
+        })
       } catch (err) {
         // One unresolvable attachment (bad key, signer/host failure) must not
         // reject the whole page; drop just this attachment's URL.
@@ -78,12 +92,17 @@ async function presignAttachments<T extends { id: string; originPath: string }>(
  */
 export async function withResolvedAttachmentUrls(
   message: MessageWithAttachments,
-  context: { channel: string; workspaceId: string },
+  context: { channel: string; workspaceId: string; storageUrl?: string },
 ): Promise<MessageWithPresignedAttachments> {
+  const storageUrl =
+    context.storageUrl ??
+    (await resolveTenantSettings({ workspaceId: context.workspaceId }))
+      .storageUrl
   return {
     ...message,
     attachments: await presignAttachments(message.attachments, {
       ...context,
+      storageUrl,
       messageCreatedAt: message.createdAt,
     }),
   }
@@ -180,14 +199,15 @@ export async function listForConversation(
     return { data: [], nextCursor: null }
   }
 
-  const channelByContactInboxId = await loadContactInboxChannels(
-    result.data,
-    input.workspaceId,
-  )
+  const [{ storageUrl }, channelByContactInboxId] = await Promise.all([
+    resolveTenantSettings({ workspaceId: input.workspaceId }),
+    loadContactInboxChannels(result.data, input.workspaceId),
+  ])
   const data = await Promise.all(
     result.data.map((message) =>
       withResolvedAttachmentUrls(message, {
         workspaceId: input.workspaceId,
+        storageUrl,
         channel: channelByContactInboxId.get(message.contactInboxId) ?? "",
       }),
     ),
@@ -221,13 +241,14 @@ export async function findForContact(input: {
   if (!message || message.conversationId !== conversationId) {
     throw notFoundException("Message not found")
   }
-  const channelByContactInboxId = await loadContactInboxChannels(
-    [message],
-    workspaceId,
-  )
+  const [{ storageUrl }, channelByContactInboxId] = await Promise.all([
+    resolveTenantSettings({ workspaceId }),
+    loadContactInboxChannels([message], workspaceId),
+  ])
 
   return await withResolvedAttachmentUrls(message, {
     workspaceId,
+    storageUrl,
     channel: channelByContactInboxId.get(message.contactInboxId) ?? "",
   })
 }
@@ -247,13 +268,14 @@ export async function findByIdWithUrls(input: {
   if (!message) {
     throw notFoundException("Message not found")
   }
-  const channelByContactInboxId = await loadContactInboxChannels(
-    [message],
-    input.workspaceId,
-  )
+  const [{ storageUrl }, channelByContactInboxId] = await Promise.all([
+    resolveTenantSettings({ workspaceId: input.workspaceId }),
+    loadContactInboxChannels([message], input.workspaceId),
+  ])
 
   return await withResolvedAttachmentUrls(message, {
     workspaceId: input.workspaceId,
+    storageUrl,
     channel: channelByContactInboxId.get(message.contactInboxId) ?? "",
   })
 }
