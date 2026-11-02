@@ -2,6 +2,7 @@ import type { IncomingContact } from "@chatbotx.io/sdk"
 import { messengerPancakeCredentialService } from "../messenger-pancake-credential/service"
 import {
   fetchPancakeMessengerProfile,
+  fetchPancakeMessengerProfiles,
   type PancakeMessengerProfile,
 } from "./client"
 
@@ -70,5 +71,46 @@ export async function resolveMessengerProfile(input: {
       return null
     }
   }
-  return safeMetaProfile(input.sourceId, input.getMetaProfile)
+  return await safeMetaProfile(input.sourceId, input.getMetaProfile)
+}
+
+export async function loadPancakeMessengerProfileIndex(input: {
+  workspaceId: string
+  integrationMessengerId: string
+  pageId: string
+  includeAvatar?: boolean
+}): Promise<Map<string, PancakeMessengerProfile> | undefined> {
+  const profiles = await messengerPancakeCredentialService.withToken(
+    {
+      workspaceId: input.workspaceId,
+      integrationMessengerId: input.integrationMessengerId,
+    },
+    (token) =>
+      fetchPancakeMessengerProfiles({
+        pageId: input.pageId,
+        token,
+        includeAvatar: input.includeAvatar,
+      }),
+  )
+  return profiles
+    ? new Map(profiles.map((profile) => [profile.sourceId, profile]))
+    : undefined
+}
+
+export async function resolveIndexedMessengerProfile(input: {
+  sourceId: string
+  policy: MessengerProfilePolicy
+  pancakeProfiles?: ReadonlyMap<string, PancakeMessengerProfile>
+  getMetaProfile: () => Promise<IncomingContact | null>
+}): Promise<ResolvedMessengerProfile | null> {
+  if (input.policy !== "meta") {
+    const pancake = input.pancakeProfiles?.get(input.sourceId)
+    if (pancake) {
+      return pancake
+    }
+    if (input.policy === "pancake") {
+      return null
+    }
+  }
+  return await safeMetaProfile(input.sourceId, input.getMetaProfile)
 }
