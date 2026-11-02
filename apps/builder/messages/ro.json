@@ -446,6 +446,9 @@
       "destinationPipeline": "Pipeline de destinație",
       "destinationStage": "Etapă de destinație"
     },
+    "aiSegmentImage": {
+      "label": "{name}: Segmentează imaginea"
+    },
     "aiSpeechToText": {
       "muse": {
         "formatHint": "Sunt acceptate doar fișiere WAV: PCM 16 biți, mono, 16 kHz sau 24 kHz, maximum 10 minute. Orice alt fișier (de exemplu, mesajele vocale) merge pe ramura de eroare.",
@@ -2700,6 +2703,15 @@
       "label": "Câmp personalizat",
       "savePayloadTo": "Salvează răspunsul în câmpul personalizat",
       "set_value": "Setează valoarea",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Adaugă la sfârșit",
       "prepend": "Adaugă la început",
       "increase": "Mărește cu",
@@ -2819,7 +2831,8 @@
       "label": "Fluxuri",
       "placeholder": "Selectează fluxul",
       "aiGenerateTextAgent": "{aiName}: Generează agent text",
-      "aiDeleteMessageHistory": "{aiName}: Șterge istoricul mesajelor"
+      "aiDeleteMessageHistory": "{aiName}: Șterge istoricul mesajelor",
+      "aiSegmentImage": "{aiName}: Segmentează imaginea"
     },
     "steps": {
       "label": "Nod",
@@ -4039,6 +4052,39 @@
     },
     "empty": {
       "label": "Gol"
+    },
+    "aiSegmentImage": {
+      "description": "Găsește un obiect într-o imagine cu SAM 3.1 și salvează o decupare a acestuia.",
+      "inputFieldId": {
+        "label": "Imagine sursă"
+      },
+      "target": {
+        "label": "Obiect de găsit",
+        "description": "O expresie nominală scurtă, de exemplu \"mașină roșie\" sau \"cutie de produs\". Nu o întrebare sau o comandă.",
+        "placeholder": "cutie de produs"
+      },
+      "matchSelection": {
+        "label": "Potriviri",
+        "options": {
+          "largest": "Doar cel mai mare obiect",
+          "all": "Toate obiectele potrivite (o singură decupare care le cuprinde)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Salvează imaginea în"
+      },
+      "detailsOutputFieldId": {
+        "label": "Salvează detaliile în",
+        "description": "Opțional. Primește JSON cu numărul de potriviri și casetele.",
+        "sameAsOutput": "Alege un câmp diferit de imaginea rezultată.",
+        "sameAsInput": "Alege un câmp diferit de imaginea sursă."
+      },
+      "overwriteWarning": "Rezultatul va înlocui imaginea sursă din acest câmp.",
+      "states": {
+        "success": "Găsit",
+        "skip": "Negăsit",
+        "error": "Eșuat"
+      }
     }
   },
   "channels": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Maximum {max} caractere.",
     "invalidApiKey": "Cheie API invalidă",
     "maxMustBeGreaterThanMin": "{maxField} trebuie să fie mai mare sau egal cu {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Alege o căsuță de mesaje.",
       "inboxNotFound": "Căsuța de mesaje selectată nu a fost găsită.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Acest chat este momentan indisponibil.",
     "description": "Oferă-le clienților tăi răspunsuri automate instant din partea afacerii tale direct de pe site-ul tău web",
+    "loadMessagesError": "Mesajele nu au putut fi încărcate. Verifică-ți conexiunea și încearcă din nou.",
     "rateLimitExceeded": "Prea multe cereri. Te rugăm să încerci din nou peste puțin timp.",
     "title": "Chat web",
     "workspaceUnavailable": "Acest spațiu de lucru nu mai este disponibil.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Setează câmpul personalizat",
       "clearCustomField": "Golește câmpul personalizat",
       "startAnotherFlow": "Pornește alt flux",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notifică administratorii",
       "transferConversationToHuman": "Transferă conversația către un operator",
       "sendMetaCapiEvent": "Trimite eveniment Meta CAPI",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Cuvinte-cheie de pagină",
       "page": "Răspunde automat atunci când trimiteți un mesaj care conține un cuvânt-cheie unui contact."
     },
-    "pageWarning": "Conținutul unui mesaj care conține un cuvânt-cheie de Pagină poate duce la trimiterea de mesaje către client într-o buclă infinită. Dezactivați imediat cuvântul-cheie de Pagină dacă întâmpinați această situație!"
+    "pageWarning": "Conținutul unui mesaj care conține un cuvânt-cheie de Pagină poate duce la trimiterea de mesaje către client într-o buclă infinită. Dezactivați imediat cuvântul-cheie de Pagină dacă întâmpinați această situație!",
+    "conditions": {
+      "operators": {
+        "is": "Mesajul este",
+        "similarTo": "Mesajul seamănă cu",
+        "contains": "Mesajul conține",
+        "containsPhone": "Mesajul conține telefon",
+        "containsEmail": "Mesajul conține e-mail",
+        "containsImage": "Mesajul conține imagine",
+        "containsVideo": "Mesajul conține video",
+        "containsLink": "Mesajul conține link",
+        "containsWholeWord": "Mesajul conține cuvântul întreg",
+        "beginsWith": "Mesajul începe cu",
+        "endsWith": "Mesajul se termină cu",
+        "isThumbsUp": "Mesajul este 👍",
+        "notContains": "Mesajul nu conține",
+        "matchesRegex": "Mesajul corespunde regex-ului"
+      },
+      "and": "și",
+      "addCondition": "Condiție mesaj",
+      "removeCondition": "Elimină condiția",
+      "note": "Cuvintele cheie nu țin cont de majuscule și ignoră diacriticele, de ex. \"Tư vấn\" și \"tu van\" sunt recunoscute la fel.",
+      "keywordPlaceholder": "+ Cuvânt cheie",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Adaugă cel puțin un cuvânt cheie.",
+        "keywordConditionTakesNoValues": "Această condiție nu folosește cuvinte cheie.",
+        "invalidKeywordRegex": "Expresie regulată invalidă."
+      }
+    }
   },
   "triggers": {
     "title": "Declanșatoare"

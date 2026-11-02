@@ -1327,6 +1327,15 @@
       "prepend": "Lisää alkuun",
       "increase": "Kasvata määrällä",
       "decrease": "Vähennä määrällä",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "groupSystemFields": "Järjestelmäkentät",
       "groupCustomFields": "Mukautetut kentät",
       "groupAccountFields": "Bottikentät"
@@ -1442,7 +1451,8 @@
       "label": "Flow't",
       "placeholder": "Valitse flow",
       "aiGenerateTextAgent": "{aiName}: Luo tekstiagentti",
-      "aiDeleteMessageHistory": "{aiName}: Poista viestihistoria"
+      "aiDeleteMessageHistory": "{aiName}: Poista viestihistoria",
+      "aiSegmentImage": "{aiName}: Segmentoi kuva"
     },
     "steps": {
       "label": "Solmu",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "Tyhjä"
+    },
+    "aiSegmentImage": {
+      "description": "Etsii kuvasta kohteen SAM 3.1:llä ja tallentaa siitä rajatun kuvan.",
+      "inputFieldId": {
+        "label": "Lähdekuva"
+      },
+      "target": {
+        "label": "Etsittävä kohde",
+        "description": "Lyhyt substantiivilauseke, kuten \"punainen auto\" tai \"tuotelaatikko\". Ei kysymys eikä käsky.",
+        "placeholder": "tuotelaatikko"
+      },
+      "matchSelection": {
+        "label": "Osumat",
+        "options": {
+          "largest": "Vain suurin kohde",
+          "all": "Kaikki osuvat kohteet (yksi rajaus niiden ympäriltä)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Tallenna kuva kenttään"
+      },
+      "detailsOutputFieldId": {
+        "label": "Tallenna tiedot kenttään",
+        "description": "Valinnainen. Vastaanottaa JSONin, jossa on osumien määrä ja rajauslaatikot.",
+        "sameAsOutput": "Valitse eri kenttä kuin tuloskuvalle.",
+        "sameAsInput": "Valitse eri kenttä kuin lähdekuvalle."
+      },
+      "overwriteWarning": "Tulos korvaa tämän kentän lähdekuvan.",
+      "states": {
+        "success": "Löytyi",
+        "skip": "Ei löytynyt",
+        "error": "Epäonnistui"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "Kommentti",
       "destinationPipeline": "Kohdepipeline",
       "destinationStage": "Kohdevaihe"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmentoi kuva"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Enintään {max} merkkiä.",
     "invalidApiKey": "Virheellinen API-avain",
     "maxMustBeGreaterThanMin": "Kentän {maxField} arvon on oltava vähintään kentän {minField} arvo",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Valitse saapuneet-kansio.",
       "inboxNotFound": "Valittua saapuneet-kansiota ei löytynyt.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Tämä keskustelu ei ole tällä hetkellä käytettävissä.",
     "description": "Anna asiakkaidesi saada automaattisia vastauksia yritykseltäsi välittömästi suoraan verkkosivustoltasi",
+    "loadMessagesError": "Viestejä ei voitu ladata. Tarkista yhteytesi ja yritä uudelleen.",
     "rateLimitExceeded": "Liian monta pyyntöä. Yritä hetken kuluttua uudelleen.",
     "title": "Verkkokeskustelu",
     "workspaceUnavailable": "Tämä työtila ei ole enää käytettävissä.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Aseta mukautettu kenttä",
       "clearCustomField": "Tyhjennä mukautettu kenttä",
       "startAnotherFlow": "Käynnistä toinen flow",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Ilmoita ylläpitäjille",
       "transferConversationToHuman": "Siirrä keskustelu ihmiselle",
       "sendMetaCapiEvent": "Lähetä Meta CAPI -tapahtuma",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Sivun avainsanat",
       "page": "Vastaa automaattisesti, kun lähetät avainsanan sisältävän viestin kontaktille."
     },
-    "pageWarning": "Sivun avainsanan sisältävä viestisisältö voi johtaa viestien lähettämiseen asiakkaalle loputtomana silmukkana. Poista sivun avainsana käytöstä välittömästi, jos kohtaat tämän tilanteen!"
+    "pageWarning": "Sivun avainsanan sisältävä viestisisältö voi johtaa viestien lähettämiseen asiakkaalle loputtomana silmukkana. Poista sivun avainsana käytöstä välittömästi, jos kohtaat tämän tilanteen!",
+    "conditions": {
+      "operators": {
+        "is": "Viesti on",
+        "similarTo": "Viesti muistuttaa",
+        "contains": "Viesti sisältää",
+        "containsPhone": "Viesti sisältää puhelinnumeron",
+        "containsEmail": "Viesti sisältää sähköpostin",
+        "containsImage": "Viesti sisältää kuvan",
+        "containsVideo": "Viesti sisältää videon",
+        "containsLink": "Viesti sisältää linkin",
+        "containsWholeWord": "Viesti sisältää kokonaisen sanan",
+        "beginsWith": "Viesti alkaa",
+        "endsWith": "Viesti päättyy",
+        "isThumbsUp": "Viesti on 👍",
+        "notContains": "Viesti ei sisällä",
+        "matchesRegex": "Viesti vastaa regexiä"
+      },
+      "and": "ja",
+      "addCondition": "Viestin ehto",
+      "removeCondition": "Poista ehto",
+      "note": "Avainsanat eivät erottele isoja ja pieniä kirjaimia eivätkä aksentteja, esim. \"Tư vấn\" ja \"tu van\" tunnistetaan samaksi.",
+      "keywordPlaceholder": "+ Avainsana",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Lisää vähintään yksi avainsana.",
+        "keywordConditionTakesNoValues": "Tämä ehto ei käytä avainsanoja.",
+        "invalidKeywordRegex": "Virheellinen säännöllinen lauseke."
+      }
+    }
   },
   "triggers": {
     "title": "Käynnistimet"

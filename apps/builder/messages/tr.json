@@ -1483,6 +1483,15 @@
       "prepend": "Başa ekle",
       "increase": "Şu kadar artır",
       "decrease": "Şu kadar azalt",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "groupSystemFields": "Sistem Alanları",
       "groupCustomFields": "Özel Alanlar",
       "groupAccountFields": "Bot Alanları"
@@ -1598,7 +1607,8 @@
       "label": "Akışlar",
       "placeholder": "Akış seçin",
       "aiGenerateTextAgent": "{aiName}: Metin Temsilcisi Oluştur",
-      "aiDeleteMessageHistory": "{aiName}: Mesaj Geçmişini Sil"
+      "aiDeleteMessageHistory": "{aiName}: Mesaj Geçmişini Sil",
+      "aiSegmentImage": "{aiName}: Görüntüyü segmentlere ayır"
     },
     "steps": {
       "label": "Düğüm",
@@ -2818,6 +2828,39 @@
     },
     "empty": {
       "label": "Boş"
+    },
+    "aiSegmentImage": {
+      "description": "SAM 3.1 ile görüntüde bir nesne bulur ve kırpılmış görüntüsünü kaydeder.",
+      "inputFieldId": {
+        "label": "Kaynak görüntü"
+      },
+      "target": {
+        "label": "Bulunacak nesne",
+        "description": "\"kırmızı araba\" veya \"ürün kutusu\" gibi kısa bir isim öbeği. Soru veya komut değil.",
+        "placeholder": "ürün kutusu"
+      },
+      "matchSelection": {
+        "label": "Eşleşmeler",
+        "options": {
+          "largest": "Yalnızca en büyük nesne",
+          "all": "Tüm eşleşen nesneler (hepsini kapsayan tek bir kırpma)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Görüntüyü şuraya kaydet"
+      },
+      "detailsOutputFieldId": {
+        "label": "Ayrıntıları şuraya kaydet",
+        "description": "İsteğe bağlı. Eşleşme sayısı ve kutuları içeren JSON alır.",
+        "sameAsOutput": "Çıktı görüntüsünden farklı bir alan seçin.",
+        "sameAsInput": "Kaynak görüntüden farklı bir alan seçin."
+      },
+      "overwriteWarning": "Sonuç bu alandaki kaynak görüntünün yerini alacak.",
+      "states": {
+        "success": "Bulundu",
+        "skip": "Bulunamadı",
+        "error": "Başarısız"
+      }
     }
   },
   "flows": {
@@ -3266,6 +3309,9 @@
       "comment": "Yorum",
       "destinationPipeline": "Hedef işlem hattı",
       "destinationStage": "Hedef aşama"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Görüntüyü segmentlere ayır"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "En fazla {max} karakter.",
     "invalidApiKey": "Geçersiz API anahtarı",
     "maxMustBeGreaterThanMin": "{maxField}, {minField} değerinden büyük veya ona eşit olmalıdır",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Bir gelen kutusu seçin.",
       "inboxNotFound": "Seçilen gelen kutusu bulunamadı.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Bu sohbet şu anda kullanılamıyor.",
     "description": "Müşterilerinizin web sitenizden doğrudan işletmenizden anında otomatik yanıtlar almasını sağlayın",
+    "loadMessagesError": "Mesajlar yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
     "rateLimitExceeded": "Çok fazla istek. Lütfen bir süre sonra tekrar deneyin.",
     "title": "Web Sohbeti",
     "workspaceUnavailable": "Bu çalışma alanı artık kullanılamıyor.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Özel Alan Belirle",
       "clearCustomField": "Özel Alanı Temizle",
       "startAnotherFlow": "Başka Bir Akış Başlat",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Yöneticileri Bilgilendir",
       "transferConversationToHuman": "Görüşmeyi İnsana Aktar",
       "sendMetaCapiEvent": "Meta CAPI Etkinliği Gönder",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Sayfa anahtar kelimeleri",
       "page": "Siz bir kişiye anahtar kelime içeren bir mesaj gönderdiğinizde otomatik olarak yanıtla."
     },
-    "pageWarning": "Sayfa anahtar kelimesi içeren mesaj içeriği, müşteriye sonsuz döngüde mesaj gönderilmesine neden olabilir. Bu durumla karşılaşırsanız Sayfa anahtar kelimesini hemen devre dışı bırakın!"
+    "pageWarning": "Sayfa anahtar kelimesi içeren mesaj içeriği, müşteriye sonsuz döngüde mesaj gönderilmesine neden olabilir. Bu durumla karşılaşırsanız Sayfa anahtar kelimesini hemen devre dışı bırakın!",
+    "conditions": {
+      "operators": {
+        "is": "Mesaj şudur",
+        "similarTo": "Mesaj şuna benzer",
+        "contains": "Mesaj şunu içerir",
+        "containsPhone": "Mesaj telefon içerir",
+        "containsEmail": "Mesaj e-posta içerir",
+        "containsImage": "Mesaj görsel içerir",
+        "containsVideo": "Mesaj video içerir",
+        "containsLink": "Mesaj bağlantı içerir",
+        "containsWholeWord": "Mesaj tam kelimeyi içerir",
+        "beginsWith": "Mesaj şununla başlar",
+        "endsWith": "Mesaj şununla biter",
+        "isThumbsUp": "Mesaj 👍",
+        "notContains": "Mesaj şunu içermez",
+        "matchesRegex": "Mesaj regex ile eşleşir"
+      },
+      "and": "ve",
+      "addCondition": "Mesaj koşulu",
+      "removeCondition": "Koşulu kaldır",
+      "note": "Anahtar kelimeler büyük/küçük harf ve aksan ayırt etmez, ör. \"Tư vấn\" ve \"tu van\" aynı kabul edilir.",
+      "keywordPlaceholder": "+ Anahtar kelime",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "En az bir anahtar kelime ekleyin.",
+        "keywordConditionTakesNoValues": "Bu koşul anahtar kelime kullanmaz.",
+        "invalidKeywordRegex": "Geçersiz düzenli ifade."
+      }
+    }
   },
   "triggers": {
     "title": "Tetikleyiciler"

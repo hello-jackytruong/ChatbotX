@@ -1327,6 +1327,15 @@
       "prepend": "先頭に追加",
       "increase": "次の値だけ増やす",
       "decrease": "次の値だけ減らす",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "groupSystemFields": "システムフィールド",
       "groupCustomFields": "カスタムフィールド",
       "groupAccountFields": "ボットフィールド"
@@ -1442,7 +1451,8 @@
       "label": "フロー",
       "placeholder": "フローを選択",
       "aiGenerateTextAgent": "{aiName}：テキスト生成エージェント",
-      "aiDeleteMessageHistory": "{aiName}：メッセージ履歴を削除"
+      "aiDeleteMessageHistory": "{aiName}：メッセージ履歴を削除",
+      "aiSegmentImage": "{aiName}: 画像セグメンテーション"
     },
     "steps": {
       "label": "ノード",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "空"
+    },
+    "aiSegmentImage": {
+      "description": "SAM 3.1 で画像内のオブジェクトを見つけ、その部分を切り抜いた画像として保存します。",
+      "inputFieldId": {
+        "label": "元の画像"
+      },
+      "target": {
+        "label": "検出するオブジェクト",
+        "description": "「赤い車」や「商品の箱」のような短い名詞句。質問や命令文は不可です。",
+        "placeholder": "商品の箱"
+      },
+      "matchSelection": {
+        "label": "一致",
+        "options": {
+          "largest": "最大のオブジェクトのみ",
+          "all": "一致するすべてのオブジェクト (すべてを囲む 1 つの切り抜き)"
+        }
+      },
+      "outputFieldId": {
+        "label": "画像の保存先"
+      },
+      "detailsOutputFieldId": {
+        "label": "詳細の保存先",
+        "description": "任意。一致数とボックスを含む JSON を受け取ります。",
+        "sameAsOutput": "出力画像とは別のフィールドを選択してください。",
+        "sameAsInput": "元の画像とは別のフィールドを選択してください。"
+      },
+      "overwriteWarning": "このフィールドの元の画像は結果で置き換えられます。",
+      "states": {
+        "success": "見つかった",
+        "skip": "見つからない",
+        "error": "失敗"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "コメント",
       "destinationPipeline": "移管先のパイプライン",
       "destinationStage": "移管先のステージ"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: 画像セグメンテーション"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4758,6 +4804,9 @@
     "maxCharacters": "最大{max}文字です。",
     "invalidApiKey": "APIキーが無効です",
     "maxMustBeGreaterThanMin": "{maxField}は{minField}以上である必要があります",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "受信トレイを選択してください。",
       "inboxNotFound": "選択した受信トレイが見つかりません。",
@@ -4791,6 +4840,7 @@
   "webchat": {
     "chatUnavailable": "このチャットは現在利用できません。",
     "description": "ウェブサイトから直接、顧客にビジネスの即時自動応答を提供します",
+    "loadMessagesError": "メッセージを読み込めませんでした。接続を確認して、もう一度お試しください。",
     "rateLimitExceeded": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
     "title": "ウェブチャット",
     "workspaceUnavailable": "このワークスペースは利用できなくなりました。",
@@ -5789,6 +5839,7 @@
       "setCustomField": "カスタムフィールドを設定",
       "clearCustomField": "カスタムフィールドをクリア",
       "startAnotherFlow": "別のフローを開始",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "管理者に通知",
       "transferConversationToHuman": "会話を担当者に転送",
       "sendMetaCapiEvent": "Meta CAPI イベントを送信",
@@ -6015,7 +6066,36 @@
       "pageTitle": "ページキーワード",
       "page": "あなたが連絡先にキーワードを含むメッセージを送信したときに自動的に返信します。"
     },
-    "pageWarning": "ページキーワードを含むメッセージの内容が、無限ループで顧客にメッセージを送信する原因となる可能性があります。この状況が発生した場合は、直ちにページキーワードを無効にしてください!"
+    "pageWarning": "ページキーワードを含むメッセージの内容が、無限ループで顧客にメッセージを送信する原因となる可能性があります。この状況が発生した場合は、直ちにページキーワードを無効にしてください!",
+    "conditions": {
+      "operators": {
+        "is": "メッセージが次と一致",
+        "similarTo": "メッセージが次に類似",
+        "contains": "メッセージに次を含む",
+        "containsPhone": "メッセージに電話番号を含む",
+        "containsEmail": "メッセージにメールを含む",
+        "containsImage": "メッセージに画像を含む",
+        "containsVideo": "メッセージに動画を含む",
+        "containsLink": "メッセージにリンクを含む",
+        "containsWholeWord": "メッセージに単語として含む",
+        "beginsWith": "メッセージが次で始まる",
+        "endsWith": "メッセージが次で終わる",
+        "isThumbsUp": "メッセージが 👍",
+        "notContains": "メッセージに次を含まない",
+        "matchesRegex": "メッセージが正規表現に一致"
+      },
+      "and": "かつ",
+      "addCondition": "メッセージ条件",
+      "removeCondition": "条件を削除",
+      "note": "キーワードは大文字・小文字やアクセントを区別しません（例：\"Tư vấn\" と \"tu van\" は同じとみなされます）。",
+      "keywordPlaceholder": "+ キーワード",
+      "regexPlaceholder": "+ 正規表現",
+      "errors": {
+        "keywordConditionValuesRequired": "キーワードを1つ以上追加してください。",
+        "keywordConditionTakesNoValues": "この条件にキーワードは不要です。",
+        "invalidKeywordRegex": "正規表現が無効です。"
+      }
+    }
   },
   "triggers": {
     "title": "トリガー"

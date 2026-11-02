@@ -303,6 +303,15 @@
       "label": "自訂欄位",
       "savePayloadTo": "將回應儲存到自訂欄位",
       "set_value": "設定值",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "追加到末尾",
       "prepend": "加入到開頭",
       "increase": "增加",
@@ -416,7 +425,8 @@
       "label": "流程",
       "placeholder": "選擇流程",
       "aiGenerateTextAgent": "{aiName}：產生文字 Agent",
-      "aiDeleteMessageHistory": "{aiName}：刪除訊息歷史記錄"
+      "aiDeleteMessageHistory": "{aiName}：刪除訊息歷史記錄",
+      "aiSegmentImage": "{aiName}: 影像分割"
     },
     "steps": {
       "label": "節點",
@@ -1628,6 +1638,39 @@
     },
     "empty": {
       "label": "空白"
+    },
+    "aiSegmentImage": {
+      "description": "使用 SAM 3.1 在影像中尋找物件，並儲存其裁切後的影像。",
+      "inputFieldId": {
+        "label": "來源影像"
+      },
+      "target": {
+        "label": "要尋找的物件",
+        "description": "簡短的名詞片語，例如「紅色汽車」或「產品盒」。不要使用問句或指令。",
+        "placeholder": "產品盒"
+      },
+      "matchSelection": {
+        "label": "符合項目",
+        "options": {
+          "largest": "僅最大的物件",
+          "all": "所有符合的物件（一個涵蓋全部物件的裁切範圍）"
+        }
+      },
+      "outputFieldId": {
+        "label": "影像儲存至"
+      },
+      "detailsOutputFieldId": {
+        "label": "詳細資料儲存至",
+        "description": "選填。接收包含符合數量與邊框的 JSON。",
+        "sameAsOutput": "請選擇與輸出影像不同的欄位。",
+        "sameAsInput": "請選擇與來源影像不同的欄位。"
+      },
+      "overwriteWarning": "結果將取代此欄位中的來源影像。",
+      "states": {
+        "success": "已找到",
+        "skip": "找不到",
+        "error": "失敗"
+      }
     }
   },
   "messages": {
@@ -3517,6 +3560,9 @@
       "destinationPipeline": "目標管道",
       "destinationStage": "目標階段"
     },
+    "aiSegmentImage": {
+      "label": "{name}: 影像分割"
+    },
     "aiSpeechToText": {
       "muse": {
         "formatHint": "僅支援 WAV 檔案：PCM 16 位元、單聲道、16 kHz 或 24 kHz，最長 10 分鐘。其他檔案（例如語音訊息）會進入錯誤分支。",
@@ -4825,6 +4871,9 @@
     "maxCharacters": "最多 {max} 個字元。",
     "invalidApiKey": "API 金鑰無效",
     "maxMustBeGreaterThanMin": "{maxField} 必須大於或等於 {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "請選擇一個收件匣。",
       "inboxNotFound": "找不到所選收件匣。",
@@ -4858,6 +4907,7 @@
   "webchat": {
     "chatUnavailable": "此聊天目前不可用。",
     "description": "讓您的客戶直接從您的網站獲得來自您企業的即時自動回覆",
+    "loadMessagesError": "無法載入訊息。請檢查您的網路連線並重試。",
     "rateLimitExceeded": "請求過多。請稍後重試。",
     "title": "網路聊天",
     "workspaceUnavailable": "此工作區不再可用。",
@@ -5856,6 +5906,7 @@
       "setCustomField": "設定自訂欄位",
       "clearCustomField": "清除自訂欄位",
       "startAnotherFlow": "開始另一個流程",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "通知管理員",
       "transferConversationToHuman": "將對話轉移給人類",
       "sendMetaCapiEvent": "傳送 Meta CAPI 事件",
@@ -6082,7 +6133,36 @@
       "pageTitle": "頁面關鍵字",
       "page": "當您傳送包含關鍵字的訊息給聯絡人時自動回覆。"
     },
-    "pageWarning": "訊息包含 Page 關鍵字的內容可能會導致訊息無限循環地傳送給客戶。遇到這種情況請立即停用Page關鍵字！"
+    "pageWarning": "訊息包含 Page 關鍵字的內容可能會導致訊息無限循環地傳送給客戶。遇到這種情況請立即停用Page關鍵字！",
+    "conditions": {
+      "operators": {
+        "is": "訊息等於",
+        "similarTo": "訊息相似於",
+        "contains": "訊息包含",
+        "containsPhone": "訊息包含電話",
+        "containsEmail": "訊息包含電子郵件",
+        "containsImage": "訊息包含圖片",
+        "containsVideo": "訊息包含影片",
+        "containsLink": "訊息包含連結",
+        "containsWholeWord": "訊息包含完整單字",
+        "beginsWith": "訊息開頭為",
+        "endsWith": "訊息結尾為",
+        "isThumbsUp": "訊息是 👍",
+        "notContains": "訊息不包含",
+        "matchesRegex": "訊息符合正規表示式"
+      },
+      "and": "且",
+      "addCondition": "訊息條件",
+      "removeCondition": "移除條件",
+      "note": "關鍵字不分大小寫並忽略聲調符號，例如 \"Tư vấn\" 與 \"tu van\" 視為相同。",
+      "keywordPlaceholder": "+ 關鍵字",
+      "regexPlaceholder": "+ 正規表示式",
+      "errors": {
+        "keywordConditionValuesRequired": "請至少新增一個關鍵字。",
+        "keywordConditionTakesNoValues": "此條件不需要關鍵字。",
+        "invalidKeywordRegex": "正規表示式無效。"
+      }
+    }
   },
   "triggers": {
     "title": "觸發器"

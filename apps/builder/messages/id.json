@@ -1323,6 +1323,15 @@
       "label": "Kustom Field",
       "savePayloadTo": "Simpan respons ke Kustom Field",
       "set_value": "Atur nilai",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Append ke end",
       "prepend": "Prepend ke beginning",
       "increase": "Tambah sebesar",
@@ -1442,7 +1451,8 @@
       "label": "Flow",
       "placeholder": "Pilih flow",
       "aiGenerateTextAgent": "{aiName}: Buat Text Agent",
-      "aiDeleteMessageHistory": "{aiName}: Hapus Message History"
+      "aiDeleteMessageHistory": "{aiName}: Hapus Message History",
+      "aiSegmentImage": "{aiName}: Segmentasi gambar"
     },
     "steps": {
       "label": "Node",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "Kosong"
+    },
+    "aiSegmentImage": {
+      "description": "Menemukan objek dalam gambar dengan SAM 3.1 dan menyimpan potongan gambarnya.",
+      "inputFieldId": {
+        "label": "Gambar sumber"
+      },
+      "target": {
+        "label": "Objek yang dicari",
+        "description": "Frasa benda singkat seperti \"mobil merah\" atau \"kotak produk\". Bukan pertanyaan atau perintah.",
+        "placeholder": "kotak produk"
+      },
+      "matchSelection": {
+        "label": "Kecocokan",
+        "options": {
+          "largest": "Hanya objek terbesar",
+          "all": "Semua objek yang cocok (satu potongan yang mencakup semuanya)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Simpan gambar ke"
+      },
+      "detailsOutputFieldId": {
+        "label": "Simpan detail ke",
+        "description": "Opsional. Menerima JSON berisi jumlah kecocokan dan kotak.",
+        "sameAsOutput": "Pilih field yang berbeda dari gambar keluaran.",
+        "sameAsInput": "Pilih field yang berbeda dari gambar sumber."
+      },
+      "overwriteWarning": "Hasil akan menggantikan gambar sumber di field ini.",
+      "states": {
+        "success": "Ditemukan",
+        "skip": "Tidak ditemukan",
+        "error": "Gagal"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "Komentar",
       "destinationPipeline": "Pipeline tujuan",
       "destinationStage": "Tahap tujuan"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmentasi gambar"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Maksimum {max} karakter.",
     "invalidApiKey": "Kunci API tidak valid",
     "maxMustBeGreaterThanMin": "{maxField} harus lebih besar dari atau sama dengan {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Pilih inbox.",
       "inboxNotFound": "Inbox yang dipilih tidak ditemukan.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Obrolan ini saat ini tidak tersedia.",
     "description": "Berikan pelanggan Anda respons otomatis seketika dari bisnis Anda langsung melalui situs web",
+    "loadMessagesError": "Pesan gagal dimuat. Periksa koneksi Anda dan coba lagi.",
     "rateLimitExceeded": "Terlalu banyak permintaan. Silakan coba lagi sebentar lagi.",
     "title": "Obrolan Web",
     "workspaceUnavailable": "Ruang kerja ini tidak lagi tersedia.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Atur Kolom Kustom",
       "clearCustomField": "Kosongkan Kolom Kustom",
       "startAnotherFlow": "Mulai Alur Lain",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Beri Tahu Admin",
       "transferConversationToHuman": "Alihkan Percakapan ke Manusia",
       "sendMetaCapiEvent": "Kirim Peristiwa Meta CAPI",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Kata kunci halaman",
       "page": "Balas otomatis saat Anda mengirim pesan yang berisi kata kunci ke kontak."
     },
-    "pageWarning": "Konten pesan yang berisi kata kunci Page dapat menyebabkan pesan terkirim ke pelanggan secara berulang tanpa henti. Segera nonaktifkan kata kunci Page jika Anda mengalami situasi ini!"
+    "pageWarning": "Konten pesan yang berisi kata kunci Page dapat menyebabkan pesan terkirim ke pelanggan secara berulang tanpa henti. Segera nonaktifkan kata kunci Page jika Anda mengalami situasi ini!",
+    "conditions": {
+      "operators": {
+        "is": "Pesan adalah",
+        "similarTo": "Pesan mirip dengan",
+        "contains": "Pesan berisi",
+        "containsPhone": "Pesan berisi nomor telepon",
+        "containsEmail": "Pesan berisi email",
+        "containsImage": "Pesan berisi gambar",
+        "containsVideo": "Pesan berisi video",
+        "containsLink": "Pesan berisi tautan",
+        "containsWholeWord": "Pesan berisi kata utuh",
+        "beginsWith": "Pesan diawali dengan",
+        "endsWith": "Pesan diakhiri dengan",
+        "isThumbsUp": "Pesan adalah 👍",
+        "notContains": "Pesan tidak berisi",
+        "matchesRegex": "Pesan cocok dengan regex"
+      },
+      "and": "dan",
+      "addCondition": "Kondisi pesan",
+      "removeCondition": "Hapus kondisi",
+      "note": "Kata kunci tidak membedakan huruf besar/kecil dan mengabaikan aksen, mis. \"Tư vấn\" dan \"tu van\" dianggap sama.",
+      "keywordPlaceholder": "+ Kata kunci",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Tambahkan minimal satu kata kunci.",
+        "keywordConditionTakesNoValues": "Kondisi ini tidak memerlukan kata kunci.",
+        "invalidKeywordRegex": "Ekspresi reguler tidak valid."
+      }
+    }
   },
   "triggers": {
     "title": "Pemicu"

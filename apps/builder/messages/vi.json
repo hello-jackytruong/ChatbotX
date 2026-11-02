@@ -1522,6 +1522,15 @@
       "label": "Trường tùy chỉnh",
       "savePayloadTo": "Lưu phản hồi vào Trường tùy chỉnh",
       "set_value": "Thiết lập giá trị",
+      "clear": "Xóa giá trị",
+      "formula": "Dùng công thức tùy chỉnh",
+      "set_now": "Đặt thành hiện tại",
+      "date_expression": "Ngày tự do (có phép tính)",
+      "add_minutes": "Cộng thêm phút",
+      "add_hours": "Cộng thêm giờ",
+      "add_days": "Cộng thêm ngày",
+      "formulaHint": "Phép tính với value là số hiện tại, ví dụ round(value * 1.1). Hàm: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "Ví dụ: now + 2 days - 3 hours. Đơn vị: min, h, d, w, mo, y.",
       "append": "Thêm vào cuối",
       "prepend": "Thêm vào đầu",
       "increase": "Tăng thêm",
@@ -1641,7 +1650,8 @@
       "label": "Luồng",
       "placeholder": "Chọn luồng",
       "aiGenerateTextAgent": "{aiName}: Tạo văn bản Agent",
-      "aiDeleteMessageHistory": "{aiName}: Xóa lịch sử tin nhắn"
+      "aiDeleteMessageHistory": "{aiName}: Xóa lịch sử tin nhắn",
+      "aiSegmentImage": "{aiName}: Tách đối tượng trong ảnh"
     },
     "steps": {
       "label": "Node",
@@ -2860,6 +2870,39 @@
     },
     "empty": {
       "label": "Trống"
+    },
+    "aiSegmentImage": {
+      "description": "Tìm một đối tượng trong ảnh bằng SAM 3.1 và lưu phần ảnh đã cắt.",
+      "inputFieldId": {
+        "label": "Ảnh nguồn"
+      },
+      "target": {
+        "label": "Đối tượng cần tìm",
+        "description": "Một cụm danh từ ngắn như \"xe màu đỏ\" hoặc \"hộp sản phẩm\". Không phải câu hỏi hay câu lệnh.",
+        "placeholder": "hộp sản phẩm"
+      },
+      "matchSelection": {
+        "label": "Kết quả khớp",
+        "options": {
+          "largest": "Chỉ đối tượng lớn nhất",
+          "all": "Tất cả đối tượng khớp (một vùng cắt bao quanh tất cả)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Lưu ảnh vào"
+      },
+      "detailsOutputFieldId": {
+        "label": "Lưu chi tiết vào",
+        "description": "Không bắt buộc. Nhận JSON gồm số lượng đối tượng và khung bao.",
+        "sameAsOutput": "Hãy chọn trường khác với trường ảnh kết quả.",
+        "sameAsInput": "Hãy chọn trường khác với trường ảnh nguồn."
+      },
+      "overwriteWarning": "Kết quả sẽ thay thế ảnh nguồn trong trường này.",
+      "states": {
+        "success": "Tìm thấy",
+        "skip": "Không tìm thấy",
+        "error": "Thất bại"
+      }
     }
   },
   "flows": {
@@ -3308,6 +3351,9 @@
       "comment": "Bình luận",
       "destinationPipeline": "Pipeline đích",
       "destinationStage": "Giai đoạn đích"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Tách đối tượng trong ảnh"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4821,6 +4867,9 @@
     "maxCharacters": "Tối đa {max} ký tự.",
     "invalidApiKey": "API key không hợp lệ",
     "maxMustBeGreaterThanMin": "{maxField} phải lớn hơn hoặc bằng {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "Một hành động tham chiếu đến bản ghi không còn tồn tại. Hãy chọn lại trong hành động rồi lưu lại."
+    },
     "inboundWebhook": {
       "inboxRequired": "Hãy chọn một hộp thư.",
       "inboxNotFound": "Không tìm thấy hộp thư đã chọn.",
@@ -4854,6 +4903,7 @@
   "webchat": {
     "chatUnavailable": "Cuộc trò chuyện này hiện không khả dụng.",
     "description": "Cho phép khách hàng của bạn nhận phản hồi tự động ngay lập tức từ doanh nghiệp của bạn trực tiếp từ trang web của bạn",
+    "loadMessagesError": "Không thể tải tin nhắn. Kiểm tra kết nối và thử lại.",
     "rateLimitExceeded": "Quá nhiều yêu cầu. Vui lòng thử lại sau giây lát.",
     "title": "Web Chat",
     "workspaceUnavailable": "Không gian làm việc này không còn khả dụng.",
@@ -5519,6 +5569,7 @@
       "setCustomField": "Thiết lập trường tùy chỉnh",
       "clearCustomField": "Xóa trường tùy chỉnh",
       "startAnotherFlow": "Bắt đầu luồng khác",
+      "startExternalStep": "Bắt đầu bước bên ngoài",
       "notifyAdmins": "Thông báo quản trị viên",
       "transferConversationToHuman": "Chuyển cuộc trò chuyện cho người",
       "sendMetaCapiEvent": "Gửi sự kiện Meta CAPI",
@@ -5823,7 +5874,36 @@
       "pageTitle": "Từ khoá Trang",
       "page": "Tự động phản hồi khi bạn gửi tin nhắn chứa từ khoá đến khách hàng."
     },
-    "pageWarning": "Nội dung tin nhắn chứa từ khoá cho trang có thể dẫn đến gửi tin nhắn cho khách lặp vô hạn. Hãy huỷ kích hoạt từ khoá cho trang ngay lập tức nếu bạn gặp phải trường hợp này!"
+    "pageWarning": "Nội dung tin nhắn chứa từ khoá cho trang có thể dẫn đến gửi tin nhắn cho khách lặp vô hạn. Hãy huỷ kích hoạt từ khoá cho trang ngay lập tức nếu bạn gặp phải trường hợp này!",
+    "conditions": {
+      "operators": {
+        "is": "Tin nhắn là",
+        "similarTo": "Tin nhắn gần giống",
+        "contains": "Tin nhắn có chứa",
+        "containsPhone": "Tin nhắn có số điện thoại",
+        "containsEmail": "Tin nhắn có email",
+        "containsImage": "Tin nhắn có hình ảnh",
+        "containsVideo": "Tin nhắn có video",
+        "containsLink": "Tin nhắn có đường link",
+        "containsWholeWord": "Tin nhắn chứa nguyên từ",
+        "beginsWith": "Tin nhắn bắt đầu bằng",
+        "endsWith": "Tin nhắn kết thúc bằng",
+        "isThumbsUp": "Tin nhắn là 👍",
+        "notContains": "Tin nhắn không chứa",
+        "matchesRegex": "Tin nhắn khớp regex"
+      },
+      "and": "và",
+      "addCondition": "Điều kiện tin nhắn",
+      "removeCondition": "Xoá điều kiện",
+      "note": "Từ khoá không phân biệt chữ hoa, chữ thường và dấu, ví dụ \"Tư vấn\" và \"tu van\" được xem là giống nhau.",
+      "keywordPlaceholder": "+ Từ khoá",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Hãy thêm ít nhất một từ khoá.",
+        "keywordConditionTakesNoValues": "Điều kiện này không cần từ khoá.",
+        "invalidKeywordRegex": "Biểu thức regex không hợp lệ."
+      }
+    }
   },
   "triggers": {
     "title": "Kích hoạt"

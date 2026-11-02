@@ -2543,6 +2543,15 @@
       "prepend": "加入到开头",
       "savePayloadTo": "将回应保存到自订字段",
       "set_value": "设置值",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "groupSystemFields": "系统字段",
       "groupCustomFields": "自订字段",
       "groupAccountFields": "机器人字段"
@@ -2699,7 +2708,8 @@
       "aiSpeechToText": "{aiName}：语音转文本",
       "aiTextToSpeech": "{aiName}：文本转语音",
       "label": "流程",
-      "placeholder": "选择流程"
+      "placeholder": "选择流程",
+      "aiSegmentImage": "{aiName}: 图像分割"
     },
     "folder": {
       "label": "文件夹"
@@ -3893,6 +3903,39 @@
     },
     "empty": {
       "label": "空"
+    },
+    "aiSegmentImage": {
+      "description": "使用 SAM 3.1 在图像中查找对象，并保存其裁剪后的图像。",
+      "inputFieldId": {
+        "label": "源图像"
+      },
+      "target": {
+        "label": "要查找的对象",
+        "description": "简短的名词短语，例如“红色汽车”或“产品盒”。不要使用问句或指令。",
+        "placeholder": "产品盒"
+      },
+      "matchSelection": {
+        "label": "匹配",
+        "options": {
+          "largest": "仅最大的对象",
+          "all": "所有匹配的对象（一个包含全部对象的裁剪区域）"
+        }
+      },
+      "outputFieldId": {
+        "label": "图像保存到"
+      },
+      "detailsOutputFieldId": {
+        "label": "详情保存到",
+        "description": "可选。接收包含匹配数量和边框的 JSON。",
+        "sameAsOutput": "请选择与输出图像不同的字段。",
+        "sameAsInput": "请选择与源图像不同的字段。"
+      },
+      "overwriteWarning": "结果将替换此字段中的源图像。",
+      "states": {
+        "success": "已找到",
+        "skip": "未找到",
+        "error": "失败"
+      }
     }
   },
   "flowAnalytics": {
@@ -4354,6 +4397,9 @@
       "comment": "评论",
       "destinationPipeline": "目标管道",
       "destinationStage": "目标阶段"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: 图像分割"
     },
     "aiSpeechToText": {
       "muse": {
@@ -5060,6 +5106,35 @@
     "signUpToJoin": "创建账户以加入"
   },
   "keywords": {
+    "conditions": {
+      "operators": {
+        "is": "消息等于",
+        "similarTo": "消息相似于",
+        "contains": "消息包含",
+        "containsPhone": "消息包含电话",
+        "containsEmail": "消息包含邮箱",
+        "containsImage": "消息包含图片",
+        "containsVideo": "消息包含视频",
+        "containsLink": "消息包含链接",
+        "containsWholeWord": "消息包含完整单词",
+        "beginsWith": "消息开头为",
+        "endsWith": "消息结尾为",
+        "isThumbsUp": "消息是 👍",
+        "notContains": "消息不包含",
+        "matchesRegex": "消息匹配正则"
+      },
+      "and": "且",
+      "addCondition": "消息条件",
+      "removeCondition": "删除条件",
+      "note": "关键词不区分大小写并忽略声调符号，例如 \"Tư vấn\" 和 \"tu van\" 视为相同。",
+      "keywordPlaceholder": "+ 关键词",
+      "regexPlaceholder": "+ 正则",
+      "errors": {
+        "keywordConditionValuesRequired": "请至少添加一个关键词。",
+        "keywordConditionTakesNoValues": "此条件不需要关键词。",
+        "invalidKeywordRegex": "正则表达式无效。"
+      }
+    },
     "descriptions": {
       "contact": "当联系人发送包含关键字的消息给您的工作区时自动回复。",
       "contactTitle": "联系人关键字",
@@ -6959,6 +7034,7 @@
       "sendMetaCapiEvent": "发送 Meta CAPI 事件",
       "setCustomField": "设置自订字段",
       "startAnotherFlow": "开始另一个流程",
+      "startExternalStep": "Start External Step",
       "transferConversationToHuman": "将对话转移给人类",
       "sendGoogleAdsConversion": "发送 Google Ads 转化"
     },
@@ -7072,6 +7148,9 @@
     "maxCharacters": "最多 {max} 个字符。",
     "maxMustBeGreaterThanMin": "{maxField} 必须大于或等于 {minField}",
     "maxSize": "文件大小超出上限",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "请选择一个收件箱。",
       "inboxNotFound": "未找到所选收件箱。",
@@ -7105,6 +7184,7 @@
   "webchat": {
     "chatUnavailable": "此聊天目前不可用。",
     "description": "让您的客户直接从您的网站获得来自您企业的即时自动回复",
+    "loadMessagesError": "无法加载消息。请检查您的网络连接并重试。",
     "rateLimitExceeded": "请求过多。请稍后重试。",
     "title": "网络聊天",
     "unauthorizedDomain": {

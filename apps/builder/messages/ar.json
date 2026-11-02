@@ -1479,6 +1479,15 @@
       "label": "الحقل المخصص",
       "savePayloadTo": "حفظ الرد في حقل مخصص",
       "set_value": "تعيين القيمة",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "إضافة في النهاية",
       "prepend": "إضافة إلى البداية",
       "increase": "زيادة بمقدار",
@@ -1598,7 +1607,8 @@
       "label": "المسارات",
       "placeholder": "اختر مسارًا",
       "aiGenerateTextAgent": "{aiName}: وكيل توليد النص",
-      "aiDeleteMessageHistory": "{aiName}: حذف سجل الرسائل"
+      "aiDeleteMessageHistory": "{aiName}: حذف سجل الرسائل",
+      "aiSegmentImage": "{aiName}: تقسيم الصورة"
     },
     "steps": {
       "label": "عقدة",
@@ -2818,6 +2828,39 @@
     },
     "empty": {
       "label": "فارغ"
+    },
+    "aiSegmentImage": {
+      "description": "يعثر على عنصر في الصورة باستخدام SAM 3.1 ويحفظ صورة مقصوصة له.",
+      "inputFieldId": {
+        "label": "الصورة المصدر"
+      },
+      "target": {
+        "label": "العنصر المطلوب",
+        "description": "عبارة اسمية قصيرة مثل \"سيارة حمراء\" أو \"علبة منتج\". ليست سؤالاً أو أمراً.",
+        "placeholder": "علبة منتج"
+      },
+      "matchSelection": {
+        "label": "التطابقات",
+        "options": {
+          "largest": "أكبر عنصر فقط",
+          "all": "كل العناصر المطابقة (قص واحد يشملها)"
+        }
+      },
+      "outputFieldId": {
+        "label": "حفظ الصورة في"
+      },
+      "detailsOutputFieldId": {
+        "label": "حفظ التفاصيل في",
+        "description": "اختياري. يستقبل JSON يتضمن عدد التطابقات والمربعات.",
+        "sameAsOutput": "اختر حقلاً مختلفاً عن حقل الصورة الناتجة.",
+        "sameAsInput": "اختر حقلاً مختلفاً عن حقل الصورة المصدر."
+      },
+      "overwriteWarning": "ستحل النتيجة محل الصورة المصدر في هذا الحقل.",
+      "states": {
+        "success": "تم العثور",
+        "skip": "لم يتم العثور",
+        "error": "فشل"
+      }
     }
   },
   "flows": {
@@ -3266,6 +3309,9 @@
       "comment": "التعليق",
       "destinationPipeline": "خط سير العمل الوجهة",
       "destinationStage": "المرحلة الوجهة"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: تقسيم الصورة"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "الحد الأقصى {max} حرفًا.",
     "invalidApiKey": "مفتاح API غير صالح",
     "maxMustBeGreaterThanMin": "يجب أن يكون {maxField} أكبر من أو يساوي {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "اختر صندوق وارد.",
       "inboxNotFound": "لم يتم العثور على صندوق الوارد المحدد.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "هذه الدردشة غير متاحة حاليًا.",
     "description": "اسمح لعملائك بالحصول على ردود تلقائية فورية من نشاطك التجاري مباشرةً عبر موقعك",
+    "loadMessagesError": "تعذّر تحميل الرسائل. تحقق من اتصالك وحاول مرة أخرى.",
     "rateLimitExceeded": "عدد الطلبات كبير جدًا. يُرجى المحاولة بعد قليل.",
     "title": "دردشة الويب",
     "workspaceUnavailable": "مساحة العمل هذه لم تعد متاحة.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "تعيين حقل مخصص",
       "clearCustomField": "مسح حقل مخصص",
       "startAnotherFlow": "بدء مسار آخر",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "إشعار المسؤولين",
       "transferConversationToHuman": "نقل المحادثة إلى موظف",
       "sendMetaCapiEvent": "إرسال حدث Meta CAPI",
@@ -6036,7 +6087,36 @@
       "pageTitle": "الكلمات المفتاحية للصفحة",
       "page": "الرد تلقائيًا عندما ترسل أنت رسالة تحتوي على كلمة مفتاحية إلى العميل."
     },
-    "pageWarning": "قد يؤدي محتوى رسالة تحتوي على كلمة مفتاحية للصفحة إلى إرسال رسائل للعميل بشكل متكرر لا نهائي. قم بإلغاء تفعيل الكلمة المفتاحية للصفحة فورًا إذا واجهت هذه الحالة!"
+    "pageWarning": "قد يؤدي محتوى رسالة تحتوي على كلمة مفتاحية للصفحة إلى إرسال رسائل للعميل بشكل متكرر لا نهائي. قم بإلغاء تفعيل الكلمة المفتاحية للصفحة فورًا إذا واجهت هذه الحالة!",
+    "conditions": {
+      "operators": {
+        "is": "الرسالة هي",
+        "similarTo": "الرسالة مشابهة لـ",
+        "contains": "الرسالة تحتوي على",
+        "containsPhone": "الرسالة تحتوي على رقم هاتف",
+        "containsEmail": "الرسالة تحتوي على بريد إلكتروني",
+        "containsImage": "الرسالة تحتوي على صورة",
+        "containsVideo": "الرسالة تحتوي على فيديو",
+        "containsLink": "الرسالة تحتوي على رابط",
+        "containsWholeWord": "الرسالة تحتوي على الكلمة كاملة",
+        "beginsWith": "الرسالة تبدأ بـ",
+        "endsWith": "الرسالة تنتهي بـ",
+        "isThumbsUp": "الرسالة إعجاب 👍",
+        "notContains": "الرسالة لا تحتوي على",
+        "matchesRegex": "الرسالة تطابق التعبير النمطي"
+      },
+      "and": "و",
+      "addCondition": "شرط الرسالة",
+      "removeCondition": "إزالة الشرط",
+      "note": "الكلمات المفتاحية لا تميّز بين الأحرف الكبيرة والصغيرة وتتجاهل علامات التشكيل، مثل \"Tư vấn\" و\"tu van\" تُعدّان متطابقتين.",
+      "keywordPlaceholder": "+ كلمة مفتاحية",
+      "regexPlaceholder": "+ تعبير نمطي",
+      "errors": {
+        "keywordConditionValuesRequired": "أضف كلمة مفتاحية واحدة على الأقل.",
+        "keywordConditionTakesNoValues": "هذا الشرط لا يحتاج إلى كلمات مفتاحية.",
+        "invalidKeywordRegex": "تعبير نمطي غير صالح."
+      }
+    }
   },
   "triggers": {
     "title": "المشغّلات"
