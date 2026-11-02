@@ -893,6 +893,9 @@
       "destinationPipeline": "פייפליין יעד",
       "destinationStage": "שלב יעד"
     },
+    "aiSegmentImage": {
+      "label": "{name}: פילוח תמונה"
+    },
     "aiSpeechToText": {
       "muse": {
         "formatHint": "מתקבלים רק קובצי WAV: ‏PCM ‏16 ביט, מונו, 16 או 24 קילו-הרץ, עד 10 דקות. כל קובץ אחר (למשל הודעות קוליות) עובר לענף השגיאה.",
@@ -2561,6 +2564,9 @@
     "maxCharacters": "מקסימום {max} תווים.",
     "invalidApiKey": "מפתח API לא תקין",
     "maxMustBeGreaterThanMin": "{maxField} חייב להיות גדול או שווה ל-{minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "בחרו תיבת דואר נכנס.",
       "inboxNotFound": "תיבת הדואר הנכנס שנבחרה לא נמצאה.",
@@ -2594,6 +2600,7 @@
   "webchat": {
     "chatUnavailable": "צ'אט זה אינו זמין כרגע.",
     "description": "אפשרו ללקוחות לקבל תגובות אוטומטיות מיידיות מהעסק שלכם ישירות באתר",
+    "loadMessagesError": "לא ניתן היה לטעון את ההודעות. בדקו את החיבור ונסו שוב.",
     "rateLimitExceeded": "יותר מדי בקשות. נסו שוב בעוד רגע.",
     "title": "צ'אט אינטרנט",
     "workspaceUnavailable": "סביבת עבודה זו אינה זמינה עוד.",
@@ -3592,6 +3599,7 @@
       "setCustomField": "הגדרת שדה מותאם אישית",
       "clearCustomField": "ניקוי שדה מותאם אישית",
       "startAnotherFlow": "הפעלת תהליך אחר",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "יידוע מנהלי מערכת",
       "transferConversationToHuman": "העברת השיחה לנציג אנושי",
       "sendMetaCapiEvent": "שליחת אירוע Meta CAPI",
@@ -3818,7 +3826,36 @@
       "pageTitle": "מילות מפתח של עמוד",
       "page": "השב באופן אוטומטי כאשר אתה שולח הודעה המכילה מילת מפתח לאיש קשר."
     },
-    "pageWarning": "תוכן הודעה המכיל מילת מפתח לעמוד עלול לגרום לשליחת הודעות ללקוח בלופ אינסופי. השבת את מילת המפתח לעמוד באופן מיידי אם נתקלת במקרה זה!"
+    "pageWarning": "תוכן הודעה המכיל מילת מפתח לעמוד עלול לגרום לשליחת הודעות ללקוח בלופ אינסופי. השבת את מילת המפתח לעמוד באופן מיידי אם נתקלת במקרה זה!",
+    "conditions": {
+      "operators": {
+        "is": "ההודעה היא",
+        "similarTo": "ההודעה דומה ל",
+        "contains": "ההודעה מכילה",
+        "containsPhone": "ההודעה מכילה טלפון",
+        "containsEmail": "ההודעה מכילה אימייל",
+        "containsImage": "ההודעה מכילה תמונה",
+        "containsVideo": "ההודעה מכילה וידאו",
+        "containsLink": "ההודעה מכילה קישור",
+        "containsWholeWord": "ההודעה מכילה מילה שלמה",
+        "beginsWith": "ההודעה מתחילה ב",
+        "endsWith": "ההודעה מסתיימת ב",
+        "isThumbsUp": "ההודעה היא 👍",
+        "notContains": "ההודעה לא מכילה",
+        "matchesRegex": "ההודעה תואמת ביטוי רגולרי"
+      },
+      "and": "וגם",
+      "addCondition": "תנאי הודעה",
+      "removeCondition": "הסר תנאי",
+      "note": "מילות מפתח אינן תלויות באותיות גדולות/קטנות ומתעלמות מסימני ניקוד, למשל \"Tư vấn\" ו-\"tu van\" נחשבות זהות.",
+      "keywordPlaceholder": "+ מילת מפתח",
+      "regexPlaceholder": "+ ביטוי רגולרי",
+      "errors": {
+        "keywordConditionValuesRequired": "הוסף לפחות מילת מפתח אחת.",
+        "keywordConditionTakesNoValues": "תנאי זה אינו דורש מילות מפתח.",
+        "invalidKeywordRegex": "ביטוי רגולרי לא תקין."
+      }
+    }
   },
   "triggers": {
     "title": "גורמים מפעילים"
@@ -5760,6 +5797,15 @@
       "label": "שדה מותאם אישית",
       "savePayloadTo": "שמירת התגובה בשדה מותאם אישית",
       "set_value": "הגדרת ערך",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "הוספה לסוף",
       "prepend": "הוספה להתחלה",
       "increase": "הגדלה ב-",
@@ -5879,7 +5925,8 @@
       "label": "תהליכים",
       "placeholder": "בחירת תהליך",
       "aiGenerateTextAgent": "{aiName}: סוכן ליצירת טקסט",
-      "aiDeleteMessageHistory": "{aiName}: מחיקת היסטוריית הודעות"
+      "aiDeleteMessageHistory": "{aiName}: מחיקת היסטוריית הודעות",
+      "aiSegmentImage": "{aiName}: פילוח תמונה"
     },
     "steps": {
       "label": "צומת",
@@ -7099,6 +7146,39 @@
     },
     "empty": {
       "label": "ריק"
+    },
+    "aiSegmentImage": {
+      "description": "מאתר אובייקט בתמונה באמצעות SAM 3.1 ושומר שלו תמונה חתוכה.",
+      "inputFieldId": {
+        "label": "תמונת מקור"
+      },
+      "target": {
+        "label": "אובייקט לאיתור",
+        "description": "צירוף שמני קצר כמו \"מכונית אדומה\" או \"קופסת מוצר\". לא שאלה ולא פקודה.",
+        "placeholder": "קופסת מוצר"
+      },
+      "matchSelection": {
+        "label": "התאמות",
+        "options": {
+          "largest": "רק האובייקט הגדול ביותר",
+          "all": "כל האובייקטים התואמים (חיתוך אחד שמקיף אותם)"
+        }
+      },
+      "outputFieldId": {
+        "label": "שמירת התמונה ב"
+      },
+      "detailsOutputFieldId": {
+        "label": "שמירת הפרטים ב",
+        "description": "אופציונלי. מקבל JSON עם מספר ההתאמות והמסגרות.",
+        "sameAsOutput": "יש לבחור שדה שונה משדה תמונת הפלט.",
+        "sameAsInput": "יש לבחור שדה שונה משדה תמונת המקור."
+      },
+      "overwriteWarning": "התוצאה תחליף את תמונת המקור בשדה זה.",
+      "states": {
+        "success": "נמצא",
+        "skip": "לא נמצא",
+        "error": "נכשל"
+      }
     }
   },
   "billing": {

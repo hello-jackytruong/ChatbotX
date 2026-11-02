@@ -1323,6 +1323,15 @@
       "label": "Campo personalizado",
       "savePayloadTo": "Guardar resposta no campo personalizado",
       "set_value": "Definir valor",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Adicionar ao fim",
       "prepend": "Adicionar ao início",
       "increase": "Aumentar em",
@@ -1442,7 +1451,8 @@
       "label": "Fluxos",
       "placeholder": "Selecione o fluxo",
       "aiGenerateTextAgent": "{aiName}: agente de geração de texto",
-      "aiDeleteMessageHistory": "{aiName}: eliminar histórico de mensagens"
+      "aiDeleteMessageHistory": "{aiName}: eliminar histórico de mensagens",
+      "aiSegmentImage": "{aiName}: Segmentar imagem"
     },
     "steps": {
       "label": "Nó",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "Vazio"
+    },
+    "aiSegmentImage": {
+      "description": "Encontra um objeto numa imagem com SAM 3.1 e guarda um recorte do mesmo.",
+      "inputFieldId": {
+        "label": "Imagem de origem"
+      },
+      "target": {
+        "label": "Objeto a encontrar",
+        "description": "Uma expressão nominal curta como \"carro vermelho\" ou \"caixa do produto\". Não é uma pergunta nem uma ordem.",
+        "placeholder": "caixa do produto"
+      },
+      "matchSelection": {
+        "label": "Correspondências",
+        "options": {
+          "largest": "Apenas o maior objeto",
+          "all": "Todos os objetos correspondentes (um recorte que inclui todos)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Guardar imagem em"
+      },
+      "detailsOutputFieldId": {
+        "label": "Guardar detalhes em",
+        "description": "Opcional. Recebe um JSON com o número de correspondências e as caixas.",
+        "sameAsOutput": "Escolha um campo diferente da imagem de saída.",
+        "sameAsInput": "Escolha um campo diferente da imagem de origem."
+      },
+      "overwriteWarning": "O resultado substituirá a imagem de origem neste campo.",
+      "states": {
+        "success": "Encontrado",
+        "skip": "Não encontrado",
+        "error": "Falhou"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "Comentário",
       "destinationPipeline": "Funil de destino",
       "destinationStage": "Fase de destino"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmentar imagem"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Máximo de {max} caracteres.",
     "invalidApiKey": "Chave da API inválida",
     "maxMustBeGreaterThanMin": "{maxField} tem de ser maior ou igual a {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Escolha uma caixa de entrada.",
       "inboxNotFound": "A caixa de entrada selecionada não foi encontrada.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Este chat está atualmente indisponível.",
     "description": "Permita que os seus clientes recebam respostas automáticas instantâneas da sua empresa diretamente no seu site",
+    "loadMessagesError": "Não foi possível carregar as mensagens. Verifique a sua ligação e tente novamente.",
     "rateLimitExceeded": "Demasiados pedidos. Tente novamente dentro de momentos.",
     "title": "Chat na Web",
     "workspaceUnavailable": "Este espaço de trabalho já não está disponível.",
@@ -5806,6 +5856,7 @@
       "setCustomField": "Definir campo personalizado",
       "clearCustomField": "Limpar campo personalizado",
       "startAnotherFlow": "Iniciar outro fluxo",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notificar administradores",
       "transferConversationToHuman": "Transferir conversa para um humano",
       "sendMetaCapiEvent": "Enviar evento Meta CAPI",
@@ -6032,7 +6083,36 @@
       "pageTitle": "Palavras-chave de página",
       "page": "Responde automaticamente quando envia uma mensagem com uma palavra-chave para um contacto."
     },
-    "pageWarning": "O conteúdo de uma mensagem com uma palavra-chave de Página pode causar o envio de mensagens ao cliente num ciclo infinito. Desative a palavra-chave de Página imediatamente se isso ocorrer!"
+    "pageWarning": "O conteúdo de uma mensagem com uma palavra-chave de Página pode causar o envio de mensagens ao cliente num ciclo infinito. Desative a palavra-chave de Página imediatamente se isso ocorrer!",
+    "conditions": {
+      "operators": {
+        "is": "A mensagem é",
+        "similarTo": "A mensagem é semelhante a",
+        "contains": "A mensagem contém",
+        "containsPhone": "A mensagem contém telefone",
+        "containsEmail": "A mensagem contém e-mail",
+        "containsImage": "A mensagem contém imagem",
+        "containsVideo": "A mensagem contém vídeo",
+        "containsLink": "A mensagem contém ligação",
+        "containsWholeWord": "A mensagem contém a palavra inteira",
+        "beginsWith": "A mensagem começa com",
+        "endsWith": "A mensagem termina com",
+        "isThumbsUp": "A mensagem é 👍",
+        "notContains": "A mensagem não contém",
+        "matchesRegex": "A mensagem corresponde à regex"
+      },
+      "and": "e",
+      "addCondition": "Condição da mensagem",
+      "removeCondition": "Remover condição",
+      "note": "As palavras-chave não distinguem maiúsculas nem acentos, p. ex. \"Tư vấn\" e \"tu van\" são reconhecidas como iguais.",
+      "keywordPlaceholder": "+ Palavra-chave",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Adicione pelo menos uma palavra-chave.",
+        "keywordConditionTakesNoValues": "Esta condição não usa palavras-chave.",
+        "invalidKeywordRegex": "Expressão regular inválida."
+      }
+    }
   },
   "triggers": {
     "title": "Acionadores"

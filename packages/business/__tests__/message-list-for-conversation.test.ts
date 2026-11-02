@@ -469,6 +469,35 @@ describe("message list-for-conversation", () => {
       )
     })
 
+    test("serves a public Zalo attachment through the browser-facing storage URL", async () => {
+      const originPath =
+        "public/zalo/ws-1/integration-1/2026/11/02/attachment-1"
+      mocks.repo.listByConversation.mockResolvedValue({
+        data: [
+          {
+            id: "msg-1",
+            contactInboxId: "ci-1",
+            attachments: [{ id: "att-1", originPath }],
+          },
+        ],
+        nextCursor: null,
+      })
+      mocks.contactInboxService.findManyByIds.mockResolvedValue([
+        { id: "ci-1", channel: "zalo" },
+      ])
+
+      const result = await listForConversation({
+        workspaceId: "ws-1",
+        conversationId: "conv-1",
+        limit: 20,
+      })
+
+      expect(result.data[0].attachments[0].url).toBe(
+        `https://storage.example.com/${originPath}`,
+      )
+      expect(mocks.uploader.getPresignedDownload).not.toHaveBeenCalled()
+    })
+
     test("omits an attachment whose proxy token signing fails instead of failing the page", async () => {
       mocks.signMediaToken.mockRejectedValueOnce(new Error("signer down"))
       mocks.repo.listByConversation.mockResolvedValue({

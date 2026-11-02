@@ -1323,6 +1323,15 @@
       "label": "Brugerdefineret Felt",
       "savePayloadTo": "Gem svar til Brugerdefineret Felt",
       "set_value": "Set værdi",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Append til den slut",
       "prepend": "Prepend til den beginning",
       "increase": "Increase by",
@@ -1442,7 +1451,8 @@
       "label": "Flows",
       "placeholder": "Vælg flow",
       "aiGenerateTextAgent": "{aiName}: Generér Tekst Agent",
-      "aiDeleteMessageHistory": "{aiName}: Slet Besked Historik"
+      "aiDeleteMessageHistory": "{aiName}: Slet Besked Historik",
+      "aiSegmentImage": "{aiName}: Segmentér billede"
     },
     "steps": {
       "label": "Node",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "Tom"
+    },
+    "aiSegmentImage": {
+      "description": "Finder et objekt i et billede med SAM 3.1 og gemmer et beskåret billede af det.",
+      "inputFieldId": {
+        "label": "Kildebillede"
+      },
+      "target": {
+        "label": "Objekt at finde",
+        "description": "En kort navneordsfrase som \"rød bil\" eller \"produktæske\". Ikke et spørgsmål eller en kommando.",
+        "placeholder": "produktæske"
+      },
+      "matchSelection": {
+        "label": "Match",
+        "options": {
+          "largest": "Kun største objekt",
+          "all": "Alle matchende objekter (én beskæring omkring dem)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Gem billede i"
+      },
+      "detailsOutputFieldId": {
+        "label": "Gem detaljer i",
+        "description": "Valgfrit. Modtager JSON med antal match og bokse.",
+        "sameAsOutput": "Vælg et andet felt end outputbilledet.",
+        "sameAsInput": "Vælg et andet felt end kildebilledet."
+      },
+      "overwriteWarning": "Resultatet erstatter kildebilledet i dette felt.",
+      "states": {
+        "success": "Fundet",
+        "skip": "Ikke fundet",
+        "error": "Mislykkedes"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "Kommentar",
       "destinationPipeline": "Destinationspipeline",
       "destinationStage": "Destinationsfase"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmentér billede"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Maksimalt {max} tegn.",
     "invalidApiKey": "Ugyldig API-nøgle",
     "maxMustBeGreaterThanMin": "{maxField} must være greater than eller equal til {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Vælg en inbox.",
       "inboxNotFound": "Den valgte inbox blev ikke fundet.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Denne chat er currently unavailable.",
     "description": "Let din customers get instant automated responses fra din business directly fra din website",
+    "loadMessagesError": "Beskederne kunne ikke indlæses. Tjek din forbindelse, og prøv igen.",
     "rateLimitExceeded": "Too many requests. Prøv igen i a moment.",
     "title": "Web Chat",
     "workspaceUnavailable": "Denne arbejdsområde er ingen longer tilgængelig.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Angiv brugerdefineret felt",
       "clearCustomField": "Ryd brugerdefineret felt",
       "startAnotherFlow": "Start Another Flow",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notify Administratorer",
       "transferConversationToHuman": "Transfer Samtale til Menneskelig",
       "sendMetaCapiEvent": "Send Meta CAPI Event",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Side-nøgleord",
       "page": "Svar automatisk, når du sender en besked med et nøgleord til en kontakt."
     },
-    "pageWarning": "Beskedindhold med et sidenøgleord kan medføre, at der sendes beskeder til kunden i en uendelig løkke. Deaktiver sidenøgleordet med det samme, hvis du oplever dette!"
+    "pageWarning": "Beskedindhold med et sidenøgleord kan medføre, at der sendes beskeder til kunden i en uendelig løkke. Deaktiver sidenøgleordet med det samme, hvis du oplever dette!",
+    "conditions": {
+      "operators": {
+        "is": "Beskeden er",
+        "similarTo": "Beskeden ligner",
+        "contains": "Beskeden indeholder",
+        "containsPhone": "Beskeden indeholder telefonnummer",
+        "containsEmail": "Beskeden indeholder e-mail",
+        "containsImage": "Beskeden indeholder billede",
+        "containsVideo": "Beskeden indeholder video",
+        "containsLink": "Beskeden indeholder link",
+        "containsWholeWord": "Beskeden indeholder hele ordet",
+        "beginsWith": "Beskeden begynder med",
+        "endsWith": "Beskeden slutter med",
+        "isThumbsUp": "Beskeden er 👍",
+        "notContains": "Beskeden indeholder ikke",
+        "matchesRegex": "Beskeden matcher regex"
+      },
+      "and": "og",
+      "addCondition": "Beskedbetingelse",
+      "removeCondition": "Fjern betingelse",
+      "note": "Nøgleord skelner ikke mellem store og små bogstaver og ignorerer accenter, f.eks. genkendes \"Tư vấn\" og \"tu van\" som det samme.",
+      "keywordPlaceholder": "+ Nøgleord",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Tilføj mindst ét nøgleord.",
+        "keywordConditionTakesNoValues": "Denne betingelse bruger ingen nøgleord.",
+        "invalidKeywordRegex": "Ugyldigt regulært udtryk."
+      }
+    }
   },
   "triggers": {
     "title": "Udløsere"

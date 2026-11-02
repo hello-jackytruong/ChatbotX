@@ -1323,6 +1323,15 @@
       "label": "Champ personnalisé",
       "savePayloadTo": "Enregistrer la réponse dans un champ personnalisé",
       "set_value": "Définir la valeur",
+      "clear": "Clear value",
+      "formula": "Use custom formula",
+      "set_now": "Set to now",
+      "date_expression": "Free-form date (with math)",
+      "add_minutes": "Add minutes",
+      "add_hours": "Add hours",
+      "add_days": "Add days",
+      "formulaHint": "Math where value is the current number, e.g. round(value * 1.1). Functions: abs, ceil, floor, round, min, max, pow, sqrt, log, sin, cos.",
+      "dateExpressionHint": "e.g. now + 2 days - 3 hours. Units: min, h, d, w, mo, y.",
       "append": "Ajouter à la fin",
       "prepend": "Ajouter au début",
       "increase": "Augmenter de",
@@ -1442,7 +1451,8 @@
       "label": "Flux",
       "placeholder": "Sélectionnez un flux",
       "aiGenerateTextAgent": "{aiName} : agent de génération de texte",
-      "aiDeleteMessageHistory": "{aiName} : supprimer l’historique des messages"
+      "aiDeleteMessageHistory": "{aiName} : supprimer l’historique des messages",
+      "aiSegmentImage": "{aiName}: Segmenter l'image"
     },
     "steps": {
       "label": "Nœud",
@@ -2662,6 +2672,39 @@
     },
     "empty": {
       "label": "Vide"
+    },
+    "aiSegmentImage": {
+      "description": "Trouve un objet dans une image avec SAM 3.1 et enregistre une image recadrée de celui-ci.",
+      "inputFieldId": {
+        "label": "Image source"
+      },
+      "target": {
+        "label": "Objet à trouver",
+        "description": "Un groupe nominal court comme « voiture rouge » ou « boîte produit ». Pas une question ni une commande.",
+        "placeholder": "boîte produit"
+      },
+      "matchSelection": {
+        "label": "Correspondances",
+        "options": {
+          "largest": "Seulement le plus grand objet",
+          "all": "Tous les objets correspondants (un recadrage qui les englobe)"
+        }
+      },
+      "outputFieldId": {
+        "label": "Enregistrer l'image dans"
+      },
+      "detailsOutputFieldId": {
+        "label": "Enregistrer les détails dans",
+        "description": "Facultatif. Reçoit un JSON avec le nombre de correspondances et les cadres.",
+        "sameAsOutput": "Choisissez un champ différent de l'image de sortie.",
+        "sameAsInput": "Choisissez un champ différent de l'image source."
+      },
+      "overwriteWarning": "Le résultat remplacera l'image source dans ce champ.",
+      "states": {
+        "success": "Trouvé",
+        "skip": "Introuvable",
+        "error": "Échec"
+      }
     }
   },
   "flows": {
@@ -3110,6 +3153,9 @@
       "comment": "Commentaire",
       "destinationPipeline": "Pipeline de destination",
       "destinationStage": "Étape de destination"
+    },
+    "aiSegmentImage": {
+      "label": "{name}: Segmenter l'image"
     },
     "aiSpeechToText": {
       "muse": {
@@ -4779,6 +4825,9 @@
     "maxCharacters": "Maximum {max} caractères.",
     "invalidApiKey": "Clé API non valide",
     "maxMustBeGreaterThanMin": "{maxField} doit être supérieur ou égal à {minField}",
+    "trigger": {
+      "actionReferenceNotFound": "An action refers to a record that no longer exists. Re-select it in the action and save again."
+    },
     "inboundWebhook": {
       "inboxRequired": "Choisissez une boîte de réception.",
       "inboxNotFound": "La boîte de réception sélectionnée est introuvable.",
@@ -4812,6 +4861,7 @@
   "webchat": {
     "chatUnavailable": "Ce chat est actuellement indisponible.",
     "description": "Permettez à vos clients d’obtenir des réponses automatiques instantanées de votre entreprise directement depuis votre site Web",
+    "loadMessagesError": "Impossible de charger les messages. Vérifiez votre connexion et réessayez.",
     "rateLimitExceeded": "Trop de requêtes. Veuillez réessayer dans un instant.",
     "title": "Webchat",
     "workspaceUnavailable": "Cet espace de travail n’est plus disponible.",
@@ -5810,6 +5860,7 @@
       "setCustomField": "Définir le champ personnalisé",
       "clearCustomField": "Effacer le champ personnalisé",
       "startAnotherFlow": "Démarrer un autre flux",
+      "startExternalStep": "Start External Step",
       "notifyAdmins": "Notifier les administrateurs",
       "transferConversationToHuman": "Transférer la conversation à un humain",
       "sendMetaCapiEvent": "Envoyer un événement Meta CAPI",
@@ -6036,7 +6087,36 @@
       "pageTitle": "Mots-clés de page",
       "page": "Répond automatiquement lorsque vous envoyez un message contenant un mot-clé à un contact."
     },
-    "pageWarning": "Un message contenant un mot-clé de Page peut entraîner l'envoi de messages au contact en boucle infinie. Désactivez immédiatement le mot-clé de Page si cela se produit !"
+    "pageWarning": "Un message contenant un mot-clé de Page peut entraîner l'envoi de messages au contact en boucle infinie. Désactivez immédiatement le mot-clé de Page si cela se produit !",
+    "conditions": {
+      "operators": {
+        "is": "Le message est",
+        "similarTo": "Le message ressemble à",
+        "contains": "Le message contient",
+        "containsPhone": "Le message contient un téléphone",
+        "containsEmail": "Le message contient un e-mail",
+        "containsImage": "Le message contient une image",
+        "containsVideo": "Le message contient une vidéo",
+        "containsLink": "Le message contient un lien",
+        "containsWholeWord": "Le message contient le mot entier",
+        "beginsWith": "Le message commence par",
+        "endsWith": "Le message se termine par",
+        "isThumbsUp": "Le message est 👍",
+        "notContains": "Le message ne contient pas",
+        "matchesRegex": "Le message correspond à la regex"
+      },
+      "and": "et",
+      "addCondition": "Condition de message",
+      "removeCondition": "Supprimer la condition",
+      "note": "Les mots-clés ne tiennent compte ni de la casse ni des accents, p. ex. \"Tư vấn\" et \"tu van\" sont reconnus comme identiques.",
+      "keywordPlaceholder": "+ Mot-clé",
+      "regexPlaceholder": "+ Regex",
+      "errors": {
+        "keywordConditionValuesRequired": "Ajoutez au moins un mot-clé.",
+        "keywordConditionTakesNoValues": "Cette condition n'utilise pas de mots-clés.",
+        "invalidKeywordRegex": "Expression régulière invalide."
+      }
+    }
   },
   "triggers": {
     "title": "Déclencheurs"
