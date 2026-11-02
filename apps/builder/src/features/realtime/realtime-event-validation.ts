@@ -6,6 +6,7 @@ import {
   realtimeCallTransportIncomingSchema,
   realtimeCallTransportOutboundAnswerVoipSchema,
   realtimeCallTransportOutboundStatusVoipSchema,
+  realtimeContactUpdatedSchema,
   whatsappCallClaimedElsewhereSchema,
   whatsappCallPermissionUpdatedSchema,
 } from "@chatbotx.io/realtime-protocol"
@@ -22,6 +23,7 @@ import type { RealtimeEvent, RealtimeEventName } from "./types"
 export const REALTIME_EVENT_SCHEMAS: {
   readonly [K in RealtimeEventName]?: z.ZodType<RealtimeEvent<K>["data"]>
 } = {
+  [RealtimeEventType.contactUpdated]: realtimeContactUpdatedSchema,
   [RealtimeEventType.whatsappCallTransportIncoming]:
     realtimeCallTransportIncomingSchema,
   [RealtimeEventType.whatsappCallTransportEnded]:

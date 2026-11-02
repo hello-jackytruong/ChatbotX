@@ -8,6 +8,7 @@ import {
   realtimeCallTransportIncomingSchema,
   realtimeCallTransportOutboundAnswerVoipSchema,
   realtimeCallTransportOutboundStatusVoipSchema,
+  realtimeContactUpdatedSchema,
   realtimeEventEnvelopeSchema,
   realtimeGuestBatchEnvelopeSchema,
   realtimeMemberBatchEnvelopeSchema,
@@ -121,6 +122,21 @@ test("rejects unknown realtime event types", () => {
     realtimeEventEnvelopeSchema.safeParse({
       data: {},
       eventType: "unknown",
+    }).success,
+  ).toBe(false)
+})
+
+test("validates the contactUpdated profile patch", () => {
+  expect(
+    realtimeContactUpdatedSchema.safeParse({
+      contactId: "contact-1",
+      changes: { fullName: "Nguyen Van A" },
+    }).success,
+  ).toBe(true)
+  expect(
+    realtimeContactUpdatedSchema.safeParse({
+      contactId: "contact-1",
+      changes: { fullName: null },
     }).success,
   ).toBe(false)
 })

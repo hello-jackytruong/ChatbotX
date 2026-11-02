@@ -4,13 +4,20 @@ import {
   type MessageWithAttachments,
   type PaginationCursor,
 } from "@chatbotx.io/database/repositories"
-import { uploader } from "@chatbotx.io/filesystem"
 import { endOfHour } from "date-fns"
 import { contactInboxService } from "../contact-inbox/service"
 import { conversationService } from "../conversation/service"
 import { notFoundException } from "../errors"
 import { logger } from "../logger"
-import { resolveAttachmentFallbackUrl, resolveMediaUrl } from "../media"
+import {
+  HYDRATION_CHANNELS,
+  isFailedOriginPath,
+  isStoredObjectPath,
+  resolveAttachmentFallbackUrl,
+  resolveAttachmentProxyUrl,
+  resolveMediaUrl,
+} from "../media"
+import { resolveWorkspaceAppUrl } from "../platform/settings"
 import { HTTP_URL_RE } from "../utils"
 
 type PresignedAttachmentUrls = {
@@ -24,6 +31,23 @@ async function presignAttachments<T extends { id: string; originPath: string }>(
   attachments: T[],
   context: { channel: string; workspaceId: string; messageCreatedAt: Date },
 ): Promise<Array<T & PresignedAttachmentUrls>> {
+  const needsAppUrl = HYDRATION_CHANNELS.has(context.channel)
+    ? attachments.some(
+        (attachment) => !isFailedOriginPath(attachment.originPath),
+      )
+    : attachments.some((attachment) =>
+        isStoredObjectPath(attachment.originPath),
+      )
+  let appUrlPromise: Promise<string> | undefined
+  const resolveAppUrl = needsAppUrl
+    ? () => {
+        appUrlPromise ??= resolveWorkspaceAppUrl({
+          workspaceId: context.workspaceId,
+        })
+        return appUrlPromise
+      }
+    : undefined
+
   return await Promise.all(
     attachments.map(async (attachment) => {
       const ref = {
@@ -32,11 +56,12 @@ async function presignAttachments<T extends { id: string; originPath: string }>(
         originPath: attachment.originPath,
         channel: context.channel,
         messageCreatedAt: context.messageCreatedAt,
+        resolveAppUrl,
       }
       let url: string | null = null
       try {
         url = await resolveMediaUrl({ kind: "attachment", ...ref }, (key) =>
-          HTTP_URL_RE.test(key) ? key : uploader.getPresignedDownload(key),
+          HTTP_URL_RE.test(key) ? key : resolveAttachmentProxyUrl(ref),
         )
       } catch (err) {
         // One unresolvable attachment (bad key, signer/host failure) must not
@@ -72,8 +97,8 @@ async function presignAttachments<T extends { id: string; originPath: string }>(
 
 /**
  * Resolves a message's attachment URLs from data the caller already holds
- * (no DB read, no download): a stored object gets a presigned URL, a pending
- * (lazily-ingested) one the signed media proxy URL. Used wherever a message
+ * (no DB read, no download): both a private stored object and a pending
+ * (lazily-ingested) one get a signed app media proxy URL. Used wherever a message
  * is handed to a client directly, e.g. the realtime push of a new message.
  */
 export async function withResolvedAttachmentUrls(

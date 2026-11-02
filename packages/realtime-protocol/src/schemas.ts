@@ -9,6 +9,7 @@ export const RealtimeEventType = {
   messageFailed: "messageFailed",
   typing: "typing",
   contactBlocked: "contactBlocked",
+  contactUpdated: "contactUpdated",
   contactUnblocked: "contactUnblocked",
   conversationAssigned: "conversationAssigned",
   conversationUpdated: "conversationUpdated",
@@ -36,6 +37,7 @@ export const EVENT_DELIVERY = {
   [RealtimeEventType.messageFailed]: "conversation",
   [RealtimeEventType.typing]: "workspace",
   [RealtimeEventType.contactBlocked]: "workspace",
+  [RealtimeEventType.contactUpdated]: "workspace",
   [RealtimeEventType.contactUnblocked]: "workspace",
   [RealtimeEventType.conversationAssigned]: "conversation",
   [RealtimeEventType.conversationUpdated]: "conversation",
@@ -293,6 +295,18 @@ export type RealtimeEventContactCommon = {
   }
 }
 
+export const realtimeContactUpdatedSchema = z.object({
+  contactId: z.string(),
+  changes: z.object({
+    fullName: z.string().trim().min(1),
+  }),
+})
+
+export type RealtimeEventContactUpdated = {
+  eventType: typeof RealtimeEventType.contactUpdated
+  data: z.infer<typeof realtimeContactUpdatedSchema>
+}
+
 export type RealtimeEventConversationAssigned = {
   eventType: typeof RealtimeEventType.conversationAssigned
   data: {
@@ -530,6 +544,7 @@ type AllRealtimeEventData =
   | RealtimeEventMessageFailed
   | RealtimeEventTyping
   | RealtimeEventContactCommon
+  | RealtimeEventContactUpdated
   | RealtimeEventConversationAssigned
   | RealtimeEventConversationUpdated
   | RealtimeEventWhatsappCallTransportIncoming

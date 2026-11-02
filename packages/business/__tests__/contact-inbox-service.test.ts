@@ -377,7 +377,7 @@ describe("contactInboxService timestamp helpers", () => {
     listSpy.mockRestore()
   })
 
-  test("updateTracking does not infer firstInteractionAt from lastMessageAt", async () => {
+  test("updateTracking advances lastMessageAt without moving it backward", async () => {
     const lastMessageAt = new Date("2026-07-09T07:43:30.676Z")
 
     await contactInboxService.updateTracking({
@@ -388,7 +388,12 @@ describe("contactInboxService timestamp helpers", () => {
     })
 
     expect(mockDbUpdate).toHaveBeenCalled()
-    expect(mockDbSet).toHaveBeenCalledWith({ lastMessageAt })
+    expect(mockDbSet).toHaveBeenCalledWith({
+      lastMessageAt: {
+        strings: ["GREATEST(", ", ", ")"],
+        values: ["lastMessageAt", lastMessageAt],
+      },
+    })
   })
 
   test("updateTracking stores explicit firstInteractionAt as an earliest timestamp", async () => {
@@ -420,7 +425,10 @@ describe("contactInboxService timestamp helpers", () => {
           "firstInteractionAt",
         ],
       },
-      lastMessageAt,
+      lastMessageAt: {
+        strings: ["GREATEST(", ", ", ")"],
+        values: ["lastMessageAt", lastMessageAt],
+      },
     })
   })
 

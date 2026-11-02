@@ -1168,6 +1168,7 @@ class ContactInboxService extends BaseService {
     } = props
     const {
       firstInteractionAt: explicitFirstInteractionAt,
+      lastMessageAt: explicitLastMessageAt,
       lastIncomingMessageAt: explicitLastIncomingMessageAt,
       lastUserInput,
       lastUserInputType,
@@ -1179,6 +1180,11 @@ class ContactInboxService extends BaseService {
     if (explicitFirstInteractionAt) {
       Object.assign(updateData, {
         firstInteractionAt: sql`CASE WHEN ${contactInboxModel.firstInteractionAt} IS NULL OR ${contactInboxModel.firstInteractionAt} > ${explicitFirstInteractionAt} THEN ${explicitFirstInteractionAt} ELSE ${contactInboxModel.firstInteractionAt} END`,
+      })
+    }
+    if (explicitLastMessageAt) {
+      Object.assign(updateData, {
+        lastMessageAt: sql`GREATEST(${contactInboxModel.lastMessageAt}, ${explicitLastMessageAt})`,
       })
     }
     if (explicitLastIncomingMessageAt) {

@@ -30,6 +30,7 @@ import { useMemo } from "react"
 import { useNow } from "@/hooks/use-now"
 import { useUserAvatarUrl } from "@/lib/auth/avatar"
 import { useChatStore } from "../chat/store/chat-store-provider"
+import { contactDisplayName } from "../contacts/lib/contact-display-name"
 import { useAvatarUrl } from "../contacts/utils"
 import { InboxIcon } from "../inboxes/components/inbox-icon"
 import { useWhatsappVoipCallStore } from "../integration-whatsapp/calling/voip/voip-call-store"
@@ -232,6 +233,11 @@ export default function ConversationItem({
   // ringingCallId would never be set either.
   const voipCallContext = useOptionalWhatsappVoipCallContext()
   const isComment = conversation.messages?.[0]?.type === "comment"
+  const sourceIdentity =
+    conversation.contactInboxes?.[0]?.sourceUsername?.trim() ||
+    conversation.contactInboxes?.[0]?.sourceId?.trim()
+  const displayName =
+    contactDisplayName(conversation.contact) ?? sourceIdentity ?? "—"
   const avatarUrl = useAvatarUrl(conversation.contact)
   const assignedAvatarUrl = useUserAvatarUrl(conversation.assignedUser?.image)
   const assignedUserOptionName =
@@ -271,16 +277,16 @@ export default function ConversationItem({
         className={cn("h-12 w-12", isUnread && "border-2 border-primary")}
       >
         <AvatarImage
-          alt={conversation.contact?.fullName ?? ""}
+          alt={displayName}
           className="object-cover"
           src={avatarUrl}
         />
         <AvatarFallback className="bg-gray-300 dark:bg-zinc-100 dark:text-zinc-800">
-          {conversation.contact?.fullName?.slice(0, 2)}
+          {displayName.slice(0, 2)}
         </AvatarFallback>
       </Avatar>
     ),
-    [conversation.contact, avatarUrl, isUnread],
+    [avatarUrl, displayName, isUnread],
   )
 
   // Opening a conversation is read by the thread pane (`useThreadReadTracking`),
@@ -355,7 +361,7 @@ export default function ConversationItem({
                   : "font-medium text-muted-foreground",
               )}
             >
-              {conversation.contact?.fullName}
+              {displayName}
             </span>
             <Tooltip>
               <TooltipTrigger

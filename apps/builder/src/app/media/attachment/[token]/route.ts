@@ -19,8 +19,104 @@ type RouteContext = { params: Promise<{ token: string }> }
 // load, i.e. the mirrored object is gone from storage.
 const RETRY_PARAM = "retry"
 
-const redirectMirrored = async (originPath: string): Promise<NextResponse> =>
-  NextResponse.redirect(await uploader.getPresignedDownload(originPath), 302)
+const FORWARDED_STORAGE_HEADERS = [
+  "accept-ranges",
+  "content-disposition",
+  "content-encoding",
+  "content-length",
+  "content-range",
+  "content-type",
+  "etag",
+  "last-modified",
+] as const
+
+const INLINE_MEDIA_TYPES = new Set([
+  "audio/aac",
+  "audio/flac",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/ogg",
+  "audio/wav",
+  "audio/webm",
+  "image/avif",
+  "image/bmp",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/vnd.microsoft.icon",
+  "image/webp",
+  "image/x-icon",
+  "video/mp4",
+  "video/mpeg",
+  "video/ogg",
+  "video/quicktime",
+  "video/webm",
+  "video/x-msvideo",
+])
+
+const canRenderInline = (contentType: string | null): boolean =>
+  contentType !== null &&
+  INLINE_MEDIA_TYPES.has(contentType.split(";", 1)[0].trim().toLowerCase())
+
+const proxyMirrored = async (
+  request: NextRequest,
+  originPath: string,
+  mimeType?: string | null,
+): Promise<NextResponse> => {
+  const storageUrl = await uploader.getPresignedDownload(originPath)
+  const range = request.headers.get("range")
+  const headers = new Headers()
+  if (range) {
+    headers.set("Range", range)
+  }
+  const ifRange = request.headers.get("if-range")
+  if (ifRange) {
+    headers.set("If-Range", ifRange)
+  }
+
+  const upstream = await fetch(storageUrl, {
+    cache: "no-store",
+    headers,
+    signal: request.signal,
+  })
+  const responseHeaders = new Headers()
+  for (const header of FORWARDED_STORAGE_HEADERS) {
+    const value = upstream.headers.get(header)
+    if (value !== null) {
+      responseHeaders.set(header, value)
+    }
+  }
+  if (!responseHeaders.has("content-type") && mimeType) {
+    responseHeaders.set("content-type", mimeType)
+  }
+  // Stored uploads previously lived on the isolated storage origin. Now that
+  // they are streamed from the app origin, active HTML/SVG/XML must never be
+  // rendered with app-origin authority. Only known passive media stays inline.
+  if (!canRenderInline(responseHeaders.get("content-type"))) {
+    responseHeaders.set("content-disposition", "attachment")
+  }
+  responseHeaders.set("x-content-type-options", "nosniff")
+  responseHeaders.set("content-security-policy", "sandbox; default-src 'none'")
+  // The route token is the authorization boundary. Never inherit a public or
+  // longer-lived object policy that could cache the response past token expiry
+  // or workspace suspension.
+  responseHeaders.set("cache-control", "private, no-store")
+
+  if (upstream.status === 416) {
+    return new NextResponse(null, {
+      status: upstream.status,
+      headers: responseHeaders,
+    })
+  }
+  if (!(upstream.ok && upstream.body)) {
+    throw new Error(`Storage returned HTTP ${upstream.status}`)
+  }
+
+  return new NextResponse(upstream.body, {
+    status: upstream.status,
+    headers: responseHeaders,
+  })
+}
 
 // Serve an evicted mirrored attachment straight from the channel and restore
 // its object in the background. Storage is never probed and the row is never
@@ -61,6 +157,10 @@ export const GET = async (request: NextRequest, context: RouteContext) => {
     NextResponse.redirect(placeholderUrl(request, "unavailable.svg"), 302)
   const processing = () =>
     NextResponse.redirect(placeholderUrl(request, "processing.svg"), 302)
+  // Keep the response non-successful so media elements advance to the signed
+  // fallback and finally `?retry=1`, which can restore an evicted object from
+  // the channel. Redirecting to a placeholder here would suppress `onError`.
+  const storageUnavailable = () => new NextResponse(null, { status: 502 })
 
   // The client's last recovery step: the URL it got first did not load.
   const isRetry = new URL(request.url).searchParams.get(RETRY_PARAM) === "1"
@@ -111,15 +211,15 @@ export const GET = async (request: NextRequest, context: RouteContext) => {
       }
     }
     try {
-      return await redirectMirrored(lookup.originPath)
+      return await proxyMirrored(request, lookup.originPath, lookup.mimeType)
     } catch (err) {
-      // A storage signing/config failure must not surface as a broken 500 on
-      // the inbox hot path; degrade to the unavailable placeholder.
+      // A storage signing/fetch failure must advance the client's recovery
+      // chain rather than render a successful placeholder response.
       httpLogger.error(
         { err, attachmentId: lookup.id },
-        "Failed to presign mirrored attachment",
+        "Failed to proxy mirrored attachment",
       )
-      return unavailable()
+      return storageUnavailable()
     }
   }
 
@@ -152,7 +252,19 @@ export const GET = async (request: NextRequest, context: RouteContext) => {
       return unavailable()
     }
     if (refreshed && !isPendingOriginPath(refreshed.originPath)) {
-      return await redirectMirrored(refreshed.originPath)
+      try {
+        return await proxyMirrored(
+          request,
+          refreshed.originPath,
+          refreshed.mimeType,
+        )
+      } catch (err) {
+        httpLogger.error(
+          { err, attachmentId: refreshed.id },
+          "Failed to proxy attachment mirrored during request",
+        )
+        return storageUnavailable()
+      }
     }
 
     enqueueMirror()

@@ -27,6 +27,8 @@ type AttachmentMediaRef = {
   // Parent message createdAt — signed into the proxy token so the on-demand
   // lookup can target the right shard window on a sharded deployment.
   messageCreatedAt?: Date
+  // A batch can lazily share one white-label domain lookup across attachments.
+  resolveAppUrl?: () => Promise<string>
 }
 
 type AvatarMediaRef = {
@@ -79,7 +81,7 @@ export const isFailedOriginPath = (originPath: string): boolean =>
 export const isStoredObjectPath = (originPath: string): boolean =>
   !(isPendingOriginPath(originPath) || isFailedOriginPath(originPath))
 
-// A fallback URL is only used after its attachment's presigned storage URL
+// A fallback URL is only used after its attachment's primary proxy token
 // (1 hour) fails, so it must outlive it — otherwise an inbox left open past the
 // hour has an expired fallback exactly when it needs one.
 const FALLBACK_TOKEN_TTL_MS = 24 * 60 * 60 * 1000
@@ -92,6 +94,7 @@ const buildProxyUrl = async (
     messageCreatedAt?: number
   },
   ttlMs?: number,
+  resolveAppUrl?: () => Promise<string>,
 ): Promise<string> => {
   const token =
     ttlMs === undefined
@@ -99,11 +102,9 @@ const buildProxyUrl = async (
       : await signMediaToken(props, ttlMs)
   // White-label: proxied media must resolve on the workspace's own (custom)
   // domain, not the platform default, so the branded origin is preserved for
-  // tenants on a custom domain. resolveWorkspaceAppUrl is withCache-backed, so
-  // repeat lookups while resolving a list of pending media stay cheap.
-  const appUrl = await resolveWorkspaceAppUrl({
-    workspaceId: props.workspaceId,
-  })
+  // tenants on a custom domain. Batch callers share one lazy lookup.
+  const appUrl = await (resolveAppUrl?.() ??
+    resolveWorkspaceAppUrl({ workspaceId: props.workspaceId }))
   return new URL(`/media/${props.kind}/${token}`, appUrl).toString()
 }
 
@@ -139,12 +140,16 @@ const resolveAttachmentUrl = async (
     HYDRATION_CHANNELS.has(ref.channel) &&
     isPendingOriginPath(ref.originPath)
   ) {
-    return await buildProxyUrl({
-      kind: "attachment",
-      refId: ref.attachmentId,
-      workspaceId: ref.workspaceId,
-      messageCreatedAt: ref.messageCreatedAt?.getTime(),
-    })
+    return await buildProxyUrl(
+      {
+        kind: "attachment",
+        refId: ref.attachmentId,
+        workspaceId: ref.workspaceId,
+        messageCreatedAt: ref.messageCreatedAt?.getTime(),
+      },
+      undefined,
+      ref.resolveAppUrl,
+    )
   }
   return await finalize(ref.originPath)
 }
@@ -174,8 +179,31 @@ export const resolveAttachmentFallbackUrl = async (
       messageCreatedAt: ref.messageCreatedAt?.getTime(),
     },
     FALLBACK_TOKEN_TTL_MS,
+    ref.resolveAppUrl,
   )
 }
+
+/**
+ * Builds the app-owned URL used to serve a private stored attachment. The
+ * browser never receives the storage endpoint; the attachment route validates
+ * this token and streams the object from storage server-side.
+ */
+export const resolveAttachmentProxyUrl = async (
+  ref: Pick<
+    AttachmentMediaRef,
+    "attachmentId" | "resolveAppUrl" | "workspaceId" | "messageCreatedAt"
+  >,
+): Promise<string> =>
+  await buildProxyUrl(
+    {
+      kind: "attachment",
+      refId: ref.attachmentId,
+      workspaceId: ref.workspaceId,
+      messageCreatedAt: ref.messageCreatedAt?.getTime(),
+    },
+    undefined,
+    ref.resolveAppUrl,
+  )
 
 const resolveAvatarUrl = async (
   ref: AvatarMediaRef,

@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => {
     findAttachmentById: vi.fn(),
     findContact: vi.fn(),
     findContactInbox: vi.fn(),
+    fetchStoredMedia: vi.fn(),
     getPresignedDownload: vi.fn(),
     getPublicFileUrl: vi.fn(),
     loadServableWorkspace: vi.fn(),
@@ -110,6 +111,7 @@ const attachment = (
 describe("attachment media proxy", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal("fetch", mocks.fetchStoredMedia)
     mocks.checkGuestRateLimit.mockResolvedValue({
       limited: false,
       retryAfter: 10,
@@ -185,12 +187,23 @@ describe("attachment media proxy", () => {
     expect(mocks.findAttachmentById).not.toHaveBeenCalled()
   })
 
-  test("redirects mirrored media to a fresh presigned URL without Graph", async () => {
+  test("streams mirrored media through the app without exposing the internal storage host", async () => {
     mocks.findAttachmentById.mockResolvedValue(
       attachment("workspace/workspace-1/media.jpg"),
     )
     mocks.getPresignedDownload.mockResolvedValue(
-      "https://storage.example/presigned-media.jpg",
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/media.jpg",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response("stored-image", {
+        status: 200,
+        headers: {
+          "content-type": "image/jpeg",
+          "content-length": "12",
+          "cache-control": "public, max-age=86400",
+          etag: '"media-etag"',
+        },
+      }),
     )
 
     const response = await getAttachment(
@@ -198,12 +211,112 @@ describe("attachment media proxy", () => {
       tokenContext(),
     )
 
-    expect(response.status).toBe(302)
-    expect(response.headers.get("location")).toBe(
-      "https://storage.example/presigned-media.jpg",
+    expect(response.status).toBe(200)
+    expect(response.headers.get("location")).toBeNull()
+    expect(response.headers.get("content-type")).toBe("image/jpeg")
+    expect(response.headers.get("cache-control")).toBe("private, no-store")
+    expect(await response.text()).toBe("stored-image")
+    expect(mocks.fetchStoredMedia).toHaveBeenCalledWith(
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/media.jpg",
+      expect.objectContaining({ cache: "no-store" }),
     )
     expect(mocks.resolveFreshMediaUrl).not.toHaveBeenCalled()
     expect(mocks.lowQueueAdd).not.toHaveBeenCalled()
+  })
+
+  test("sandboxes active stored content and forces it to download", async () => {
+    mocks.findAttachmentById.mockResolvedValue(
+      attachment("workspace/workspace-1/upload.svg"),
+    )
+    mocks.getPresignedDownload.mockResolvedValue(
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/upload.svg",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response("<svg><script>alert(1)</script></svg>", {
+        status: 200,
+        headers: {
+          "content-type": "image/svg+xml",
+          "content-disposition": "inline",
+        },
+      }),
+    )
+
+    const response = await getAttachment(
+      new Request("http://localhost/media/attachment/signed-token") as never,
+      tokenContext(),
+    )
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get("content-disposition")).toBe("attachment")
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff")
+    expect(response.headers.get("content-security-policy")).toBe(
+      "sandbox; default-src 'none'",
+    )
+  })
+
+  test("forwards byte ranges and preserves partial-content headers", async () => {
+    mocks.findAttachmentById.mockResolvedValue(
+      attachment("workspace/workspace-1/video.mp4"),
+    )
+    mocks.getPresignedDownload.mockResolvedValue(
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/video.mp4",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response("partial", {
+        status: 206,
+        headers: {
+          "content-type": "video/mp4",
+          "content-range": "bytes 0-6/100",
+          "accept-ranges": "bytes",
+        },
+      }),
+    )
+
+    const response = await getAttachment(
+      new Request("http://localhost/media/attachment/signed-token", {
+        headers: {
+          range: "bytes=0-6",
+          "if-range": '"old-etag"',
+        },
+      }) as never,
+      tokenContext(),
+    )
+
+    expect(response.status).toBe(206)
+    expect(response.headers.get("content-range")).toBe("bytes 0-6/100")
+    expect(response.headers.get("accept-ranges")).toBe("bytes")
+    const [, fetchOptions] = mocks.fetchStoredMedia.mock.calls[0] as [
+      string,
+      { headers: Headers },
+    ]
+    expect(fetchOptions.headers.get("range")).toBe("bytes=0-6")
+    expect(fetchOptions.headers.get("if-range")).toBe('"old-etag"')
+  })
+
+  test("preserves a range-not-satisfiable response from storage", async () => {
+    mocks.findAttachmentById.mockResolvedValue(
+      attachment("workspace/workspace-1/video.mp4"),
+    )
+    mocks.getPresignedDownload.mockResolvedValue(
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/video.mp4",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response(null, {
+        status: 416,
+        headers: { "content-range": "bytes */100" },
+      }),
+    )
+
+    const response = await getAttachment(
+      new Request("http://localhost/media/attachment/signed-token", {
+        headers: { range: "bytes=200-300" },
+      }) as never,
+      tokenContext(),
+    )
+
+    expect(response.status).toBe(416)
+    expect(response.headers.get("content-range")).toBe("bytes */100")
+    expect(response.headers.get("location")).toBeNull()
   })
 
   test("hands the parent message time to the mirror job so a sharded lookup finds the row", async () => {
@@ -382,7 +495,7 @@ describe("attachment media proxy", () => {
     expect(mocks.lowQueueAdd).not.toHaveBeenCalled()
   })
 
-  test("degrades to the unavailable placeholder when mirrored presigning fails", async () => {
+  test("returns a recoverable error when mirrored storage signing fails", async () => {
     mocks.findAttachmentById.mockResolvedValue(
       attachment("workspace/workspace-1/media.jpg"),
     )
@@ -393,10 +506,28 @@ describe("attachment media proxy", () => {
       tokenContext(),
     )
 
-    expect(response.status).toBe(302)
-    expect(response.headers.get("location")).toBe(
-      "http://localhost:3123/media/unavailable.svg",
+    expect(response.status).toBe(502)
+    expect(response.headers.get("location")).toBeNull()
+  })
+
+  test("returns a recoverable error when mirrored storage no longer has the object", async () => {
+    mocks.findAttachmentById.mockResolvedValue(
+      attachment("workspace/workspace-1/media.jpg"),
     )
+    mocks.getPresignedDownload.mockResolvedValue(
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/media.jpg",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response(null, { status: 404 }),
+    )
+
+    const response = await getAttachment(
+      new Request("http://localhost/media/attachment/signed-token") as never,
+      tokenContext(),
+    )
+
+    expect(response.status).toBe(502)
+    expect(response.headers.get("location")).toBeNull()
   })
 
   test("redirects pending media to a fresh CDN URL and enqueues one message job", async () => {
@@ -581,13 +712,19 @@ describe("attachment media proxy", () => {
     )
   })
 
-  test("redirects to mirrored media when the background job wins the race", async () => {
+  test("streams mirrored media when the background job wins the race", async () => {
     mocks.findAttachmentById
       .mockResolvedValueOnce(attachment())
       .mockResolvedValueOnce(attachment("workspace/workspace-1/media.jpg"))
     mocks.resolveFreshMediaUrl.mockResolvedValue(null)
     mocks.getPresignedDownload.mockResolvedValue(
-      "https://storage.example/presigned-media.jpg",
+      "http://filesystem:9000/chatbotx/workspace/workspace-1/media.jpg",
+    )
+    mocks.fetchStoredMedia.mockResolvedValue(
+      new Response("stored-image", {
+        status: 200,
+        headers: { "content-type": "image/jpeg" },
+      }),
     )
 
     const response = await getAttachment(
@@ -595,9 +732,9 @@ describe("attachment media proxy", () => {
       tokenContext(),
     )
 
-    expect(response.headers.get("location")).toBe(
-      "https://storage.example/presigned-media.jpg",
-    )
+    expect(response.status).toBe(200)
+    expect(response.headers.get("location")).toBeNull()
+    expect(await response.text()).toBe("stored-image")
   })
 
   test("redirects terminal media to the unavailable placeholder", async () => {
