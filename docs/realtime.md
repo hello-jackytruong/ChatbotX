@@ -121,6 +121,14 @@ Not every event has a schema today (e.g. `messageCreated` carries
 schema in `features/realtime/`; only reuse schemas that already exist in
 `realtime-protocol`.
 
+## Contact profile enrichment
+
+After an inbound message is saved, successful profile enrichment for a
+nameless existing contact queues a routed `contactUpdated` event containing
+the contact id and `changes.fullName`. `ChatRealtime` merges that name into
+loaded contact state. Publishing remains route-filtered, best-effort, and
+non-blocking, so a realtime failure does not block message processing.
+
 ## What lives where
 
 - `features/realtime/` is channel-agnostic: it must never import chat or
