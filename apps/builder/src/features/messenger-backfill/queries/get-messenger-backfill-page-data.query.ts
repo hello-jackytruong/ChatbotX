@@ -36,6 +36,7 @@ export async function getMessengerBackfillPageData(workspaceId: string) {
       id: run.id,
       integrationMessengerId: run.integrationMessengerId,
       policy: run.policy,
+      overwriteExisting: run.overwriteExisting,
       status: run.status,
       currentScan: run.currentScan,
       updatedCount: run.updatedCount,

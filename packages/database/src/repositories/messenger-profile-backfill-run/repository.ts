@@ -22,6 +22,7 @@ export const messengerProfileBackfillRunRepository = {
     integrationMessengerId: string
     requestedByUserId: string | null
     policy: MessengerProfileBackfillRunModel["policy"]
+    overwriteExisting: boolean
   }): Promise<MessengerProfileBackfillRunModel | null> {
     try {
       const [row] = await db
@@ -88,6 +89,7 @@ export const messengerProfileBackfillRunRepository = {
     inboxId: string
     cursorContactInboxId: string | null
     limit: number
+    overwriteExisting: boolean
   }): Promise<MessengerProfileCandidate[]> {
     const result = await db.execute<MessengerProfileCandidate>(sql`
       SELECT
@@ -99,12 +101,12 @@ export const messengerProfileBackfillRunRepository = {
       WHERE ci."inboxId" = ${input.inboxId}
         AND c."workspaceId" = ${input.workspaceId}
         AND (${input.cursorContactInboxId}::bigint IS NULL OR ci.id > ${input.cursorContactInboxId}::bigint)
-        AND (
+        AND (${input.overwriteExisting}::boolean OR (
           c."firstName" IS NULL OR btrim(c."firstName") = '' OR
           c."lastName" IS NULL OR btrim(c."lastName") = '' OR
           c.gender IS NULL OR c.avatar IS NULL OR c.avatar = '' OR
           c.avatar LIKE 'public/img/no_avatar.jpg?time=%'
-        )
+        ))
       ORDER BY ci.id ASC
       LIMIT ${input.limit}
     `)
@@ -134,6 +136,38 @@ export const messengerProfileBackfillRunRepository = {
           (${input.lastName ?? null}::text IS NOT NULL AND ("lastName" IS NULL OR btrim("lastName") = '')) OR
           (${input.gender ?? null}::text IS NOT NULL AND gender IS NULL) OR
           (${input.avatar ?? null}::text IS NOT NULL AND (avatar IS NULL OR avatar = '' OR avatar LIKE 'public/img/no_avatar.jpg?time=%'))
+        )
+      RETURNING (${input.avatar ?? null}::text IS NOT NULL) AS "avatarUpdated"
+    `)
+    return {
+      updated: result.rows.length > 0,
+      avatarUpdated: result.rows[0]?.avatarUpdated ?? false,
+    }
+  },
+
+  async overwriteProfile(input: {
+    workspaceId: string
+    contactId: string
+    firstName?: string
+    lastName?: string
+    gender?: "male" | "female" | "unknown"
+    avatar?: string
+  }): Promise<{ updated: boolean; avatarUpdated: boolean }> {
+    const result = await db.execute<{ avatarUpdated: boolean }>(sql`
+      UPDATE "Contact"
+      SET
+        "firstName" = COALESCE(${input.firstName ?? null}, "firstName"),
+        "lastName" = COALESCE(${input.lastName ?? null}, "lastName"),
+        gender = COALESCE(${input.gender ?? null}::gender, gender),
+        avatar = COALESCE(${input.avatar ?? null}, avatar),
+        "updatedAt" = NOW()
+      WHERE id = ${input.contactId}
+        AND "workspaceId" = ${input.workspaceId}
+        AND (
+          ${input.firstName ?? null}::text IS NOT NULL OR
+          ${input.lastName ?? null}::text IS NOT NULL OR
+          ${input.gender ?? null}::text IS NOT NULL OR
+          ${input.avatar ?? null}::text IS NOT NULL
         )
       RETURNING (${input.avatar ?? null}::text IS NOT NULL) AS "avatarUpdated"
     `)

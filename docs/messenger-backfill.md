@@ -22,6 +22,18 @@ needed to store those messages. Imported history is passive: it does not emit
 new-contact automation events or make old messages unread. Source identifiers
 make repeated and overlapping ranges idempotent.
 
+## Contact profile backfill
+
+The same settings page can refresh Messenger contact names, gender, and
+avatars from Pancake, Meta, or Pancake with Meta fallback. Profile backfill is
+restricted to workspace administrators and does not change message history.
+
+The default **Missing fields only** mode preserves existing contact data. The
+optional **Overwrite existing** mode scans every contact on the selected Page
+and replaces an existing profile field only when the selected provider returns
+a value for that field. A missing provider value never clears existing data.
+Retries retain the mode selected for the original run.
+
 ## Automatic reconciliation
 
 By default, the worker checks connected Messenger Pages every ten minutes.

@@ -100,6 +100,7 @@ export async function runMessengerProfileBackfill(
           inboxId: integrationRow.inboxId,
           cursorContactInboxId: cursor,
           limit: BATCH_SIZE,
+          overwriteExisting: run.overwriteExisting,
         })
       if (candidates.length === 0) {
         break
@@ -153,15 +154,17 @@ export async function runMessengerProfileBackfill(
             }
           }
 
-          const result =
-            await messengerProfileBackfillRunRepository.fillMissingProfile({
-              workspaceId: data.workspaceId,
-              contactId: candidate.contactId,
-              firstName: profile.firstName,
-              lastName: profile.lastName,
-              gender: validGender(profile.gender),
-              avatar,
-            })
+          const updateProfile = run.overwriteExisting
+            ? messengerProfileBackfillRunRepository.overwriteProfile
+            : messengerProfileBackfillRunRepository.fillMissingProfile
+          const result = await updateProfile({
+            workspaceId: data.workspaceId,
+            contactId: candidate.contactId,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            gender: validGender(profile.gender),
+            avatar,
+          })
           if (result.updated) {
             updated += 1
           } else {

@@ -1,0 +1,1 @@
+ALTER TABLE "MessengerProfileBackfillRun" ADD COLUMN "overwriteExisting" boolean DEFAULT false NOT NULL;

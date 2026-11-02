@@ -13,6 +13,7 @@ class MessengerProfileBackfillService {
     integrationMessengerId: string
     requestedByUserId: string | null
     policy?: MessengerProfileBackfillPolicy
+    overwriteExisting?: boolean
   }): Promise<{ runId: string }> {
     const integration = await messengerIntegrationService.findByIdForWorkspace({
       workspaceId: input.workspaceId,
@@ -44,6 +45,7 @@ class MessengerProfileBackfillService {
       integrationMessengerId: input.integrationMessengerId,
       requestedByUserId: input.requestedByUserId,
       policy,
+      overwriteExisting: input.overwriteExisting ?? false,
     })
     if (!run) {
       throw new ChatbotXException(
@@ -77,6 +79,7 @@ class MessengerProfileBackfillService {
       integrationMessengerId: previous.integrationMessengerId,
       requestedByUserId: input.requestedByUserId,
       policy: previous.policy,
+      overwriteExisting: previous.overwriteExisting,
     })
   }
 
