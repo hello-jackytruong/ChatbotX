@@ -455,8 +455,25 @@ vi.mock("@chatbotx.io/events", () => ({
 }))
 
 vi.mock("@chatbotx.io/realtime-protocol", () => ({
-  RealtimeEventType: { messageCreated: "messageCreated" },
-  routeForConversation: vi.fn(),
+  RealtimeEventType: {
+    contactUpdated: "contactUpdated",
+    messageCreated: "messageCreated",
+  },
+  routeForConversation: (
+    conversation: {
+      assignedInboxTeamId?: string | null
+      assignedUserId?: string | null
+    } | null,
+    inboxId?: string,
+  ) => ({
+    assignedTeamIds: conversation?.assignedInboxTeamId
+      ? [conversation.assignedInboxTeamId]
+      : [],
+    assignedUserIds: conversation?.assignedUserId
+      ? [conversation.assignedUserId]
+      : [],
+    ...(inboxId ? { inboxId } : {}),
+  }),
 }))
 
 vi.mock("@chatbotx.io/sdk", () => ({
@@ -898,6 +915,24 @@ describe("receiveMessage — message repository branch", () => {
 
     expect(mockCreateOrUpdate).toHaveBeenCalledTimes(1)
     expect(mockCreateOrUpdateWithAttachments).not.toHaveBeenCalled()
+  })
+
+  test("persists the provider occurrence time so webhook retries reuse the same dedup key", async () => {
+    const occurredAt = new Date("2026-11-02T07:55:08.000Z")
+    mockRunChannelHandler.mockResolvedValue({
+      message: { ...baseIncomingMessage, attachments: [] },
+      contact: { sourceId: "psid-123", firstName: "Test" },
+      postbackAction: null,
+      quickReplyAction: null,
+      ref: null,
+      occurredAt,
+    })
+
+    await receiveMessage(baseProps)
+
+    expect(mockCreateOrUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ createdAt: occurredAt }),
+    )
   })
 
   test("scores a NEW inbound message for leaderboards with the saved row", async () => {
@@ -3833,6 +3868,68 @@ describe("receiveMessage — existing contact profile refresh (post-save)", () =
     await receiveMessage({ ...baseProps, integrationType: "tiktok" })
 
     expect(mockContactProfileRefresh).not.toHaveBeenCalled()
+  })
+
+  test("successful profile refresh broadcasts the contact name without delaying message persistence", async () => {
+    let releaseContactBroadcast = () => undefined
+    const pendingContactBroadcast = new Promise<void>((resolve) => {
+      releaseContactBroadcast = resolve
+    })
+    mockBroadcast.mockImplementation((_workspaceId, event) =>
+      (event as { eventType?: string }).eventType === "contactUpdated"
+        ? pendingContactBroadcast
+        : undefined,
+    )
+    mockRunChannelHandler.mockResolvedValue({
+      message: { ...baseIncomingMessage, attachments: [] },
+      contact: { sourceId: "psid-123" },
+      postbackAction: null,
+      quickReplyAction: null,
+      ref: null,
+    })
+    mockContactProfileRefresh.mockResolvedValue({
+      status: "updated",
+      contact: {
+        id: "contact-1",
+        fullName: "Nguyen Van A",
+      },
+    })
+
+    const receivePromise = receiveMessage(baseProps)
+    await vi.waitFor(() =>
+      expect(
+        mockBroadcast.mock.calls.some(
+          ([, event]) =>
+            (event as { eventType?: string }).eventType === "contactUpdated",
+        ),
+      ).toBe(true),
+    )
+    const completion = await Promise.race([
+      receivePromise.then(() => "completed" as const),
+      new Promise<"blocked">((resolve) =>
+        setTimeout(() => resolve("blocked"), 100),
+      ),
+    ])
+    releaseContactBroadcast()
+    await receivePromise
+
+    expect(completion).toBe("completed")
+    expect(mockCreateOrUpdate).toHaveBeenCalled()
+    expect(mockBroadcast).toHaveBeenCalledWith("ws-1", {
+      eventType: "contactUpdated",
+      data: {
+        contactId: "contact-1",
+        changes: { fullName: "Nguyen Van A" },
+      },
+      route: {
+        assignedTeamIds: [],
+        assignedUserIds: [],
+        inboxId: "inbox-1",
+      },
+    })
+    expect(mockCreateOrUpdate.mock.invocationCallOrder[0]).toBeLessThan(
+      mockBroadcast.mock.invocationCallOrder.at(-1) ?? 0,
+    )
   })
 
   test("whatsapp payload with contacts[0].profile.name → applies it directly, no integration resolution and no Graph call", async () => {

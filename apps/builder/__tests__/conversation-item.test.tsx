@@ -171,6 +171,25 @@ describe("ConversationItem", () => {
     expect(container.textContent).toContain("Gr")
   })
 
+  test("uses the channel identity while a contact name is unavailable", async () => {
+    await render(
+      makeConversation({
+        contact: { fullName: null },
+        contactInboxes: [
+          {
+            id: "contact-inbox-1",
+            channel: "messenger",
+            inbox: { name: "Messenger" },
+            sourceId: "28299307269748508",
+            sourceUsername: null,
+          },
+        ],
+      } as never),
+    )
+
+    expect(container.textContent).toContain("28299307269748508")
+  })
+
   test("renders no ringing overlay when calling is disabled for this workspace (optional context is null)", async () => {
     optionalCallContextMock.mockReturnValueOnce(null)
     useWhatsappVoipCallStore.setState({ ringingCalls: [ringingCall] })

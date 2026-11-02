@@ -22,6 +22,9 @@ const mocks = vi.hoisted(() => {
     conversationService: {
       findBy: vi.fn().mockResolvedValue(undefined),
     },
+    resolveWorkspaceAppUrl: vi
+      .fn()
+      .mockResolvedValue("https://app.example.com"),
     signMediaToken: vi.fn().mockResolvedValue("signed-media-token"),
     uploader: { getPresignedDownload: vi.fn() },
   }
@@ -42,7 +45,7 @@ vi.mock("@chatbotx.io/filesystem", () => ({
 
 vi.mock("../src/platform/settings", () => ({
   resolveTenantSettings: mocks.resolveTenantSettings,
-  resolveWorkspaceAppUrl: vi.fn(async () => "https://app.example.com"),
+  resolveWorkspaceAppUrl: mocks.resolveWorkspaceAppUrl,
 }))
 
 vi.mock("../src/contact-inbox/service", () => ({
@@ -308,10 +311,11 @@ describe("message list-for-conversation", () => {
 
       expect(result.attachments.map((attachment) => attachment.url)).toEqual([
         "https://app.example.com/media/attachment/signed-media-token",
-        "https://signed.example/y.jpg",
+        "https://app.example.com/media/attachment/signed-media-token",
       ])
       expect(mocks.createMessageRepository).not.toHaveBeenCalled()
       expect(mocks.contactInboxService.findManyByIds).not.toHaveBeenCalled()
+      expect(mocks.resolveWorkspaceAppUrl).toHaveBeenCalledTimes(1)
     })
 
     test("returns null for a permanently failed attachment", async () => {
@@ -367,7 +371,7 @@ describe("message list-for-conversation", () => {
       })
 
       expect(result.data[0].attachments[0].url).toBe(
-        "https://signed.example.com/file",
+        "https://app.example.com/media/attachment/signed-media-token",
       )
       expect(result.data[0].attachments[0].fallbackUrl).toBe(
         "https://app.example.com/media/attachment/signed-media-token",
@@ -378,7 +382,9 @@ describe("message list-for-conversation", () => {
       mocks.uploader.getPresignedDownload.mockResolvedValue(
         "https://signed.example.com/file",
       )
-      mocks.signMediaToken.mockRejectedValueOnce(new Error("signer down"))
+      mocks.signMediaToken
+        .mockResolvedValueOnce("primary-token")
+        .mockRejectedValueOnce(new Error("signer down"))
       mocks.contactInboxService.findManyByIds.mockResolvedValue([
         { id: "ci-1", channel: "messenger" },
       ])
@@ -402,7 +408,7 @@ describe("message list-for-conversation", () => {
       })
 
       expect(result.data[0].attachments[0].url).toBe(
-        "https://signed.example.com/file",
+        "https://app.example.com/media/attachment/primary-token",
       )
       expect(result.data[0].attachments[0].fallbackUrl).toBeNull()
     })
@@ -436,10 +442,7 @@ describe("message list-for-conversation", () => {
       expect(mocks.uploader.getPresignedDownload).not.toHaveBeenCalled()
     })
 
-    test("presigns a stored attachment via the uploader", async () => {
-      mocks.uploader.getPresignedDownload.mockResolvedValue(
-        "https://signed.example.com/file",
-      )
+    test("uses the signed app proxy for a stored private attachment", async () => {
       mocks.repo.listByConversation.mockResolvedValue({
         data: [
           {
@@ -460,11 +463,9 @@ describe("message list-for-conversation", () => {
         limit: 20,
       })
 
-      expect(mocks.uploader.getPresignedDownload).toHaveBeenCalledWith(
-        "ws-1/files/a.png",
-      )
+      expect(mocks.uploader.getPresignedDownload).not.toHaveBeenCalled()
       expect(result.data[0].attachments[0].url).toBe(
-        "https://signed.example.com/file",
+        "https://app.example.com/media/attachment/signed-media-token",
       )
     })
 
@@ -497,10 +498,8 @@ describe("message list-for-conversation", () => {
       expect(mocks.uploader.getPresignedDownload).not.toHaveBeenCalled()
     })
 
-    test("omits an attachment whose presigning fails instead of failing the page", async () => {
-      mocks.uploader.getPresignedDownload.mockRejectedValue(
-        new Error("signer down"),
-      )
+    test("omits an attachment whose proxy token signing fails instead of failing the page", async () => {
+      mocks.signMediaToken.mockRejectedValueOnce(new Error("signer down"))
       mocks.repo.listByConversation.mockResolvedValue({
         data: [
           {

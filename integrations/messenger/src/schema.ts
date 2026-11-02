@@ -265,10 +265,24 @@ export const messengerReactionSchema = z.object({
 })
 export type MessengerReaction = z.infer<typeof messengerReactionSchema>
 
+// Meta sends webhook timestamps in milliseconds. Reject malformed and
+// implausibly future values at the boundary so message persistence never falls
+// back to a retry-varying worker clock or advances activity into the future.
+const MESSENGER_TIMESTAMP_MAX_FUTURE_SKEW_MS = 5 * 60 * 1000
+const messengerEventTimestampSchema = z
+  .number()
+  .int()
+  .positive()
+  .refine(
+    (timestamp) =>
+      timestamp <= Date.now() + MESSENGER_TIMESTAMP_MAX_FUTURE_SKEW_MS,
+    { message: "Messenger timestamp is too far in the future" },
+  )
+
 export const messengerMessagingEventSchema = z.object({
   sender: idSchema,
   recipient: idSchema,
-  timestamp: z.number(),
+  timestamp: messengerEventTimestampSchema,
   message: messengerMessageSchema.optional(),
   delivery: messengerDeliverySchema.optional(),
   read: messengerReadSchema.optional(),
@@ -368,7 +382,7 @@ export type MessengerWebhookEvent = z.infer<typeof messengerWebhookEventSchema>
 export const messengerStandbyEventSchema = z.object({
   sender: idSchema,
   recipient: idSchema,
-  timestamp: z.number(),
+  timestamp: messengerEventTimestampSchema,
   message: messengerMessageSchema.optional(),
   delivery: messengerDeliverySchema.optional(),
   read: messengerReadSchema.optional(),

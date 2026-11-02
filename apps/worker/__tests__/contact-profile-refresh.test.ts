@@ -332,7 +332,7 @@ describe("refreshExistingContactProfile", () => {
   })
 
   test("successful refresh is logged at debug with the service result", async () => {
-    await refreshExistingContactProfile({
+    const result = await refreshExistingContactProfile({
       source: "channelApi",
       inbox: fakeInbox,
       contactInbox: fakeContactInbox,
@@ -348,5 +348,6 @@ describe("refreshExistingContactProfile", () => {
       }),
       expect.any(String),
     )
+    expect(result).toEqual({ id: "contact-1" })
   })
 })

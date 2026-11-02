@@ -250,6 +250,9 @@ export function ChatRealtime() {
     contactBlocked: (event) => {
       updateContact(event.data.contactId, { blockedAt: new Date() })
     },
+    contactUpdated: (event) => {
+      updateContact(event.data.contactId, event.data.changes)
+    },
     contactUnblocked: (event) => {
       updateContact(event.data.contactId, { blockedAt: null })
     },

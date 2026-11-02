@@ -117,12 +117,13 @@ describe("ChatRealtime — chat event parity", () => {
     expect(wholeStoreSelectionMock).not.toHaveBeenCalled()
   })
 
-  test("registers exactly the eleven chat events, no more, no fewer", async () => {
+  test("registers exactly the twelve chat events, no more, no fewer", async () => {
     await render()
     expect(Object.keys(capturedHandlers ?? {}).sort()).toEqual(
       [
         "contactBlocked",
         "contactInboxThreadControlUpdated",
+        "contactUpdated",
         "contactUnblocked",
         "conversationAssigned",
         "conversationUpdated",
@@ -228,6 +229,19 @@ describe("ChatRealtime — chat event parity", () => {
     act(() => emit("contactUnblocked", { contactId: "c1" }))
     expect(chatStoreState.updateContact).toHaveBeenCalledWith("c1", {
       blockedAt: null,
+    })
+  })
+
+  test("contactUpdated merges the refreshed profile into the contact", async () => {
+    await render()
+    act(() =>
+      emit("contactUpdated", {
+        contactId: "c1",
+        changes: { fullName: "Nguyen Van A" },
+      }),
+    )
+    expect(chatStoreState.updateContact).toHaveBeenCalledWith("c1", {
+      fullName: "Nguyen Van A",
     })
   })
 

@@ -12,7 +12,11 @@ import {
   toIncomingContact,
 } from "@chatbotx.io/business/messenger-profile-provider"
 import type { ChannelType } from "@chatbotx.io/database/partials"
-import type { ContactInboxModel, InboxModel } from "@chatbotx.io/database/types"
+import type {
+  ContactInboxModel,
+  ContactModel,
+  InboxModel,
+} from "@chatbotx.io/database/types"
 import type { IncomingContact, IncomingMessage } from "@chatbotx.io/sdk"
 import { logger } from "../../lib/logger"
 import { resolveIntegrationContextFromContactInbox } from "../../services/integrations"
@@ -146,7 +150,7 @@ export type RefreshExistingContactProfileInput = {
  */
 export const refreshExistingContactProfile = async (
   input: RefreshExistingContactProfileInput,
-): Promise<void> => {
+): Promise<ContactModel | undefined> => {
   const { source, inbox, contactInbox, incomingContact, contactId } = input
 
   try {
@@ -166,10 +170,12 @@ export const refreshExistingContactProfile = async (
       { result, contactId, channel: inbox.channel },
       "refreshExistingContactProfile: result",
     )
+    return result.status === "updated" ? result.contact : undefined
   } catch (error) {
     logger.warn(
       { error, contactId, channel: inbox.channel },
       "refreshExistingContactProfile: unexpected error",
     )
+    return
   }
 }

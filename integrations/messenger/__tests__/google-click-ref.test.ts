@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest"
+import { describe, expect, test } from "vitest"
 import { receiveMessage } from "../src/handlers/message/incoming-message"
 
 const receiveWithReferral = (
@@ -67,24 +67,10 @@ describe("Messenger Google click ref", () => {
     )
   })
 
-  describe("unusable timestamp (schema requires one; 0 is rejected by the reader)", () => {
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    test("falls back to the clock", async () => {
-      vi.useFakeTimers()
-      vi.setSystemTime(new Date("2026-06-21T10:00:00.000Z"))
-
-      const result = await receiveWithReferral(
-        shortlink("gclid:ABCDEFGHIJ1234567890"),
-        0,
-      )
-
-      expect(result.referral?.googleClickReceivedAt).toBe(
-        "2026-06-21T10:00:00.000Z",
-      )
-    })
+  test("rejects an unusable timestamp at the webhook boundary", async () => {
+    await expect(
+      receiveWithReferral(shortlink("gclid:ABCDEFGHIJ1234567890"), 0),
+    ).rejects.toThrow()
   })
 
   test("referral.raw carries no click id", async () => {

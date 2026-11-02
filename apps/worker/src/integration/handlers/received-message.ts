@@ -576,6 +576,10 @@ export const receiveMessage = async (
         // unread so a human agent monitors the AI (Integration Guide §5.3).
         keepUnread: threadControl?.ownerRole === "ai_agent",
         echoOrigin: parsedMessage.echoOrigin,
+        // Use the channel's delivery time, not the worker clock. Historical
+        // coexist imports and live webhooks then share the same stable
+        // (contactInboxId, sourceId, createdAt) dedup key.
+        createdAt: parsedMessage.occurredAt ?? undefined,
         ...systemFieldUpdates,
       })
 
@@ -597,13 +601,23 @@ export const receiveMessage = async (
       contact,
     })
     if (profileRefreshSource) {
-      await refreshExistingContactProfile({
+      const refreshedContact = await refreshExistingContactProfile({
         source: profileRefreshSource,
         inbox,
         contactInbox,
         incomingContact,
         contactId: contact.id,
       })
+      if (refreshedContact?.fullName) {
+        queueWorkspaceRealtimeEvent(inbox.workspaceId, {
+          eventType: RealtimeEventType.contactUpdated,
+          data: {
+            contactId: refreshedContact.id,
+            changes: { fullName: refreshedContact.fullName },
+          },
+          route: routeForConversation(conversation, inbox.id),
+        })
+      }
     }
 
     // The owner delivery of a message we first stored from a standby copy is

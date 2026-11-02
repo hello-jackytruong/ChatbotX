@@ -78,8 +78,8 @@ type AttachmentSource = {
 
 /**
  * An attachment's URL plus a load-failure handler that walks its recovery
- * chain: the stored URL, then the proxy fallback (a freshly signed storage
- * URL), then the fallback's retry form (the channel's own copy, for an object
+ * chain: the app media URL, then its longer-lived proxy fallback, then the
+ * fallback's retry form (the channel's own copy, for an object
  * evicted from storage). An attachment without a `fallbackUrl` never changes.
  */
 export function useAttachmentSource(
