@@ -17,6 +17,8 @@ const PARAGRAPH_SEPARATOR = "\n\n"
 
 type StreamProcessingOptions = {
   sendParts?: boolean
+  /** Buffer paragraph boundaries and emit one response after the stream ends. */
+  mergeSegments?: boolean
   trackingContext?: unknown
 }
 
@@ -189,6 +191,10 @@ export async function processStreamingText(
     fullText += delta
     currentSegment += delta
 
+    if (options?.mergeSegments) {
+      continue
+    }
+
     let separatorIndex = currentSegment.indexOf(PARAGRAPH_SEPARATOR)
     while (separatorIndex !== -1) {
       const segment = currentSegment.slice(0, separatorIndex).trim()
@@ -200,6 +206,14 @@ export async function processStreamingText(
       )
       separatorIndex = currentSegment.indexOf(PARAGRAPH_SEPARATOR)
     }
+  }
+
+  if (options?.mergeSegments) {
+    const mergedSegment = currentSegment.trim()
+    if (mergedSegment) {
+      await handleSegment(mergedSegment)
+    }
+    return { messageCount, fullText }
   }
 
   const tailSegment = currentSegment.trim()

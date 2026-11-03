@@ -942,7 +942,10 @@ async function runAIReply(
           )
         }
       },
-      { sendParts: true },
+      // A normal AI answer may contain several paragraphs or model steps.
+      // Deliver them as one chat response so a concise answer does not appear
+      // as a burst of separate bot messages. Media URLs remain separate parts.
+      { sendParts: true, mergeSegments: true },
     ).catch((streamError) => {
       const normalizedError = normalizeError(streamError)
       logger.error(

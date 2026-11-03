@@ -47,7 +47,7 @@ const passItem = {
 type AddCall = [
   string,
   { type: string; data: Record<string, unknown> },
-  { jobId: string; attempts: number; removeOnFail: boolean },
+  { jobId: string; attempts?: number; removeOnFail: boolean },
 ]
 
 describe("webhookHandler conversation routing", () => {
@@ -216,21 +216,50 @@ describe("webhookHandler conversation routing", () => {
     })
   })
 
-  it("does not route an ordinary message as a routing item", async () => {
-    await post(
-      entryBody({
-        messaging: [
-          {
-            sender: { id: "psid-1" },
-            recipient: { id: "page-1" },
-            timestamp: 1,
-            message: { mid: "m.1", text: "hello" },
-          },
-        ],
-      }),
-      queue,
-    )
-    expect(calls().map((call) => call[0])).toEqual(["incomingMessage"])
+  it("deduplicates a redelivered ordinary message by its Meta mid", async () => {
+    const body = entryBody({
+      messaging: [
+        {
+          sender: { id: "psid-1" },
+          recipient: { id: "page-1" },
+          timestamp: 1,
+          message: { mid: "m.1", text: "hello" },
+        },
+      ],
+    })
+    await post(body, queue)
+    await post(body, queue)
+
+    expect(calls().map((call) => call[0])).toEqual([
+      "incomingMessage",
+      "incomingMessage",
+    ])
+    expect(calls()[0]?.[2]).toMatchObject({
+      jobId: "fb-in-page-1-m.1",
+      removeOnFail: true,
+    })
+    expect(calls()[1]?.[2].jobId).toBe(calls()[0]?.[2].jobId)
+  })
+
+  it("deduplicates a redelivered postback by its Meta mid", async () => {
+    const body = entryBody({
+      messaging: [
+        {
+          sender: { id: "psid-1" },
+          recipient: { id: "page-1" },
+          timestamp: 2,
+          postback: { mid: "m.postback", title: "HSK", payload: "hsk" },
+        },
+      ],
+    })
+    await post(body, queue)
+    await post(body, queue)
+
+    expect(calls()[0]?.[2]).toMatchObject({
+      jobId: "fb-in-page-1-m.postback",
+      removeOnFail: true,
+    })
+    expect(calls()[1]?.[2].jobId).toBe(calls()[0]?.[2].jobId)
   })
   describe("hop_context through the standby rewrap", () => {
     const standbyItem = {

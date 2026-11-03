@@ -47,6 +47,29 @@ describe("stream text processing", () => {
     expect(parts).toEqual(["1. Áo sơ mi nam\n- Giá: 340.000đ"])
   })
 
+  test("can combine multiple streamed paragraphs into one response", async () => {
+    const sent: string[][] = []
+
+    const result = await processStreamingText(
+      ReadableStream.from([
+        "Dạ, Baby Dragon dành cho bé 4–6 tuổi.\n\n",
+        "Anh/Chị có thể học HSK theo cấp độ.",
+      ]),
+      (_segment, parts) => {
+        sent.push(parts)
+        return Promise.resolve()
+      },
+      { mergeSegments: true },
+    )
+
+    expect(sent).toEqual([
+      [
+        "Dạ, Baby Dragon dành cho bé 4–6 tuổi.\n\nAnh/Chị có thể học HSK theo cấp độ.",
+      ],
+    ])
+    expect(result.messageCount).toBe(1)
+  })
+
   test("separates text written before and after a tool call", async () => {
     const stream = toStepSeparatedTextStream(
       streamParts([

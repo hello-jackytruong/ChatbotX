@@ -18,6 +18,7 @@ import {
   incomingWebhookEventSchema,
   MESSENGER_MESSAGE_METADATA,
   type MessengerConfig,
+  type MessengerMessagingEvent,
   messengerFeedCommentValueSchema,
   messengerLeadgenValueSchema,
   messengerMessagingEventSchema,
@@ -146,6 +147,26 @@ export const buildThreadControlJobId = async (
     : await sha256Hex(JSON.stringify(payload.body))
   return `${THREAD_CONTROL_JOB_ID_PREFIX[payload.kind]}-${toBullMqSafeIdSegment(payload.pageId)}-${suffix}`
 }
+
+/**
+ * Deterministic id for an ordinary inbound delivery. Meta can redeliver the
+ * same webhook after a timeout; without a job id BullMQ accepts every copy and
+ * each copy can produce another automated reply.
+ */
+export const buildIncomingMessageJobId = async (props: {
+  integrationIdentifier: string
+  event: MessengerMessagingEvent
+}): Promise<string> => {
+  const providerId = props.event.message?.mid ?? props.event.postback?.mid
+  const suffix = providerId
+    ? toBullMqSafeIdSegment(providerId)
+    : await sha256Hex(JSON.stringify(props.event))
+  return `fb-in-${toBullMqSafeIdSegment(props.integrationIdentifier)}-${suffix}`
+}
+
+// A permanently failed job must not reserve the deterministic id forever: a
+// later Meta redelivery should be allowed to try the message again.
+const INCOMING_MESSAGE_JOB_OPTIONS = { removeOnFail: true } as const
 
 const enqueueConversationRoutingPayloads = async (
   queue: ContextQueue,
@@ -480,15 +501,25 @@ const handleWebhookEvent = async (
           : messagingEvent.recipient.id
 
         if (messagingEvent.postback) {
-          await queue?.add("incomingMessage", {
-            type: "incomingMessage",
-            data: {
-              integrationType: "messenger",
-              integrationIdentifier,
-              payload: singleEventPayload,
-              action: messagingEvent.postback.payload,
+          await queue?.add(
+            "incomingMessage",
+            {
+              type: "incomingMessage",
+              data: {
+                integrationType: "messenger",
+                integrationIdentifier,
+                payload: singleEventPayload,
+                action: messagingEvent.postback.payload,
+              },
             },
-          })
+            {
+              jobId: await buildIncomingMessageJobId({
+                integrationIdentifier,
+                event: messagingEvent,
+              }),
+              ...INCOMING_MESSAGE_JOB_OPTIONS,
+            },
+          )
           continue
         }
 
@@ -500,14 +531,24 @@ const handleWebhookEvent = async (
           continue
         }
 
-        await queue?.add("incomingMessage", {
-          type: "incomingMessage",
-          data: {
-            integrationType: "messenger",
-            integrationIdentifier,
-            payload: singleEventPayload,
+        await queue?.add(
+          "incomingMessage",
+          {
+            type: "incomingMessage",
+            data: {
+              integrationType: "messenger",
+              integrationIdentifier,
+              payload: singleEventPayload,
+            },
           },
-        })
+          {
+            jobId: await buildIncomingMessageJobId({
+              integrationIdentifier,
+              event: messagingEvent,
+            }),
+            ...INCOMING_MESSAGE_JOB_OPTIONS,
+          },
+        )
       }
     }
   } catch (error) {
