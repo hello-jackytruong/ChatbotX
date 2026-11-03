@@ -239,14 +239,16 @@ class QuotaEnforcementService {
       fn: async (): Promise<ConsumeResult> => {
         // Pool = the tenant owner's `UserQuota` row.
         if (
-          !unlimited &&
-          !(await userQuotaService.hasCapacity(ownerId, metric))
+          !(unlimited || (await userQuotaService.hasCapacity(ownerId, metric)))
         ) {
           return { ok: false, level: "pool" }
         }
         if (
-          !unlimited &&
-          !(isReseller || (await userQuotaService.hasCapacity(userId, metric)))
+          !(
+            unlimited ||
+            isReseller ||
+            (await userQuotaService.hasCapacity(userId, metric))
+          )
         ) {
           return { ok: false, level: "user" }
         }
