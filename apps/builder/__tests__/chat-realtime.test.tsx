@@ -243,7 +243,6 @@ describe("ChatRealtime — chat event parity", () => {
     expect(chatStoreState.updateContact).toHaveBeenCalledWith("c1", {
       fullName: "Nguyen Van A",
     })
-
     act(() =>
       emit("contactUpdated", {
         contactId: "c1",
