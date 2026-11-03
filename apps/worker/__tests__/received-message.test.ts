@@ -30,6 +30,7 @@ const {
   mockConversationFindOrCreate,
   mockAutomatedResponseEnqueueFlowAction,
   mockIntegrationQueueAdd,
+  mockLowQueueAdd,
   mockCreateNewContactWithMac,
   mockWorkspaceFind,
   mockQuotaIncrement,
@@ -135,6 +136,7 @@ const {
       .fn()
       .mockResolvedValue(undefined),
     mockIntegrationQueueAdd: vi.fn().mockResolvedValue(undefined),
+    mockLowQueueAdd: vi.fn().mockResolvedValue(undefined),
     mockCreateNewContactWithMac: vi.fn(),
     mockWorkspaceFind: vi.fn().mockResolvedValue(null),
     mockWorkspaceIsActiveNow: vi.fn().mockReturnValue(true),
@@ -599,11 +601,17 @@ vi.mock("@chatbotx.io/worker-config", () => ({
     processCommentAutomation: "processCommentAutomation",
     replyToInboundCart: "replyToInboundCart",
   },
+  LowJobAction: {
+    messengerProfileRefresh: "messengerProfileRefresh",
+  },
   getInboundCartReplyJobId: (messageId: string) =>
     `inbound-cart-reply-${messageId}`,
   integrationQueue: {
     add: mockIntegrationQueueAdd,
     getJob: vi.fn().mockResolvedValue(undefined),
+  },
+  lowQueue: {
+    add: mockLowQueueAdd,
   },
 }))
 
@@ -2549,6 +2557,67 @@ describe("receiveMessage — new contact MAC gate", () => {
       undefined,
       undefined,
       "ci-new",
+    )
+  })
+
+  test("defers a nameless new Messenger contact refresh so Pancake can index the conversation", async () => {
+    const newContact = {
+      id: "contact-new",
+      workspaceId: "ws-1",
+      firstName: null,
+      lastName: null,
+      phoneNumber: null,
+      email: null,
+      blockedAt: null,
+      createdAt: new Date("2026-06-21T00:00:00Z"),
+    }
+    const contactInbox = {
+      ...fakeContactInbox,
+      id: "ci-new",
+      contactId: "contact-new",
+    }
+    mockRunChannelHandler.mockImplementation(
+      (_group: string, action: string) =>
+        action === "receiveMessage"
+          ? Promise.resolve({
+              message: { ...baseIncomingMessage, attachments: [] },
+              contact: { sourceId: "psid-123" },
+              postbackAction: null,
+              quickReplyAction: null,
+              ref: null,
+            })
+          : Promise.resolve(null),
+    )
+    mockCreateOrUpdateWithAttachments.mockResolvedValue({
+      isNew: true,
+      result: { ...fakeCreatedMessage, attachments: [] },
+    })
+    mockCreateNewContactWithMac.mockResolvedValue({
+      ok: true,
+      value: { newContact, contactInbox, conversation: fakeConversation },
+    })
+
+    await receiveMessage(baseProps)
+
+    expect(mockLowQueueAdd).toHaveBeenCalledWith(
+      "messengerProfileRefresh",
+      {
+        type: "messengerProfileRefresh",
+        data: {
+          workspaceId: "ws-1",
+          inboxId: "inbox-1",
+          contactInboxId: "ci-new",
+          contactId: "contact-new",
+        },
+      },
+      expect.objectContaining({
+        jobId: "messenger-profile-refresh-ci-new",
+        delay: 5000,
+        attempts: 2,
+      }),
+    )
+    expect(mockContactProfileRefresh).toHaveBeenCalledWith(
+      expect.objectContaining({ contactId: "contact-new" }),
     )
   })
 

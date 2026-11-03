@@ -86,7 +86,7 @@ describe("WorkspacesList — community edition, zero workspaces", () => {
     expect(createLink).not.toBeNull()
   })
 
-  test("still hides the card once the workspace already exists", async () => {
+  test("keeps the create card visible after the first workspace", async () => {
     const el = await renderWorkspacesList([
       {
         id: "1",
@@ -102,7 +102,7 @@ describe("WorkspacesList — community edition, zero workspaces", () => {
     ])
 
     const createLink = el.querySelector('a[href="/channels/create"]')
-    expect(createLink).toBeNull()
+    expect(createLink).not.toBeNull()
   })
 
   test("distinguishes a scheduled deletion from a purge in progress", async () => {

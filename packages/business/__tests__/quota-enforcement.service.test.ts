@@ -60,6 +60,9 @@ const tenantService = {
 }
 vi.mock("../src/enterprise/tenant/service", () => ({ tenantService }))
 
+const isCloud = vi.fn(() => true)
+vi.mock("../src/keys", () => ({ isCloud }))
+
 const zeroLiveUsage = () => ({
   workspaces: 0,
   channels: 0,
@@ -126,8 +129,10 @@ const asCustomer = () => {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  isCloud.mockReturnValue(true)
   userQuotaService.hasCapacity.mockResolvedValue(true)
   userQuotaService.tryIncrement.mockResolvedValue(true)
+  userQuotaService.isLimitReached.mockResolvedValue(false)
   userQuotaService.getRemainingSlots.mockResolvedValue(null)
   dbTransaction.mockImplementation(
     async (fn: (tx: unknown) => Promise<unknown>) => await fn(fakeTx),
@@ -158,6 +163,48 @@ describe("quotaEnforcementService.tryConsume", () => {
       "workspaces",
     )
     expect(userQuotaService.consume).not.toHaveBeenCalled()
+  })
+
+  test("self-hosted basic capacity ignores a finite limit but still consumes usage", async () => {
+    asRootUser()
+    isCloud.mockReturnValue(false)
+    userQuotaService.tryIncrement.mockResolvedValue(false)
+
+    const result = await quotaEnforcementService.tryConsume({
+      userId: ROOT_USER,
+      metric: "workspaces",
+    })
+
+    expect(result).toEqual({ ok: true })
+    expect(userQuotaService.tryIncrement).not.toHaveBeenCalled()
+    expect(userQuotaService.consume).toHaveBeenCalledWith(
+      ROOT_USER,
+      "workspaces",
+    )
+  })
+
+  test("self-hosted pooled capacity still records both usage levels", async () => {
+    asCustomer()
+    isCloud.mockReturnValue(false)
+    userQuotaService.hasCapacity.mockResolvedValue(false)
+
+    const result = await quotaEnforcementService.tryConsume({
+      userId: CUSTOMER,
+      metric: "channels",
+    })
+
+    expect(result).toEqual({ ok: true })
+    expect(userQuotaService.hasCapacity).not.toHaveBeenCalled()
+    expect(userQuotaService.consume).toHaveBeenNthCalledWith(
+      1,
+      RESELLER,
+      "channels",
+    )
+    expect(userQuotaService.consume).toHaveBeenNthCalledWith(
+      2,
+      CUSTOMER,
+      "channels",
+    )
   })
 
   test("reseller acting directly consumes the owner pool row only", async () => {
@@ -239,6 +286,23 @@ describe("quotaEnforcementService.tryConsume", () => {
       expect.any(Function),
       expect.objectContaining({ ttl: 60 }),
     )
+  })
+})
+
+describe("quotaEnforcementService.isAtLimit", () => {
+  test("self-hosted channel preflight ignores a finite limit", async () => {
+    asRootUser()
+    isCloud.mockReturnValue(false)
+    userQuotaService.isLimitReached.mockResolvedValue(true)
+
+    await expect(
+      quotaEnforcementService.isAtLimit({
+        userId: ROOT_USER,
+        metric: "channels",
+      }),
+    ).resolves.toBe(false)
+
+    expect(userQuotaService.isLimitReached).not.toHaveBeenCalled()
   })
 })
 
@@ -757,6 +821,21 @@ describe("quotaEnforcementService.getWorkspaceUsageSummary", () => {
 })
 
 describe("quotaEnforcementService.hasReachedLimit", () => {
+  test("self-hosted basic capacity is never reported at limit", async () => {
+    asRootUser()
+    isCloud.mockReturnValue(false)
+    userQuotaService.isTeamMemberLimitReached.mockResolvedValue(true)
+
+    await expect(
+      quotaEnforcementService.hasReachedLimit({
+        userId: ROOT_USER,
+        metric: "teamMembers",
+      }),
+    ).resolves.toBe(false)
+
+    expect(userQuotaService.isTeamMemberLimitReached).not.toHaveBeenCalled()
+  })
+
   test("reads the current owner-scoped distinct count for team members", async () => {
     asRootUser()
     userQuotaService.isTeamMemberLimitReached.mockResolvedValue(true)
@@ -817,6 +896,21 @@ describe("quotaEnforcementService.hasReachedLimit", () => {
 })
 
 describe("quotaEnforcementService.hasRoomForTeamMembers", () => {
+  test("self-hosted always has room for more team members", async () => {
+    asRootUser()
+    isCloud.mockReturnValue(false)
+    userQuotaService.isTeamMemberLimitReached.mockResolvedValue(true)
+
+    await expect(
+      quotaEnforcementService.hasRoomForTeamMembers({
+        userId: ROOT_USER,
+        additionalCount: 3,
+      }),
+    ).resolves.toBe(true)
+
+    expect(userQuotaService.isTeamMemberLimitReached).not.toHaveBeenCalled()
+  })
+
   test("non-pooled: room is governed by the user's own row alone", async () => {
     asRootUser()
     userQuotaService.isTeamMemberLimitReached.mockResolvedValue(false)

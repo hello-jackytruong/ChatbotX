@@ -3,6 +3,7 @@ import { db, type Transaction } from "@chatbotx.io/database/client"
 import { ROOT_TENANT_ID } from "@chatbotx.io/database/schema"
 import { distributedLock, withCache } from "@chatbotx.io/redis"
 import { tenantService } from "../enterprise/tenant/service"
+import { isCloud } from "../keys"
 import { logger } from "../logger"
 import { type QuotaMetric, userQuotaService } from "../user-quota/service"
 import { workspaceUsageService } from "../workspace-usage/service"
@@ -37,6 +38,15 @@ const ALL_METRICS: readonly QuotaMetric[] = [
   "botMessages",
   "monthlyBotMessages",
 ]
+
+const SELF_HOSTED_UNLIMITED_METRICS: ReadonlySet<QuotaMetric> = new Set([
+  "workspaces",
+  "channels",
+  "teamMembers",
+])
+
+const isSelfHostedUnlimitedMetric = (metric: QuotaMetric): boolean =>
+  !isCloud() && SELF_HOSTED_UNLIMITED_METRICS.has(metric)
 
 const LOCK_TIMEOUT_SECONDS = 30
 // Read on first use, not at import: t3-env refuses server variables when this
@@ -201,6 +211,7 @@ class QuotaEnforcementService {
   }): Promise<ConsumeResult> {
     const { userId, metric } = args
     const ctx = await this.resolveContext(userId)
+    const unlimited = isSelfHostedUnlimitedMetric(metric)
 
     if (!this.isPooled(ctx)) {
       // Serialize the check-then-consume so concurrent create requests for the
@@ -209,6 +220,10 @@ class QuotaEnforcementService {
         key: this.lockKeyFor(ctx, userId, metric),
         timeoutInSeconds: LOCK_TIMEOUT_SECONDS,
         fn: async (): Promise<ConsumeResult> => {
+          if (unlimited) {
+            await userQuotaService.consume(userId, metric)
+            return { ok: true }
+          }
           const ok = await userQuotaService.tryIncrement(userId, metric)
           return ok ? { ok: true } : { ok: false, level: "user" }
         },
@@ -223,10 +238,14 @@ class QuotaEnforcementService {
       timeoutInSeconds: LOCK_TIMEOUT_SECONDS,
       fn: async (): Promise<ConsumeResult> => {
         // Pool = the tenant owner's `UserQuota` row.
-        if (!(await userQuotaService.hasCapacity(ownerId, metric))) {
+        if (
+          !unlimited &&
+          !(await userQuotaService.hasCapacity(ownerId, metric))
+        ) {
           return { ok: false, level: "pool" }
         }
         if (
+          !unlimited &&
           !(isReseller || (await userQuotaService.hasCapacity(userId, metric)))
         ) {
           return { ok: false, level: "user" }
@@ -241,12 +260,15 @@ class QuotaEnforcementService {
     })
   }
 
-  /** Live-counter at-limit check for the background/contact paths. */
+  /** Live-counter at-limit check for background/contact and channel preflights. */
   async isAtLimit(args: {
     userId: string
     metric: QuotaMetric
   }): Promise<boolean> {
     const { userId, metric } = args
+    if (isSelfHostedUnlimitedMetric(metric)) {
+      return false
+    }
     const ctx = await this.resolveContext(userId)
 
     if (!this.isPooled(ctx)) {
@@ -613,6 +635,9 @@ class QuotaEnforcementService {
     userId: string
     metric: QuotaMetric
   }): Promise<boolean> {
+    if (isSelfHostedUnlimitedMetric(args.metric)) {
+      return false
+    }
     const ctx = await this.resolveContext(args.userId)
     return this.atLimitForMetric(ctx, args.userId, args.metric)
   }
@@ -629,6 +654,9 @@ class QuotaEnforcementService {
     userId: string
     additionalCount: number
   }): Promise<boolean> {
+    if (isSelfHostedUnlimitedMetric("teamMembers")) {
+      return true
+    }
     const ctx = await this.resolveContext(args.userId)
     return !(await this.anyLevelAtLimit(
       ctx,

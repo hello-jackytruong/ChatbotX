@@ -297,9 +297,16 @@ export type RealtimeEventContactCommon = {
 
 export const realtimeContactUpdatedSchema = z.object({
   contactId: z.string(),
-  changes: z.object({
-    fullName: z.string().trim().min(1),
-  }),
+  changes: z
+    .object({
+      fullName: z.string().trim().min(1).optional(),
+      avatar: z.string().trim().min(1).nullable().optional(),
+    })
+    .refine(
+      (changes) =>
+        changes.fullName !== undefined || changes.avatar !== undefined,
+      "At least one contact profile field is required",
+    ),
 })
 
 export type RealtimeEventContactUpdated = {

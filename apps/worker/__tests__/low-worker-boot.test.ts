@@ -22,6 +22,7 @@ const workerState = vi.hoisted(() => ({
   ensureBootstrapped: vi.fn(async () => undefined),
   coexistAttachmentDownload: vi.fn(async () => undefined),
   updateContactAvatar: vi.fn(async () => undefined),
+  refreshMessengerContactProfile: vi.fn(async () => undefined),
   runMessengerProfileBackfill: vi.fn(async () => undefined),
   captureContactProfileSnapshot: vi.fn(async () => undefined),
   receiveComment: vi.fn(async () => undefined),
@@ -55,6 +56,7 @@ vi.mock("@chatbotx.io/worker-config", () => ({
   LowJobAction: {
     coexistAttachmentDownload: "coexistAttachmentDownload",
     updateContactAvatar: "updateContactAvatar",
+    messengerProfileRefresh: "messengerProfileRefresh",
     messengerProfileBackfill: "messengerProfileBackfill",
     replayMissedComment: "replayMissedComment",
   },
@@ -114,6 +116,10 @@ vi.mock("../src/integration/handlers/contact/update-avatar", () => ({
   updateContactAvatar: workerState.updateContactAvatar,
 }))
 
+vi.mock("../src/integration/handlers/messenger-profile-refresh", () => ({
+  refreshMessengerContactProfile: workerState.refreshMessengerContactProfile,
+}))
+
 vi.mock("../src/integration/handlers/messenger-profile-backfill", () => ({
   runMessengerProfileBackfill: workerState.runMessengerProfileBackfill,
 }))
@@ -136,6 +142,7 @@ describe("low worker process boot", () => {
   beforeEach(() => {
     workerState.coexistAttachmentDownload.mockClear()
     workerState.updateContactAvatar.mockClear()
+    workerState.refreshMessengerContactProfile.mockClear()
     workerState.runMessengerProfileBackfill.mockClear()
     workerState.captureContactProfileSnapshot.mockClear()
     workerState.receiveComment.mockClear()
@@ -254,6 +261,28 @@ describe("low worker process boot", () => {
 
     expect(workerState.updateContactAvatar).toHaveBeenCalledWith(data)
     expect(workerState.coexistAttachmentDownload).not.toHaveBeenCalled()
+    expect(workerState.withBlockedOwnerGuard).toHaveBeenCalledWith(
+      "ws-2",
+      expect.any(Function),
+    )
+  })
+
+  test("routes messengerProfileRefresh to its handler with the job payload", async () => {
+    const [worker] = workerState.capturedWorkers
+    const data = {
+      workspaceId: "ws-2",
+      inboxId: "inbox-2",
+      contactInboxId: "ci-2",
+      contactId: "contact-2",
+    }
+
+    await worker?.processor({
+      data: { type: "messengerProfileRefresh", data },
+    })
+
+    expect(workerState.refreshMessengerContactProfile).toHaveBeenCalledWith(
+      data,
+    )
     expect(workerState.withBlockedOwnerGuard).toHaveBeenCalledWith(
       "ws-2",
       expect.any(Function),
@@ -413,5 +442,6 @@ describe("low worker process boot", () => {
 
     expect(workerState.coexistAttachmentDownload).not.toHaveBeenCalled()
     expect(workerState.updateContactAvatar).not.toHaveBeenCalled()
+    expect(workerState.refreshMessengerContactProfile).not.toHaveBeenCalled()
   })
 })
