@@ -429,6 +429,18 @@ describe("contactProfileRefreshService.refresh", () => {
     expect(fetchProfile).not.toHaveBeenCalled()
   })
 
+  test("a bounded deferred retry can bypass an earlier eager attempt's cooldown", async () => {
+    const fetchProfile = vi.fn(async () => ({ firstName: "Jane" }))
+
+    const result = await contactProfileRefreshService.refresh(
+      refreshInput({ bypassCooldown: true, fetchProfile }),
+    )
+
+    expect(existsMock).not.toHaveBeenCalled()
+    expect(fetchProfile).toHaveBeenCalledTimes(1)
+    expect(result.status).toBe("updated")
+  })
+
   test("cooldown check throws → warn, fetch still runs", async () => {
     existsMock.mockRejectedValueOnce(new Error("redis down"))
     const fetchProfile = vi.fn(async () => ({ firstName: "Jane" }))

@@ -168,6 +168,7 @@ import {
   awardInboundMessageLeaderboard,
   awardReactionLeaderboard,
 } from "./leaderboard-sources"
+import { enqueueMessengerProfileRefresh } from "./messenger-profile-refresh"
 import {
   syncAdLabelsIfAdReferred,
   tagAdReferralOnlyContact,
@@ -601,6 +602,14 @@ export const receiveMessage = async (
       contact,
     })
     if (profileRefreshSource) {
+      if (isNewContact && inbox.channel === "messenger") {
+        enqueueMessengerProfileRefresh({
+          workspaceId: inbox.workspaceId,
+          inboxId: inbox.id,
+          contactInboxId: contactInbox.id,
+          contactId: contact.id,
+        })
+      }
       const refreshedContact = await refreshExistingContactProfile({
         source: profileRefreshSource,
         inbox,
@@ -608,12 +617,22 @@ export const receiveMessage = async (
         incomingContact,
         contactId: contact.id,
       })
-      if (refreshedContact?.fullName) {
+      const changes = refreshedContact
+        ? {
+            ...(refreshedContact.fullName
+              ? { fullName: refreshedContact.fullName }
+              : {}),
+            ...(refreshedContact.avatar
+              ? { avatar: refreshedContact.avatar }
+              : {}),
+          }
+        : null
+      if (changes && Object.keys(changes).length > 0) {
         queueWorkspaceRealtimeEvent(inbox.workspaceId, {
           eventType: RealtimeEventType.contactUpdated,
           data: {
-            contactId: refreshedContact.id,
-            changes: { fullName: refreshedContact.fullName },
+            contactId: contact.id,
+            changes,
           },
           route: routeForConversation(conversation, inbox.id),
         })

@@ -20,7 +20,7 @@ import {
   workspaceModel,
 } from "@chatbotx.io/database/schema"
 import type { WorkspaceModel } from "@chatbotx.io/database/types"
-import { distributedLock, withCache } from "@chatbotx.io/redis"
+import { withCache } from "@chatbotx.io/redis"
 import { formatInTimeZone } from "date-fns-tz"
 import { dispatchAuditRecord } from "../audit/dispatcher"
 import { BaseService } from "../base.service"
@@ -34,7 +34,6 @@ import {
   workspaceDeletionStartedException,
   workspaceLimitReachedException,
 } from "../errors"
-import { isCommunity } from "../keys"
 import { logger } from "../logger"
 import { notifyWorkspaceCurrencyChange } from "../pipeline/currency-refresh"
 import { quotaEnforcementService } from "../quota-enforcement/service"
@@ -70,8 +69,6 @@ const stableKey = (where: WorkspaceWhere) =>
 
 const PURGE_WORKSPACE_TEARDOWN_CONCURRENCY = 5
 const PURGE_WORKSPACE_MAX_DURATION_MS = 45 * 60 * 1000
-const COMMUNITY_MAX_WORKSPACES = 1
-const WORKSPACE_LIMIT_LOCK_TIMEOUT_SECONDS = 30
 
 // Every new membership (owner and additional members alike) starts with the
 // same defaults — mirrors `acceptInvitationAction`'s member insert.
@@ -828,27 +825,6 @@ class WorkspaceService extends BaseService {
     /** Additional members (role `agent`) inserted alongside the owner, in the same transaction. Used by the admin console's "create workspace for an owner" flow. */
     members?: Array<{ userId: string; permissions: WorkspaceMemberPermissions }>
   }): Promise<WorkspaceModel> {
-    if (isCommunity()) {
-      // Community edition allows exactly one workspace per owner. Serialize
-      // the count-then-insert so concurrent create requests cannot both pass.
-      const ownerId = props.data.ownerId ?? props.createdBy
-      return await distributedLock.runExclusive({
-        key: `workspace-limit:${ownerId}`,
-        timeoutInSeconds: WORKSPACE_LIMIT_LOCK_TIMEOUT_SECONDS,
-        fn: async (): Promise<WorkspaceModel> => {
-          // Workspaces awaiting purge still count — conservative on purpose.
-          const owned = await db.$count(
-            workspaceModel,
-            eq(workspaceModel.ownerId, ownerId),
-          )
-          if (owned >= COMMUNITY_MAX_WORKSPACES) {
-            throw workspaceLimitReachedException()
-          }
-          return this.insertWorkspace(props)
-        },
-      })
-    }
-
     return await this.insertWorkspace(props)
   }
 

@@ -57,6 +57,8 @@ export type RefreshContactProfileInput = {
   source: ContactProfileNameSource // decides cooldown policy via COOLDOWN_BY_PROFILE_SOURCE
   accessScope?: ContactAccessScope // builder passes it; worker omits
   fetchProfile: ContactProfileFetcher // strategy — the app's channel call or the parsed payload
+  /** One bounded, caller-scheduled retry may bypass an earlier eager attempt's cooldown. */
+  bypassCooldown?: boolean
 }
 
 const EXTERNAL_URL_PATTERN = /^https?:\/\//
@@ -342,6 +344,7 @@ const refresh = async (
     source,
     accessScope,
     fetchProfile,
+    bypassCooldown,
   } = input
 
   if (
@@ -363,6 +366,7 @@ const refresh = async (
   const cooldownGated = COOLDOWN_BY_PROFILE_SOURCE[source]
   if (
     cooldownGated &&
+    !bypassCooldown &&
     (await isContactProfileRefreshCoolingDown(contactInbox.id))
   ) {
     return { status: "skipped", reason: "coolingDown" }

@@ -15,6 +15,7 @@ import { captureContactProfileSnapshot } from "../integration/handlers/capture-c
 import { coexistAttachmentDownload } from "../integration/handlers/coexist/attachment-download"
 import { updateContactAvatar } from "../integration/handlers/contact/update-avatar"
 import { runMessengerProfileBackfill } from "../integration/handlers/messenger-profile-backfill"
+import { refreshMessengerContactProfile } from "../integration/handlers/messenger-profile-refresh"
 import { receiveComment } from "../integration/handlers/received-message"
 import { processLeaderboardJob } from "../leaderboard/process-job"
 import { createQueueWorker } from "../lib/create-queue-worker"
@@ -38,6 +39,10 @@ async function processLowJob(job: Job<LowJobData>): Promise<void> {
           }
           case LowJobAction.updateContactAvatar: {
             await updateContactAvatar(job.data.data)
+            return
+          }
+          case LowJobAction.messengerProfileRefresh: {
+            await refreshMessengerContactProfile(job.data.data)
             return
           }
           case LowJobAction.replayMissedComment: {

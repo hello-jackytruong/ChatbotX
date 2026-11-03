@@ -18,6 +18,9 @@ import type {
   InboxModel,
 } from "@chatbotx.io/database/types"
 import type { IncomingContact, IncomingMessage } from "@chatbotx.io/sdk"
+import { createId } from "@chatbotx.io/utils"
+import { fetchMediaWithLimits } from "@chatbotx.io/utils/media-download"
+import { storeIncomingImage } from "@chatbotx.io/utils/store-incoming-image"
 import { logger } from "../../lib/logger"
 import { resolveIntegrationContextFromContactInbox } from "../../services/integrations"
 
@@ -53,6 +56,7 @@ type InboundFetcherDeps = {
   inbox: InboxModel
   contactInbox: ContactInboxModel
   incomingContact: IncomingContact
+  includeAvatar: boolean
 }
 
 // Name-related fields only. `locale`/`timezone`/`gender` are deliberately
@@ -97,14 +101,14 @@ const inboundProfileFetchers: Record<
   // inside `contactProfileRefreshService.refresh` as `failed` + cooldown
   // instead of throwing before the service can decide anything.
   channelApi:
-    ({ inbox, contactInbox }) =>
+    ({ inbox, contactInbox, includeAvatar }) =>
     async () => {
       const { integration, ctx, integrationRow } =
         await resolveIntegrationContextFromContactInbox({
           workspaceId: inbox.workspaceId,
           contactInbox,
         })
-      const getMetaProfile = (includeAvatar = false) =>
+      const getMetaProfile = (includeAvatar = true) =>
         integration.runChannelHandler("contact", "getProfile", {
           ctx,
           data: includeAvatar
@@ -123,13 +127,37 @@ const inboundProfileFetchers: Record<
         integrationMessengerId: row.id,
         pageId: row.pageId,
         sourceId: contactInbox.sourceId,
-        includeAvatar: false,
-        getMetaProfile: () => getMetaProfile(false),
+        includeAvatar,
+        getMetaProfile: () => getMetaProfile(includeAvatar),
       })
       if (!profile) {
         return { sourceId: contactInbox.sourceId }
       }
-      return toIncomingContact(profile)
+      const incoming = toIncomingContact(profile)
+      if (profile.provider !== "pancake" || !profile.avatarUrl) {
+        return incoming
+      }
+      try {
+        const media = await fetchMediaWithLimits(profile.avatarUrl)
+        if (!media) {
+          return incoming
+        }
+        const stored = await storeIncomingImage({
+          uploader: ctx.uploader,
+          key: `public/space/${ctx.storagePrefix}/avatars/${createId()}`,
+          bytes: Buffer.from(media.bytes),
+          mimeType: media.mimeType,
+          profile: "avatar",
+          acl: "public-read",
+        })
+        return { ...incoming, avatar: stored.originPath }
+      } catch (error) {
+        logger.warn(
+          { error, pageId: row.pageId, sourceId: contactInbox.sourceId },
+          "Pancake avatar could not be mirrored during profile refresh",
+        )
+        return incoming
+      }
     },
 }
 
@@ -139,6 +167,8 @@ export type RefreshExistingContactProfileInput = {
   contactInbox: ContactInboxModel
   incomingContact: IncomingContact
   contactId: string
+  bypassCooldown?: boolean
+  includeAvatar?: boolean
 }
 
 /**
@@ -151,13 +181,22 @@ export type RefreshExistingContactProfileInput = {
 export const refreshExistingContactProfile = async (
   input: RefreshExistingContactProfileInput,
 ): Promise<ContactModel | undefined> => {
-  const { source, inbox, contactInbox, incomingContact, contactId } = input
+  const {
+    source,
+    inbox,
+    contactInbox,
+    incomingContact,
+    contactId,
+    bypassCooldown,
+    includeAvatar = false,
+  } = input
 
   try {
     const fetchProfile = inboundProfileFetchers[source]({
       inbox,
       contactInbox,
       incomingContact,
+      includeAvatar,
     })
     const result = await contactProfileRefreshService.refresh({
       workspaceId: inbox.workspaceId,
@@ -165,6 +204,7 @@ export const refreshExistingContactProfile = async (
       contactInbox,
       source,
       fetchProfile,
+      bypassCooldown,
     })
     logger.debug(
       { result, contactId, channel: inbox.channel },

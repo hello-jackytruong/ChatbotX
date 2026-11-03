@@ -136,6 +136,18 @@ test("validates the contactUpdated profile patch", () => {
   expect(
     realtimeContactUpdatedSchema.safeParse({
       contactId: "contact-1",
+      changes: { avatar: "public/space/ws-1/avatars/avatar-1" },
+    }).success,
+  ).toBe(true)
+  expect(
+    realtimeContactUpdatedSchema.safeParse({
+      contactId: "contact-1",
+      changes: {},
+    }).success,
+  ).toBe(false)
+  expect(
+    realtimeContactUpdatedSchema.safeParse({
+      contactId: "contact-1",
       changes: { fullName: null },
     }).success,
   ).toBe(false)

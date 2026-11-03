@@ -22,6 +22,7 @@ import type { IntegrationJobReceiveComment } from "../integration"
 export const LowJobAction = {
   coexistAttachmentDownload: "coexistAttachmentDownload",
   updateContactAvatar: "updateContactAvatar",
+  messengerProfileRefresh: "messengerProfileRefresh",
   replayMissedComment: "replayMissedComment",
   messengerProfileBackfill: "messengerProfileBackfill",
 } as const
@@ -69,6 +70,21 @@ export type LowJobUpdateContactAvatar = {
 }
 
 /**
+ * Retries profile enrichment after Pancake has had time to index a brand-new
+ * Messenger conversation. Kept on the low queue so provider latency never
+ * delays the inbound webhook or its automation.
+ */
+export type LowJobMessengerProfileRefresh = {
+  type: typeof LowJobAction.messengerProfileRefresh
+  data: {
+    workspaceId: string
+    inboxId: string
+    contactInboxId: string
+    contactId: string
+  }
+}
+
+/**
  * One comment of a "process missed comments" run: ingested exactly like its
  * channel's webhook, then run through the one automation in `replay`. A run can
  * hold thousands of these, which is why they live here and never on the
@@ -94,6 +110,7 @@ export type LowJobMessengerProfileBackfill = {
 export type LowJobData =
   | LowJobCoexistAttachmentDownload
   | LowJobUpdateContactAvatar
+  | LowJobMessengerProfileRefresh
   | LowJobReplayMissedComment
   | LowJobMessengerProfileBackfill
 

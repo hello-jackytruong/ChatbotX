@@ -124,10 +124,14 @@ schema in `features/realtime/`; only reuse schemas that already exist in
 ## Contact profile enrichment
 
 After an inbound message is saved, successful profile enrichment for a
-nameless existing contact queues a routed `contactUpdated` event containing
-the contact id and `changes.fullName`. `ChatRealtime` merges that name into
-loaded contact state. Publishing remains route-filtered, best-effort, and
-non-blocking, so a realtime failure does not block message processing.
+nameless contact queues a routed `contactUpdated` event containing the contact
+id plus any refreshed `fullName` and `avatar`. `ChatRealtime` merges that patch
+into loaded contact state. A brand-new Messenger contact also gets one
+deduplicated low-queue refresh after five seconds, with one bounded retry after
+the provider cooldown, because Pancake may receive the webhook before its
+conversation index contains the PSID. Avatar mirroring emits the same routed
+patch after storage succeeds. Publishing remains route-filtered, best-effort,
+and non-blocking, so realtime or provider failures never drop the message.
 
 ## What lives where
 

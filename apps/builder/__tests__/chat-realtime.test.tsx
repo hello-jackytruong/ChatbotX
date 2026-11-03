@@ -243,6 +243,15 @@ describe("ChatRealtime — chat event parity", () => {
     expect(chatStoreState.updateContact).toHaveBeenCalledWith("c1", {
       fullName: "Nguyen Van A",
     })
+    act(() =>
+      emit("contactUpdated", {
+        contactId: "c1",
+        changes: { avatar: "public/space/ws-1/avatars/avatar-1" },
+      }),
+    )
+    expect(chatStoreState.updateContact).toHaveBeenLastCalledWith("c1", {
+      avatar: "public/space/ws-1/avatars/avatar-1",
+    })
   })
 
   test("conversationAssigned updates the conversations", async () => {
