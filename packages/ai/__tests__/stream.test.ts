@@ -70,6 +70,43 @@ describe("stream text processing", () => {
     expect(result.messageCount).toBe(1)
   })
 
+  test("limits a conversational reply to three text segments", async () => {
+    const sent: string[] = []
+
+    const result = await processStreamingText(
+      ReadableStream.from([
+        "Đoạn một.\n\nĐoạn hai.\n\nĐoạn ba.\n\nĐoạn bốn.\n\nĐoạn năm.",
+      ]),
+      (segment) => {
+        sent.push(segment)
+        return Promise.resolve()
+      },
+      { maxSegments: 3 },
+    )
+
+    expect(sent).toEqual([
+      "Đoạn một.",
+      "Đoạn hai.",
+      "Đoạn ba.\n\nĐoạn bốn.\n\nĐoạn năm.",
+    ])
+    expect(result.messageCount).toBe(3)
+  })
+
+  test("keeps a single-paragraph conversational reply as one segment", async () => {
+    const sent: string[] = []
+
+    await processStreamingText(
+      ReadableStream.from(["Một câu trả lời ngắn, tự nhiên."]),
+      (segment) => {
+        sent.push(segment)
+        return Promise.resolve()
+      },
+      { maxSegments: 3 },
+    )
+
+    expect(sent).toEqual(["Một câu trả lời ngắn, tự nhiên."])
+  })
+
   test("separates text written before and after a tool call", async () => {
     const stream = toStepSeparatedTextStream(
       streamParts([

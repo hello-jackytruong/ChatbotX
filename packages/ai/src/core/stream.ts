@@ -19,6 +19,11 @@ type StreamProcessingOptions = {
   sendParts?: boolean
   /** Buffer paragraph boundaries and emit one response after the stream ends. */
   mergeSegments?: boolean
+  /**
+   * Buffer the reply and emit at most this many paragraph-based text segments.
+   * Overflow paragraphs are preserved in the final segment.
+   */
+  maxSegments?: number
   trackingContext?: unknown
 }
 
@@ -175,6 +180,9 @@ export async function processStreamingText(
   let fullText = ""
   let messageCount = 0
   const sendParts = options?.sendParts !== false
+  const maxSegments = options?.maxSegments
+    ? Math.max(1, Math.floor(options.maxSegments))
+    : undefined
   let currentSegment = ""
 
   const handleSegment = async (segment: string) => {
@@ -191,7 +199,7 @@ export async function processStreamingText(
     fullText += delta
     currentSegment += delta
 
-    if (options?.mergeSegments) {
+    if (options?.mergeSegments || maxSegments) {
       continue
     }
 
@@ -212,6 +220,24 @@ export async function processStreamingText(
     const mergedSegment = currentSegment.trim()
     if (mergedSegment) {
       await handleSegment(mergedSegment)
+    }
+    return { messageCount, fullText }
+  }
+
+  if (maxSegments) {
+    const segments = currentSegment
+      .split(PARAGRAPH_SEPARATOR)
+      .map((segment) => segment.trim())
+      .filter(Boolean)
+    const limitedSegments =
+      segments.length <= maxSegments
+        ? segments
+        : [
+            ...segments.slice(0, maxSegments - 1),
+            segments.slice(maxSegments - 1).join(PARAGRAPH_SEPARATOR),
+          ]
+    for (const segment of limitedSegments) {
+      await handleSegment(segment)
     }
     return { messageCount, fullText }
   }
