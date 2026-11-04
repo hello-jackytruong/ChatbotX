@@ -33,6 +33,11 @@ export const aiMessageSchema = z.object({
 })
 
 export const aiContextSchema = z.object({
+  // Mirrors Conversation.aiContextRevision. A false -> true bot transition
+  // advances the database value so a cached pre-handoff context cannot be
+  // reused after automation resumes. Default keeps 24h legacy cache entries
+  // readable until their first revision comparison.
+  contextRevision: z.number().int().nonnegative().default(0),
   markerMessageId: z.string().nullable().default(null),
   summary: z.string().max(1000).default(""),
   history: z.array(aiMessageSchema).default([]),
