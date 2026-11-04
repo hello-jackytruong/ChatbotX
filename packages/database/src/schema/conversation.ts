@@ -32,6 +32,7 @@ export const conversationModel = pgTable(
     contactLastReadAt: timestamp(timestampConfig),
     agentLastReadAt: timestamp(timestampConfig),
     aiContextLastMessageId: bigintAsString(),
+    aiContextRevision: integer().default(0).notNull(),
     lastActivityAt: timestamp(timestampConfig),
     followed: boolean().default(false).notNull(),
     assignedUserId: bigintAsString().references(() => userModel.id, {

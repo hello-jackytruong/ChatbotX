@@ -333,9 +333,12 @@ export const aiContextService = {
           return null
         }
 
+        const contextRevision = conversation.aiContextRevision ?? 0
+
         if (
           context &&
-          (context.markerMessageId !== conversation.aiContextLastMessageId ||
+          ((context.contextRevision ?? 0) !== contextRevision ||
+            context.markerMessageId !== conversation.aiContextLastMessageId ||
             context.history.some((message) => message.role === "system"))
         ) {
           await aiContextStore.delete(conversationId)
@@ -375,6 +378,7 @@ export const aiContextService = {
               : ""
 
           const nextContext = aiContextSchema.parse({
+            contextRevision,
             markerMessageId: conversation.aiContextLastMessageId,
             summary: summary.slice(0, MAX_SUMMARY_LENGTH),
             history: aiHistory,

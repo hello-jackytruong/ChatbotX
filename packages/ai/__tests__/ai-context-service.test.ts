@@ -179,6 +179,79 @@ describe("aiContextService.getOrInitContext", () => {
     expect(result?.history).toEqual([])
   })
 
+  test("reinitializes cached context when the bot resume revision changes", async () => {
+    const createdAt = new Date("2026-11-04T08:00:00.000Z")
+    const findAIContextMessages = vi.fn().mockResolvedValue([
+      {
+        id: "11",
+        text: "Lịch khai giảng tuần sau còn chỗ không?",
+        senderType: "contact",
+        createdAt,
+      },
+    ])
+    mocks.createMessageRepository.mockResolvedValue({ findAIContextMessages })
+    mocks.get.mockResolvedValue({
+      contextRevision: 2,
+      markerMessageId: null,
+      summary: "stale summary",
+      history: [],
+      nextSeq: 0,
+      summarizing: false,
+      summarizingStartedAt: null,
+      needsResummarize: false,
+      updatedAt: Date.now(),
+    })
+    mocks.findConversationAIContextState.mockResolvedValue({
+      aiContextLastMessageId: null,
+      aiContextRevision: 3,
+      lastActivityAt: createdAt,
+    })
+    mocks.summarizeConversation.mockResolvedValue(
+      "Khách đang hỏi lịch khai giảng tuần sau.",
+    )
+
+    const result = await aiContextService.getOrInitContext({
+      workspaceId: "ws-1",
+      conversationId: "conv-1",
+    })
+
+    expect(mocks.delete).toHaveBeenCalledWith("conv-1")
+    expect(findAIContextMessages).toHaveBeenCalledTimes(1)
+    expect(result?.contextRevision).toBe(3)
+    expect(result?.history.map((message) => message.messageId)).toEqual(["11"])
+    expect(result?.summary).toBe("Khách đang hỏi lịch khai giảng tuần sau.")
+  })
+
+  test("keeps cached context when the bot resume revision is unchanged", async () => {
+    const cachedContext = {
+      contextRevision: 3,
+      markerMessageId: null,
+      summary: "current summary",
+      history: [],
+      nextSeq: 0,
+      summarizing: false,
+      summarizingStartedAt: null,
+      needsResummarize: false,
+      updatedAt: Date.now(),
+    }
+    mocks.get.mockResolvedValue(cachedContext)
+    mocks.findConversationAIContextState.mockResolvedValue({
+      aiContextLastMessageId: null,
+      aiContextRevision: 3,
+      lastActivityAt: new Date("2026-11-04T08:00:00.000Z"),
+    })
+
+    const result = await aiContextService.getOrInitContext({
+      workspaceId: "ws-1",
+      conversationId: "conv-1",
+    })
+
+    expect(result).toEqual(cachedContext)
+    expect(mocks.delete).not.toHaveBeenCalled()
+    expect(mocks.createMessageRepository).not.toHaveBeenCalled()
+    expect(mocks.summarizeConversation).not.toHaveBeenCalled()
+  })
+
   test("rethrows storage failures without caching partial history", async () => {
     mocks.createMessageRepository.mockResolvedValue({
       findAIContextMessages: vi

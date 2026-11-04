@@ -1,0 +1,1 @@
+ALTER TABLE "Conversation" ADD COLUMN "aiContextRevision" integer DEFAULT 0 NOT NULL;

@@ -529,6 +529,32 @@ describe("conversationService.updateReadStatus", () => {
   })
 })
 
+describe("conversationService.updateBotEnabled", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  test("advances the AI context revision only for a disabled-to-enabled transition", async () => {
+    await conversationService.updateBotEnabled({
+      workspaceId: "ws-1",
+      ids: ["conv-1"],
+      botEnabled: true,
+      botResumeAt: null,
+    })
+
+    const setArg = set.mock.calls[0][0] as Record<string, unknown>
+    expect(setArg.botEnabled).toBe(true)
+    expect(setArg.botResumeAt).toBeNull()
+    expect(setArg).toHaveProperty("aiContextRevision")
+
+    const revisionSql = collectSqlText(setArg.aiContextRevision)
+    expect(revisionSql).toContain("CASE")
+    expect(revisionSql).toContain("= false")
+    expect(revisionSql).toContain("+ 1")
+    expect(revisionSql).toContain("ELSE")
+  })
+})
+
 describe("conversationService.markReadByOutbound", () => {
   beforeEach(() => {
     vi.clearAllMocks()

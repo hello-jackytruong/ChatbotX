@@ -1704,7 +1704,19 @@ class ConversationService extends BaseService {
         .update(conversationModel)
         .set(
           botEnabled
-            ? { botEnabled, botResumeAt: props.botResumeAt ?? null }
+            ? {
+                botEnabled,
+                botResumeAt: props.botResumeAt ?? null,
+                // A single atomic expression makes concurrent/retried enable
+                // calls safe: only the statement that observes `false`
+                // advances the revision and forces the next AI turn to
+                // rebuild its persisted conversation context.
+                aiContextRevision: sql<number>`CASE
+                  WHEN ${conversationModel.botEnabled} = false
+                    THEN ${conversationModel.aiContextRevision} + 1
+                  ELSE ${conversationModel.aiContextRevision}
+                END`,
+              }
             : botPauseSet(props),
         )
         .where(
