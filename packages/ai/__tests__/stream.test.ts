@@ -138,6 +138,35 @@ describe("stream text processing", () => {
     ])
   })
 
+  test("uses only the final model step as one merged response", async () => {
+    const stream = toFinalStepTextStream(
+      streamParts([
+        { type: "start-step" },
+        { type: "text-delta", text: "I will check that now." },
+        { type: "tool-call" },
+        { type: "tool-result" },
+        { type: "finish-step" },
+        { type: "start-step" },
+        { type: "text-delta", text: "I checked it." },
+        { type: "text-delta", text: " Here is the answer." },
+        { type: "finish-step" },
+      ]),
+    )
+    const sent: string[] = []
+
+    const result = await processStreamingText(
+      stream,
+      (segment) => {
+        sent.push(segment)
+        return Promise.resolve()
+      },
+      { mergeSegments: true },
+    )
+
+    expect(sent).toEqual(["I checked it. Here is the answer."])
+    expect(result.messageCount).toBe(1)
+  })
+
   test("adds no break when only one step has text", async () => {
     const text = await collect(
       toStepSeparatedTextStream(

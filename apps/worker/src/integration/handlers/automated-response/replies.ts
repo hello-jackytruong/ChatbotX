@@ -6,7 +6,6 @@ import {
   systemFunctionNames,
   toFinalStepTextStream,
   toolPrefixes,
-  toStepSeparatedTextStream,
 } from "@chatbotx.io/ai"
 import {
   type AIProviderInstance,
@@ -111,6 +110,11 @@ export type ReplyByAIExecutionResult = {
     actionToolCalled: boolean
   }
 }
+
+const getAIReplySendOptions = (triggerMessageId?: string) =>
+  triggerMessageId
+    ? { jobId: `ai-reply-${triggerMessageId.replaceAll(":", "_")}` }
+    : undefined
 
 export type { ReplyAIProvider } from "../../../lib/ai/reply-model"
 
@@ -384,15 +388,17 @@ function createReplyToolset(options: {
       conversationId: conversation.id,
       contactId: conversation.contactId,
       sendMessage: async (text: string) => {
+        if (!text || options.directSendTracker.sent) {
+          return
+        }
         options.directSendTracker.sent = true
         options.directSendTracker.sentText = text
-        if (text) {
-          await sendMessageAndWait(
-            conversation.id,
-            text,
-            consumeTrackingContext(options.trackingContextRef),
-          )
-        }
+        await sendMessageAndWait(
+          conversation.id,
+          text,
+          consumeTrackingContext(options.trackingContextRef),
+          getAIReplySendOptions(options.props.triggerMessageId),
+        )
       },
       triggerFlow: async (flowId: string) => {
         await integrationQueue.add(IntegrationJobAction.sendFlow, {
@@ -932,23 +938,25 @@ async function runAIReply(
     }
 
     const { messageCount, fullText } = await processStreamingText(
-      toStepSeparatedTextStream(result.stream),
+      toFinalStepTextStream(result.stream),
       async (_segment, parts) => {
-        if (directSendTracker.sent) {
+        if (directSendTracker.sent || parts.length === 0) {
           return
         }
-        for (const part of parts) {
-          await sendMessageAndWait(
-            conversation.id,
-            part,
-            consumeTrackingContext(trackingContextRef),
-          )
-        }
+        const text = parts.join("\n\n")
+        directSendTracker.sent = true
+        directSendTracker.sentText = text
+        await sendMessageAndWait(
+          conversation.id,
+          text,
+          consumeTrackingContext(trackingContextRef),
+          getAIReplySendOptions(props.triggerMessageId),
+        )
       },
-      // Blank lines are intentional conversational breaks. Preserve them as
-      // separate chat bubbles, but cap the burst at three; any remaining
-      // paragraphs stay together in the final bubble.
-      { sendParts: true, maxSegments: 3 },
+      // Only the model's final step is customer-facing. Merge its paragraphs
+      // and text/media parts into one chat job so tool-loop steps and retries
+      // cannot produce multiple bubbles for the same trigger message.
+      { sendParts: true, mergeSegments: true },
     ).catch((streamError) => {
       const normalizedError = normalizeError(streamError)
       logger.error(

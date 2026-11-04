@@ -8,10 +8,9 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 import { replyByAI } from "../src/integration/handlers/automated-response/replies"
 
 // ---------------------------------------------------------------------------
-// Regression coverage for the shared `trackingContextRef` "send once" guard:
-// the `sendMessage` system tool can be invoked more than once by the model in
-// a single multi-step run (stopWhen: isStepCount(5)) — tracking must attach
-// to at most one of those sends, not one per invocation.
+// Regression coverage for the AI reply send-once guard: the model can invoke
+// the `sendMessage` system tool more than once in a multi-step run, but only
+// the first invocation may enqueue a customer-facing message.
 // ---------------------------------------------------------------------------
 
 const sendMessageAndWaitMock = vi.hoisted(() => vi.fn(async () => undefined))
@@ -208,7 +207,7 @@ describe("replyByAI — sendMessage tool tracking-context guard", () => {
     capturedContext.current = null
   })
 
-  test("attaches tracking context to only the first of two sendMessage tool calls in one run", async () => {
+  test("sends only the first sendMessage tool call in one reply run", async () => {
     await replyByAI({ ...baseProps, aiAgent: makeAIAgent() })
 
     expect(capturedContext.current).not.toBeNull()
@@ -216,20 +215,15 @@ describe("replyByAI — sendMessage tool tracking-context guard", () => {
     await capturedContext.current?.sendMessage("first message")
     await capturedContext.current?.sendMessage("second message")
 
-    expect(sendMessageAndWaitMock).toHaveBeenNthCalledWith(
-      1,
+    expect(sendMessageAndWaitMock).toHaveBeenCalledTimes(1)
+    expect(sendMessageAndWaitMock).toHaveBeenCalledWith(
       "conv-1",
       "first message",
       expect.objectContaining({
         triggerType: "bot_response_ai_agent_success",
         messageId: "msg-trigger-1",
       }),
-    )
-    expect(sendMessageAndWaitMock).toHaveBeenNthCalledWith(
-      2,
-      "conv-1",
-      "second message",
-      undefined,
+      { jobId: "ai-reply-msg-trigger-1" },
     )
   })
 })

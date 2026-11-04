@@ -24,6 +24,8 @@ type SendMessageOptions = {
   storagePath?: string
   metadata?: MetadataPayload
   isBulkBroadcast?: boolean
+  /** Stable BullMQ id for retry-safe sends tied to one trigger message. */
+  jobId?: string
 }
 
 async function enqueueChatMessage(
@@ -50,15 +52,19 @@ async function enqueueChatMessage(
     message: "Conversation not found",
   })
 
-  return chatQueue.add(ChatJobAction.sendChatMessage, {
-    type: ChatJobAction.sendChatMessage,
-    data: {
-      ...data,
-      conversation,
-      metadata: options?.metadata,
-      isBulkBroadcast: options?.isBulkBroadcast,
+  return chatQueue.add(
+    ChatJobAction.sendChatMessage,
+    {
+      type: ChatJobAction.sendChatMessage,
+      data: {
+        ...data,
+        conversation,
+        metadata: options?.metadata,
+        isBulkBroadcast: options?.isBulkBroadcast,
+      },
     },
-  })
+    options?.jobId ? { jobId: options.jobId } : undefined,
+  )
 }
 
 export function sendMessageWithRender(

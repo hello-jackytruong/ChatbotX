@@ -101,7 +101,9 @@ export async function handleRichAIReply({
 
     if (parseResult.reason === "plain_text" && parseResult.text.trim()) {
       const trimmedText = parseResult.text.trim()
-      await sendMessageAndWait(conversation.id, trimmedText, trackingContext)
+      await sendMessageAndWait(conversation.id, trimmedText, trackingContext, {
+        jobId: `ai-reply-${executionId.replaceAll(":", "_")}`,
+      })
       await appendAssistantHistory(conversation.id, trimmedText)
       return buildSuccessResult({ buildToolStats, modelId, provider })
     }
