@@ -141,6 +141,7 @@ const buildConversationFixture = () => ({
   contactLastReadAt: null,
   agentLastReadAt: null,
   aiContextLastMessageId: null,
+  aiContextRevision: 0,
   followed: false,
   assignedUserId: null,
   assignedInboxTeamId: null,
