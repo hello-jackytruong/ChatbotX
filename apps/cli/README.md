@@ -96,6 +96,12 @@ chatbotx inboxes list                                # List connected inboxes
 
 ---
 
+### `me` / `realtime` (mobile app only — not in the CLI)
+
+`/v1/me`, `/v1/me/workspaces`, `/v1/me/device-tokens`, `/v1/me/password` and `/v1/realtime/connect-token` act as a signed-in workspace member and need a native mobile app access token (`mobileAppToken` scheme, from `POST /api/auth/mobile/token`). A workspace token has no member identity, so `MOBILE_APP_TOKEN_ONLY_PATHS` (`apps/builder/src/lib/orpc/public-spec.ts`) marks them mobile-only and `isWorkspaceTokenOperation` filters them out of the CLI: there is no `chatbotx me` or `chatbotx realtime` group. Any new mobile-only path must be added to that set, or it surfaces here as a command that always 401s.
+
+---
+
 ### `teams`
 
 ```bash
@@ -293,7 +299,9 @@ chatbotx contacts coupons list <identifier>          # List coupons issued to co
 
 ```bash
 chatbotx conversations list                          # [--botCategory --assignedId --channel --status --keyword
-                                                     #  --botEnabled --tags --contactFilter --cursor --perPage --sort]
+                                                     #  --botEnabled --tags --contactFilter --cursor --perPage --sort --view]
+                                                     # Array/object filters are JSON strings: --status '["open"]'
+                                                     # --view compact drops ad attribution and thread-control metadata from contactInboxes (default full)
 chatbotx conversations get <id>
 chatbotx conversations assign add <id> --assignedId <assignedId>  # null clears the assignee
 chatbotx conversations archive add <id>
@@ -364,7 +372,8 @@ chatbotx broadcasts restore-occurrence add <id>      # same flags; undo a skip (
 ### `flows`
 
 ```bash
-chatbotx flows list                                  # [--page --perPage --active --name --folderId --startType --integrationWhatsappId --sort]  active defaults to true
+chatbotx flows list                                  # [--page --perPage --active --enableInInbox --name --folderId --startType --integrationWhatsappId --sort]  active defaults to true
+                                                     # --enableInInbox true → only flows that can be started from the inbox; each item returns enableInInbox
 chatbotx flows get <id>                              # Includes its versions
 chatbotx flows create --name <name>                  # [--folderId --spec --nodes --edges --publish]
                                                      # spec: flow-spec DSL (see `schemas flow-spec`); nodes/edges: raw
@@ -485,7 +494,9 @@ chatbotx triggers create --name <name>               # [--folderId]  creates an 
 chatbotx triggers update <id> --conditions <conditions> --actions <actions>
                                                      # Replaces the full condition/action set — JSON arrays.
                                                      # Action `type`s include setCustomField (O01–O12), startExternalStep (flowId + nodeId from `flows nodes`),
-                                                     # and pipeline (the Pipelines flow-step actions); a NEW action that points at a missing record is rejected
+                                                     # pipeline (the Pipelines flow-step actions), and addSequence / removeSequence (sequenceIds from `sequences list`, max 50;
+                                                     # they fire no sequence triggers/webhooks); a NEW action that points at a missing record is rejected.
+                                                     # One trigger runs at most about 20 times per contact per minute (fixed window); further runs are skipped
 chatbotx triggers settings update <id>               # [--name --active]  name/active only, conditions untouched
 chatbotx triggers delete <id>
 ```
@@ -741,7 +752,11 @@ Any channel's comment automation id (fb/ig/threads/tiktok).
 chatbotx comment-automations accounts --type <messenger|instagram|instagramFacebook|threads|tiktok>  # Accounts an automation can be scoped to (pass one's inboxId on create/update)
 chatbotx comment-automations missed-comment-run add <id>    # Process missed comments (last 7 days, single-post automations)
 chatbotx comment-automations missed-comment-runs list <id>  # { inProgress } — poll until false
+chatbotx comment-automations moderation-logs list <id> [--from <iso>] [--to <iso>] [--action hide|delete] [--source rule|ai] [--page --perPage]  # Comments hidden/deleted and why (rule + keyword, or AI categories + reason)
+chatbotx comment-automations moderation-summary list <id> [--from <iso>] [--to <iso>] [--action hide|delete] [--source rule|ai]  # { total, hidden, deleted, byRule, byAI, failed, pending }
 ```
+
+AI moderation itself is configured on the automation: `hideComments.aiModeration` (`enabled`, `aiAgentId` from `ai-agents list`, `categories`, `instruction`, `action`) on `fb-comments` / `ig-comments` / `threads-comments` / `tiktok-comments` create/update.
 
 ---
 

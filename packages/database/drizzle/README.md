@@ -21,3 +21,12 @@ a `drizzle-kit generate` run at their point in history):
 Verified at synthesis time: `drizzle-kit generate` → "No schema changes" and
 `drizzle-kit check` → clean. Branches that do not carry these two files will
 still hit the three-head error until they rebase/merge onto them.
+
+On 2026-11-04, the `20261103120000_add_conversation_member_indexes` snapshot
+was refreshed from drizzle-kit's generated snapshot while reconciling the
+upstream and fork migration branches. The generator's proposed SQL was checked
+against the existing fork migrations (`20261101110936` through `20261102034151`)
+and upstream migrations (`20261103082944` and `20261103083237`); it only
+repeated schema changes already represented by those migration SQL files. The
+probe SQL was discarded, and only the merged end-state snapshot was retained.
+No migration SQL was added or changed for the snapshot reconciliation.

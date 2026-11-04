@@ -33,6 +33,7 @@ import {
 import type {
   ContactInboxModel,
   ContactModel,
+  ConversationModel,
 } from "@chatbotx.io/database/types"
 import { emit } from "@chatbotx.io/event-bus"
 import { emitContactCreated } from "@chatbotx.io/events"
@@ -131,6 +132,7 @@ type ContactWithInboxes = ContactModel & { contactInboxes: ContactInboxModel[] }
 
 export type ContactAccessScope = {
   restrictToAssignedUserId?: string
+  restrictToTeamIds?: string[]
 }
 
 export type ContactListScope = ContactListScopeType
@@ -355,11 +357,7 @@ class ContactService extends BaseService {
       throw notFoundException("Contact not found")
     }
 
-    if (
-      accessScope?.restrictToAssignedUserId &&
-      contact.conversation?.assignedUserId !==
-        accessScope.restrictToAssignedUserId
-    ) {
+    if (!isContactWithinAccessScope(accessScope, contact.conversation)) {
       throw notFoundException("Contact not found")
     }
 
@@ -1268,10 +1266,14 @@ class ContactService extends BaseService {
    * Conditional avatar write that also permits replacing the negative-cache
    * sentinel while protecting a real avatar from concurrent refreshes.
    */
+  listMessengerAvatarBackfillCandidates(input: { pageId?: string }) {
+    return contactInboxRepository.listMessengerAvatarBackfillCandidates(input)
+  }
+
   async setAvatarIfEmptyOrSentinel(
     props: { workspaceId: string; contactId: string; avatar: string },
     tx: DatabaseClient = db,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const { workspaceId, contactId, avatar } = props
     const [updated] = await tx
       .update(contactModel)
@@ -1291,6 +1293,7 @@ class ContactService extends BaseService {
       await this.invalidate({ workspaceId, ids: [contactId] })
       await scheduleAvatarOptimization({ workspaceId, contactId, avatar })
     }
+    return Boolean(updated)
   }
 
   /**
@@ -1345,11 +1348,39 @@ export function mergeRichSystemFields(
   )
 }
 
+function isContactWithinAccessScope(
+  accessScope: ContactAccessScope | undefined,
+  conversation:
+    | Pick<ConversationModel, "assignedUserId" | "assignedInboxTeamId">
+    | null
+    | undefined,
+): boolean {
+  if (
+    accessScope?.restrictToAssignedUserId === undefined &&
+    accessScope?.restrictToTeamIds === undefined
+  ) {
+    return true
+  }
+  if (
+    accessScope.restrictToAssignedUserId !== undefined &&
+    conversation?.assignedUserId === accessScope.restrictToAssignedUserId
+  ) {
+    return true
+  }
+  return Boolean(
+    conversation?.assignedInboxTeamId &&
+      accessScope.restrictToTeamIds?.includes(conversation.assignedInboxTeamId),
+  )
+}
+
 function withContactAccessScope<TWhere extends Record<string, unknown>>(
   where: TWhere,
   accessScope?: ContactAccessScope,
 ) {
-  if (!accessScope?.restrictToAssignedUserId) {
+  if (
+    accessScope?.restrictToAssignedUserId === undefined &&
+    accessScope?.restrictToTeamIds === undefined
+  ) {
     return where
   }
 
@@ -1359,12 +1390,20 @@ function withContactAccessScope<TWhere extends Record<string, unknown>>(
     !Array.isArray(where.conversation)
       ? where.conversation
       : {}
+  const assignmentScopes = [
+    ...(accessScope.restrictToAssignedUserId === undefined
+      ? []
+      : [{ assignedUserId: accessScope.restrictToAssignedUserId }]),
+    ...(accessScope.restrictToTeamIds === undefined
+      ? []
+      : [{ assignedInboxTeamId: { in: accessScope.restrictToTeamIds } }]),
+  ]
 
   return {
     ...where,
     conversation: {
       ...conversation,
-      assignedUserId: accessScope.restrictToAssignedUserId,
+      OR: assignmentScopes,
     },
   }
 }
