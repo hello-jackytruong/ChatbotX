@@ -1151,14 +1151,16 @@ const attachmentSignature = (
     .sort()
     .join(",")
 
-const findPendingOwnSend = async ({
+const findOwnSendEchoTarget = async ({
   repository,
   conversation,
   content,
+  sourceId,
 }: {
   repository: IMessageRepository
   conversation: ConversationModel
   content: OwnSendContent
+  sourceId: string
 }): Promise<MessageWithAttachments | undefined> => {
   const recentOutgoing = await repository.findLastByConversation(
     conversation.id,
@@ -1173,7 +1175,8 @@ const findPendingOwnSend = async ({
 
   return recentOutgoing.find(
     (candidate) =>
-      candidate.sourceId === null && isSameOwnSendContent(candidate, content),
+      (candidate.sourceId === null || candidate.sourceId === sourceId) &&
+      isSameOwnSendContent(candidate, content),
   )
 }
 
@@ -1422,26 +1425,26 @@ const persistMessage = async (
 
   const isOutgoingDirectMessageEcho =
     !inbound && (incomingMessage.type ?? "message") === "message"
-  let canMarkReadByEcho = true
 
   // ChatbotX writes its local outgoing row before calling the provider. A
   // provider echo can arrive before the send worker has attached the provider
-  // source id to that row. Reconcile that race before the echo is inserted;
-  // otherwise TimescaleDB legitimately keeps both rows because their
+  // source id to that row, or immediately after it was attached but before the
+  // source-id lookup sees the update. Reconcile either state before the echo is
+  // inserted; otherwise TimescaleDB legitimately keeps both rows because their
   // partitioning `createdAt` values differ.
   if (isOutgoingDirectMessageEcho && incomingMessage.sourceId) {
-    let pendingOwnSend: MessageWithAttachments | undefined
+    let ownSendEchoTarget: MessageWithAttachments | undefined
     try {
-      pendingOwnSend = await findPendingOwnSend({
+      ownSendEchoTarget = await findOwnSendEchoTarget({
         repository,
         conversation,
+        sourceId: incomingMessage.sourceId,
         content: {
           text: messageInput.text ?? null,
           attachments: attachmentInputs,
         },
       })
     } catch (err) {
-      canMarkReadByEcho = false
       logger.warn(
         {
           err,
@@ -1449,27 +1452,34 @@ const persistMessage = async (
           conversationId: conversation.id,
           sourceId: incomingMessage.sourceId,
         },
-        "Unable to reconcile outgoing echo with a pending own send",
+        "Unable to reconcile outgoing echo with a recent own send",
       )
+      throw err
     }
-    if (pendingOwnSend) {
+    if (ownSendEchoTarget) {
+      if (ownSendEchoTarget.sourceId === incomingMessage.sourceId) {
+        return { message: ownSendEchoTarget, isNew: false }
+      }
       // Do not catch a failed update and continue to insert: retrying is safer
       // than recreating the exact duplicate this reconciliation prevents.
       const updated = await messageService.updateSourceId({
-        id: pendingOwnSend.id,
+        id: ownSendEchoTarget.id,
         sourceId: incomingMessage.sourceId,
         workspaceId: inbox.workspaceId,
-        createdAt: pendingOwnSend.createdAt,
+        createdAt: ownSendEchoTarget.createdAt,
       })
       if (updated) {
         return {
           message: {
-            ...pendingOwnSend,
+            ...ownSendEchoTarget,
             sourceId: incomingMessage.sourceId,
           },
           isNew: false,
         }
       }
+      throw new Error(
+        `Outgoing echo reconciliation target ${ownSendEchoTarget.id} disappeared before its source id could be assigned`,
+      )
     }
   }
 
@@ -1488,7 +1498,7 @@ const persistMessage = async (
   if (isNew) {
     await persistNewMessageSideEffects({ ...props, message })
 
-    if (isOutgoingDirectMessageEcho && canMarkReadByEcho && !props.keepUnread) {
+    if (isOutgoingDirectMessageEcho && !props.keepUnread) {
       const markReadProps = {
         workspaceId: inbox.workspaceId,
         conversationId: conversation.id,
