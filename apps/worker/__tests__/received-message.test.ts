@@ -1845,6 +1845,44 @@ describe("receiveMessage — message repository branch", () => {
     )
   })
 
+  test("reuses an own-send row that already has the provider source id", async () => {
+    const matchingOwnSend = {
+      id: "msg-chatbotx-send",
+      sourceId: baseIncomingMessage.sourceId,
+      text: fakeCreatedMessage.text,
+      attachments: [],
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+      workspaceId: "ws-1",
+    }
+    mockFindLastByConversation.mockResolvedValueOnce([matchingOwnSend])
+    mockRunChannelHandler.mockResolvedValue({
+      message: {
+        ...baseIncomingMessage,
+        messageType: "outgoing",
+        attachments: [],
+      },
+      contact: { sourceId: "psid-123", firstName: "Test" },
+      postbackAction: null,
+      quickReplyAction: null,
+      ref: null,
+    })
+    mockCreateOrUpdate.mockResolvedValue({
+      message: { ...fakeCreatedMessage, messageType: "outgoing" },
+      isNew: true,
+    })
+
+    await receiveMessage(baseProps)
+
+    expect(mockUpdateMessageSourceId).not.toHaveBeenCalled()
+    expect(mockCreateOrUpdate).not.toHaveBeenCalled()
+    expect(mockRecordInboundActivity).not.toHaveBeenCalled()
+    expect(mockMarkReadByOutbound).not.toHaveBeenCalled()
+    expect(mockBroadcast).not.toHaveBeenCalledWith(
+      "ws-1",
+      expect.objectContaining({ eventType: "messageCreated" }),
+    )
+  })
+
   test("retries instead of inserting an echo when pending-row reconciliation fails", async () => {
     const error = new Error("source id update failed")
     mockFindLastByConversation.mockResolvedValueOnce([
@@ -1871,6 +1909,38 @@ describe("receiveMessage — message repository branch", () => {
     })
 
     await expect(receiveMessage(baseProps)).rejects.toThrow(error)
+
+    expect(mockCreateOrUpdate).not.toHaveBeenCalled()
+    expect(mockRecordInboundActivity).not.toHaveBeenCalled()
+  })
+
+  test("retries instead of inserting an echo when its pending own-send row disappears", async () => {
+    mockFindLastByConversation.mockResolvedValueOnce([
+      {
+        id: "msg-chatbotx-send",
+        sourceId: null,
+        text: fakeCreatedMessage.text,
+        attachments: [],
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        workspaceId: "ws-1",
+      },
+    ])
+    mockUpdateMessageSourceId.mockResolvedValueOnce(null)
+    mockRunChannelHandler.mockResolvedValue({
+      message: {
+        ...baseIncomingMessage,
+        messageType: "outgoing",
+        attachments: [],
+      },
+      contact: { sourceId: "psid-123", firstName: "Test" },
+      postbackAction: null,
+      quickReplyAction: null,
+      ref: null,
+    })
+
+    await expect(receiveMessage(baseProps)).rejects.toThrow(
+      "disappeared before its source id could be assigned",
+    )
 
     expect(mockCreateOrUpdate).not.toHaveBeenCalled()
     expect(mockRecordInboundActivity).not.toHaveBeenCalled()
@@ -1928,7 +1998,7 @@ describe("receiveMessage — message repository branch", () => {
     expect(mockMarkReadByOutbound).not.toHaveBeenCalled()
   })
 
-  test("logs a self-send lookup failure, keeps activity, and fails closed on mark-read", async () => {
+  test("retries a self-send lookup failure without inserting an echo", async () => {
     const error = new Error("shard unavailable")
     mockFindLastByConversation.mockRejectedValueOnce(error)
     mockRunChannelHandler.mockResolvedValue({
@@ -1947,9 +2017,10 @@ describe("receiveMessage — message repository branch", () => {
       isNew: true,
     })
 
-    await expect(receiveMessage(baseProps)).resolves.toBeDefined()
+    await expect(receiveMessage(baseProps)).rejects.toThrow(error)
 
-    expect(mockRecordInboundActivity).toHaveBeenCalledTimes(1)
+    expect(mockCreateOrUpdate).not.toHaveBeenCalled()
+    expect(mockRecordInboundActivity).not.toHaveBeenCalled()
     expect(mockMarkReadByOutbound).not.toHaveBeenCalled()
     expect(logger.warn).toHaveBeenCalledWith(
       {
@@ -1958,7 +2029,7 @@ describe("receiveMessage — message repository branch", () => {
         conversationId: "conv-1",
         sourceId: baseIncomingMessage.sourceId,
       },
-      "Unable to reconcile outgoing echo with a pending own send",
+      "Unable to reconcile outgoing echo with a recent own send",
     )
   })
 
@@ -6853,7 +6924,9 @@ describe("receiveMessage — outbound automated response on message echoes", () 
   })
 
   test("fails closed when the self-send lookup throws", async () => {
-    mockFindLastByConversation.mockRejectedValue(new Error("shard down"))
+    mockFindLastByConversation
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error("shard down"))
 
     await receiveMessage(baseProps)
 

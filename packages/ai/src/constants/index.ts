@@ -68,10 +68,10 @@ export const helpTexts = {
       `This is the previous summary of the conversation: "${summary}"`,
     latestMessages: "Here are the latest messages:",
     updateSummaryPrompt:
-      "Please update the previous summary by incorporating the new information. Keep the summary concise and succinct (under 1000 characters), focusing on key information such as: customer name, issues encountered, needs, order status, and agreed decisions. Return the new summary.",
+      "Please update the previous summary by incorporating the new information. Keep the summary concise and succinct (under 1000 characters), focusing on key information such as: customer name, issues encountered, needs, order status, agreed decisions, known preferences, and the latest unanswered customer request. Clearly distinguish answered from unanswered requests. Return the new summary.",
     conversationHistory: "Below is the conversation history:",
     newSummaryPrompt:
-      "Please summarize the above conversation concisely and succinctly (under 1000 characters). Focus on key information such as: customer name, issues encountered, needs, order status, and agreed decisions. Return the summary.",
+      "Please summarize the above conversation concisely and succinctly (under 1000 characters). Focus on key information such as: customer name, issues encountered, needs, order status, agreed decisions, known preferences, and the latest unanswered customer request. Clearly distinguish answered from unanswered requests. Return the summary.",
     shortenPrompt: (summary: string) =>
       `The following summary is too long: "${summary}". Please shorten it to under 1000 characters while still retaining the most important key points.`,
   },

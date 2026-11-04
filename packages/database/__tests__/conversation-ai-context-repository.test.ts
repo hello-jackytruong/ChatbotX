@@ -5,6 +5,7 @@ describe("findConversationAIContextState", () => {
   test("scopes the state read by conversation and workspace", async () => {
     const state = {
       aiContextLastMessageId: "10",
+      aiContextRevision: 2,
       lastActivityAt: new Date("2026-06-01T00:00:00Z"),
     }
     const findFirst = vi.fn().mockResolvedValue(state)
@@ -20,6 +21,7 @@ describe("findConversationAIContextState", () => {
       where: { id: "conv-1", workspaceId: "ws-1" },
       columns: {
         aiContextLastMessageId: true,
+        aiContextRevision: true,
         lastActivityAt: true,
       },
     })
