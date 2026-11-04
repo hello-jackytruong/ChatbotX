@@ -34,6 +34,7 @@ import { commentAutomationRelations } from "./comment-automation"
 import { commentAutomationEventRelations } from "./comment-automation-event"
 import { commentAutomationMissRelations } from "./comment-automation-miss"
 import { commentAutomationReplyRelations } from "./comment-automation-reply"
+import { commentModerationLogRelations } from "./comment-moderation-log"
 import { connectSessionRelations } from "./connect-session"
 import { connectionRelations } from "./connection"
 import { contactRelations } from "./contact"
@@ -138,6 +139,7 @@ import { miniAppRelations } from "./mini-app"
 import { minigameRelations } from "./minigame"
 import { minigameContactRelations } from "./minigame-contact"
 import { minigamePlayRelations } from "./minigame-play"
+import { mobileRefreshTokenRelations } from "./mobile-refresh-token"
 import { oauthAccessTokenRelations } from "./oauth-access-token"
 import { oauthClientRelations } from "./oauth-client"
 import { oauthClientAssertionRelations } from "./oauth-client-assertion"
@@ -273,6 +275,7 @@ export const relations = {
   ...commentAutomationEventRelations,
   ...commentAutomationMissRelations,
   ...commentAutomationReplyRelations,
+  ...commentModerationLogRelations,
   ...auditLogRelations,
   ...sessionRelations,
   ...oauthAccessTokenRelations,
@@ -359,6 +362,7 @@ export const relations = {
   ...coexistSyncRunRelations,
   ...userPersistentMenuRelations,
   ...userDeviceTokenRelations,
+  ...mobileRefreshTokenRelations,
   ...whatsappSignupSessionRelations,
   ...automationThrottleRelations,
   ...miniAppRelations,

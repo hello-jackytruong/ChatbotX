@@ -45,7 +45,7 @@ describe("AddAction allowedTypes", () => {
 
     expect(labels).toContain("trigger.actions.sendMetaCapiEvent")
     expect(labels).toContain("trigger.actions.addTag")
-    expect(labels).toHaveLength(11)
+    expect(labels).toHaveLength(13)
     expect(labels).toContain("flows.actions.pipeline")
     expect(labels).toContain("trigger.actions.startExternalStep")
   })
@@ -53,19 +53,21 @@ describe("AddAction allowedTypes", () => {
   test("offers only the allowlisted actions", () => {
     const labels = openMenuLabels(["addTag", "startAnotherFlow"])
 
-    // The allowlist never reorders: it keeps the picker's (Chatrace) order.
+    // The allowlist never reorders: it keeps the picker's reference order.
     expect(labels).toEqual([
       "trigger.actions.startAnotherFlow",
       "trigger.actions.addTag",
     ])
   })
 
-  test("lists the actions in Chatrace's order, ChatbotX-only ones last", () => {
+  test("lists the actions in the reference order, ChatbotX-only ones last", () => {
     expect(openMenuLabels()).toEqual([
       "trigger.actions.startAnotherFlow",
       "trigger.actions.startExternalStep",
       "trigger.actions.addTag",
       "trigger.actions.removeTag",
+      "flows.actions.subscribeSequence",
+      "flows.actions.unsubscribeSequence",
       "trigger.actions.setCustomField",
       "trigger.actions.clearCustomField",
       "trigger.actions.transferConversationToHuman",

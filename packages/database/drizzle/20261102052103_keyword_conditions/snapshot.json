@@ -1,10 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "ba346cc6-254b-4b46-ae94-b3915f35ce4c",
+  "id": "14b31a82-653a-4bbf-9259-ccae3ddc4cd9",
   "prevIds": [
-    "036b70c6-a19a-4da2-b472-ae1d16b9b487",
-    "3a7146c5-4546-4adb-9740-ac0e4fddfdfb"
+    "036b70c6-a19a-4da2-b472-ae1d16b9b487"
   ],
   "ddl": [
     {
@@ -383,8 +382,7 @@
     {
       "values": [
         "coexist",
-        "contact_scan",
-        "backfill"
+        "contact_scan"
       ],
       "name": "coexistRunType",
       "entityType": "enums",
@@ -1109,29 +1107,6 @@
         "publishFailed"
       ],
       "name": "messagingAdPublishState",
-      "entityType": "enums",
-      "schema": "public"
-    },
-    {
-      "values": [
-        "pancake",
-        "meta",
-        "pancakeThenMeta"
-      ],
-      "name": "messengerProfileBackfillPolicy",
-      "entityType": "enums",
-      "schema": "public"
-    },
-    {
-      "values": [
-        "init",
-        "running",
-        "succeeded",
-        "partial",
-        "failed",
-        "cancelled"
-      ],
-      "name": "messengerProfileBackfillStatus",
       "entityType": "enums",
       "schema": "public"
     },
@@ -2452,18 +2427,6 @@
     {
       "isRlsEnabled": false,
       "name": "MessengerMessageTemplate",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "MessengerPancakeCredential",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "MessengerProfileBackfillRun",
       "entityType": "tables",
       "schema": "public"
     },
@@ -10160,19 +10123,6 @@
       "default": "0",
       "generated": null,
       "identity": null,
-      "name": "skippedUnavailableCount",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
       "name": "failedCount",
       "entityType": "columns",
       "schema": "public",
@@ -10317,71 +10267,6 @@
       "generated": null,
       "identity": null,
       "name": "resumeCursor",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "rangeFromAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "rangeToAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "includeContacts",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "includeMessages",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "cancelRequestedAt",
       "entityType": "columns",
       "schema": "public",
       "table": "CoexistSyncRun"
@@ -17855,19 +17740,6 @@
       "table": "UserQuota"
     },
     {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "customAppCredentials",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "UserQuota"
-    },
-    {
       "type": "text",
       "typeSchema": null,
       "notNull": false,
@@ -24446,19 +24318,6 @@
       "table": "IntegrationMessenger"
     },
     {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "lastAutoBackfillAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "IntegrationMessenger"
-    },
-    {
       "type": "bigint",
       "typeSchema": null,
       "notNull": false,
@@ -28968,370 +28827,6 @@
       "entityType": "columns",
       "schema": "public",
       "table": "MessengerMessageTemplate"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "createdAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updatedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "workspaceId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "integrationMessengerId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "encryptedToken",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "verifiedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "updatedByUserId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "createdAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updatedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "workspaceId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "integrationMessengerId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "requestedByUserId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "messengerProfileBackfillPolicy",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'pancake'",
-      "generated": null,
-      "identity": null,
-      "name": "policy",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "overwriteExisting",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "messengerProfileBackfillStatus",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'init'",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "cursorContactInboxId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "currentScan",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "updatedCount",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "avatarCount",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "skippedCount",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "failedCount",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "currentError",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "startedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "finishedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "lastHeartbeatAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "cancelRequestedAt",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
     },
     {
       "type": "bigint",
@@ -45870,62 +45365,6 @@
       "nameExplicit": true,
       "columns": [
         {
-          "value": "integrationId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": "type = 'backfill' AND status IN ('init', 'running')",
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "CoexistSyncRun_backfill_active_uq",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "type",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "status",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "createdAt",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": "type = 'backfill'",
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "CoexistSyncRun_backfill_due_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "CoexistSyncRun"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
           "value": "workspaceId",
           "isExpression": false,
           "asc": true,
@@ -53611,153 +53050,6 @@
       "entityType": "indexes",
       "schema": "public",
       "table": "MessengerMessageTemplate"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "workspaceId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerPancakeCredential_workspaceId_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "integrationMessengerId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerPancakeCredential_integrationMessengerId_key",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "updatedByUserId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": "\"updatedByUserId\" IS NOT NULL",
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerPancakeCredential_updatedByUserId_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "workspaceId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerProfileBackfillRun_workspace_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "integrationMessengerId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerProfileBackfillRun_integration_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "requestedByUserId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": "\"requestedByUserId\" IS NOT NULL",
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerProfileBackfillRun_requestedByUserId_idx",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "integrationMessengerId",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": "\"status\" IN ('init', 'running')",
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "MessengerProfileBackfillRun_active_uq",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
     },
     {
       "nameExplicit": true,
@@ -65472,108 +64764,6 @@
       ],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
-      "name": "MessengerPancakeCredential_workspaceId_Workspace_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "integrationMessengerId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "IntegrationMessenger",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "CASCADE",
-      "name": "MessengerPancakeCredential_KBdgiNAEJ2Vs_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "updatedByUserId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "SET NULL",
-      "name": "MessengerPancakeCredential_updatedByUserId_User_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerPancakeCredential"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "workspaceId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "Workspace",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "CASCADE",
-      "name": "MessengerProfileBackfillRun_workspaceId_Workspace_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "integrationMessengerId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "IntegrationMessenger",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "CASCADE",
-      "name": "MessengerProfileBackfillRun_mT0OEi4d88M6_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "requestedByUserId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "SET NULL",
-      "name": "MessengerProfileBackfillRun_requestedByUserId_User_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "workspaceId"
-      ],
-      "schemaTo": "public",
-      "tableTo": "Workspace",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "CASCADE",
       "name": "MessengerWelcomeMessageFlow_workspaceId_Workspace_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -67121,7 +66311,7 @@
       ],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
-      "name": "PlatformCredential_userId_User_id_fkey",
+      "name": "Credential_userId_User_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "PlatformCredential"
@@ -68878,7 +68068,7 @@
       ],
       "onUpdate": "CASCADE",
       "onDelete": "RESTRICT",
-      "name": "Workspace_ownerId_User_id_fkey",
+      "name": "Workspace_userId_User_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "Workspace"
@@ -70604,26 +69794,6 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "MessengerPancakeCredential_pkey",
-      "schema": "public",
-      "table": "MessengerPancakeCredential",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "MessengerProfileBackfillRun_pkey",
-      "schema": "public",
-      "table": "MessengerProfileBackfillRun",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
       "name": "MessengerWelcomeMessageFlow_pkey",
       "schema": "public",
       "table": "MessengerWelcomeMessageFlow",
@@ -70954,7 +70124,7 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "PlatformCredential_pkey",
+      "name": "Credential_pkey",
       "schema": "public",
       "table": "PlatformCredential",
       "entityType": "pks"

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
 import { readdir, readFile } from "node:fs/promises"
 import { dirname, resolve, sep } from "node:path"
-import { db, sql } from "@chatbotx.io/database/client"
+import { contactService } from "@chatbotx.io/business"
 import { uploader } from "@chatbotx.io/filesystem"
 import pLimit from "p-limit"
 
@@ -17,14 +17,9 @@ class AvatarSourceError extends Error {
   }
 }
 
-type AvatarCandidate = {
-  contactId: string
-  inboxId: string
-  lastMessageAt: Date | string | null
-  pageId: string
-  psid: string
-  workspaceId: string
-}
+type AvatarCandidate = Awaited<
+  ReturnType<typeof contactService.listMessengerAvatarBackfillCandidates>
+>[number]
 
 type Options = {
   concurrency: number
@@ -195,28 +190,11 @@ const fetchAvatar = async (
 }
 
 const loadCandidates = async (options: Options): Promise<AvatarCandidate[]> => {
-  const result = await db.execute<AvatarCandidate>(sql`
-    SELECT DISTINCT ON (c.id)
-      c.id::text AS "contactId",
-      c."workspaceId"::text AS "workspaceId",
-      ci."inboxId"::text AS "inboxId",
-      ci."sourceId" AS psid,
-      ci."lastMessageAt" AS "lastMessageAt",
-      i."sourceId" AS "pageId"
-    FROM "ContactInbox" ci
-    INNER JOIN "Contact" c ON c.id = ci."contactId"
-    INNER JOIN "Inbox" i ON i.id = ci."inboxId"
-    WHERE i.channel = 'messenger'
-      AND (
-        c.avatar IS NULL
-        OR c.avatar = ''
-        OR c.avatar LIKE 'public/img/no_avatar.jpg?time=%'
-      )
-      AND (${options.pageId ?? null}::text IS NULL OR i."sourceId" = ${options.pageId ?? null})
-    ORDER BY c.id, ci."lastMessageAt" DESC NULLS LAST
-  `)
+  const result = await contactService.listMessengerAvatarBackfillCandidates({
+    pageId: options.pageId,
+  })
 
-  const sorted = [...result.rows].sort((left, right) => {
+  const sorted = [...result].sort((left, right) => {
     const leftTime = left.lastMessageAt
       ? new Date(left.lastMessageAt).getTime()
       : 0
@@ -250,20 +228,11 @@ const backfillOne = async (
     ContentType: contentType,
   })
 
-  const updated = await db.execute<{ id: string }>(sql`
-    UPDATE "Contact"
-    SET avatar = ${objectPath}, "updatedAt" = NOW()
-    WHERE id = ${candidate.contactId}
-      AND "workspaceId" = ${candidate.workspaceId}
-      AND (
-        avatar IS NULL
-        OR avatar = ''
-        OR avatar LIKE 'public/img/no_avatar.jpg?time=%'
-      )
-    RETURNING id::text AS id
-  `)
-
-  return updated.rows.length > 0
+  return contactService.setAvatarIfEmptyOrSentinel({
+    workspaceId: candidate.workspaceId,
+    contactId: candidate.contactId,
+    avatar: objectPath,
+  })
 }
 
 const main = async () => {

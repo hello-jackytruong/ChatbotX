@@ -6,6 +6,8 @@ export type IntegrationApiModel = typeof schema.integrationApiModel.$inferSelect
 export type UserModel = typeof schema.userModel.$inferSelect
 export type UserDeviceTokenModel =
   typeof schema.userDeviceTokenModel.$inferSelect
+export type MobileRefreshTokenModel =
+  typeof schema.mobileRefreshTokenModel.$inferSelect
 export type AIAgentModel = typeof schema.aiAgentModel.$inferSelect
 export type AIFunctionModel = typeof schema.aiFunctionModel.$inferSelect
 export type AIMCPServerModel = typeof schema.aiMCPServerModel.$inferSelect
@@ -194,6 +196,10 @@ export type CommentAutomationMissModel =
   typeof schema.commentAutomationMissModel.$inferSelect
 export type CommentAutomationMissInsert =
   typeof schema.commentAutomationMissModel.$inferInsert
+export type CommentModerationLogModel =
+  typeof schema.commentModerationLogModel.$inferSelect
+export type CommentModerationLogInsert =
+  typeof schema.commentModerationLogModel.$inferInsert
 export type IgStoryAutomationModel =
   typeof schema.igStoryAutomationModel.$inferSelect
 export type AuditLogModel = typeof schema.auditLogModel.$inferSelect

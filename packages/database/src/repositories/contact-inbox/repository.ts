@@ -10,6 +10,7 @@ import {
   exists,
   getTableColumns,
   inArray,
+  isNotNull,
   isNull,
   lt,
   or,
@@ -67,6 +68,15 @@ export type WhatsappCtwaInboxRow = {
 
 export type WhatsappCtwaInboxByContactRow = WhatsappCtwaInboxRow & {
   contactId: string
+}
+
+export type MessengerAvatarBackfillCandidate = {
+  contactId: string
+  inboxId: string
+  lastMessageAt: Date | null
+  pageId: string
+  psid: string
+  workspaceId: string
 }
 
 export type AdEligibleInboxChannel = Extract<
@@ -987,6 +997,43 @@ export const contactInboxRepository = {
         sql`${contactInboxModel.lastMessageAt} DESC NULLS LAST`,
         sql`${contactInboxModel.id} DESC`,
       )
+  },
+
+  /** Most recently active Messenger identity for contacts without an avatar. */
+  async listMessengerAvatarBackfillCandidates(
+    input: { pageId?: string },
+    tx: DatabaseClient = db,
+  ): Promise<MessengerAvatarBackfillCandidate[]> {
+    return (await tx
+      .selectDistinctOn([contactModel.id], {
+        contactId: contactModel.id,
+        workspaceId: contactModel.workspaceId,
+        inboxId: contactInboxModel.inboxId,
+        psid: contactInboxModel.sourceId,
+        lastMessageAt: contactInboxModel.lastMessageAt,
+        pageId: inboxModel.sourceId,
+      })
+      .from(contactInboxModel)
+      .innerJoin(contactModel, eq(contactModel.id, contactInboxModel.contactId))
+      .innerJoin(inboxModel, eq(inboxModel.id, contactInboxModel.inboxId))
+      .where(
+        and(
+          eq(inboxModel.channel, "messenger"),
+          or(
+            isNull(contactModel.avatar),
+            eq(contactModel.avatar, ""),
+            sql`${contactModel.avatar} LIKE ${"public/img/no_avatar.jpg?time=%"}`,
+          ),
+          isNotNull(contactInboxModel.sourceId),
+          isNotNull(inboxModel.sourceId),
+          ...(input.pageId ? [eq(inboxModel.sourceId, input.pageId)] : []),
+        ),
+      )
+      .orderBy(
+        contactModel.id,
+        sql`${contactInboxModel.lastMessageAt} DESC NULLS LAST`,
+        sql`${contactInboxModel.id} DESC`,
+      )) as MessengerAvatarBackfillCandidate[]
   },
 
   /**
