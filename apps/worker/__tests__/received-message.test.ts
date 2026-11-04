@@ -313,6 +313,9 @@ const mockEnqueueStoredImageOptimizations = vi.hoisted(() =>
 const mockWithResolvedAttachmentUrls = vi.hoisted(() =>
   vi.fn(async (message: unknown) => message),
 )
+const mockUpdateMessageSourceId = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({ id: "msg-created" }),
+)
 
 vi.mock("@chatbotx.io/business", () => ({
   productMessageService: {
@@ -320,6 +323,7 @@ vi.mock("@chatbotx.io/business", () => ({
   },
   messageService: {
     withResolvedAttachmentUrls: mockWithResolvedAttachmentUrls,
+    updateSourceId: mockUpdateMessageSourceId,
   },
   commentAutomationService: {
     reserveLiveCommentWindow: mockReserveLiveCommentWindow,
@@ -908,6 +912,7 @@ describe("receiveMessage — message repository branch", () => {
     })
     mockWorkspaceIsActiveNow.mockReturnValue(true)
     mockMarkReadByOutbound.mockResolvedValue(true)
+    mockUpdateMessageSourceId.mockResolvedValue({ id: "msg-created" })
   })
 
   test("calls repository.createOrUpdate() when message has no attachments", async () => {
@@ -1689,7 +1694,9 @@ describe("receiveMessage — message repository branch", () => {
         messageType: "outgoing",
         text: undefined,
         contentType: "image",
-        attachments: [{ url: "https://cdn.example/echo.jpg", type: "image" }],
+        attachments: [
+          { url: "https://cdn.example/echo.jpg", fileType: "image" },
+        ],
       },
       contact: { sourceId: "psid-123", firstName: "Test" },
       postbackAction: null,
@@ -1794,15 +1801,16 @@ describe("receiveMessage — message repository branch", () => {
     })
   })
 
-  test("skips activity and mark-read for matching text with no provider source id", async () => {
+  test("reconciles a fast provider echo into the pending own-send row without inserting a duplicate", async () => {
     const matchingOwnSend = {
       id: "msg-chatbotx-send",
       sourceId: null,
       text: fakeCreatedMessage.text,
+      attachments: [],
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+      workspaceId: "ws-1",
     }
-    mockFindLastByConversation
-      .mockResolvedValueOnce([matchingOwnSend])
-      .mockResolvedValueOnce([matchingOwnSend])
+    mockFindLastByConversation.mockResolvedValueOnce([matchingOwnSend])
     mockRunChannelHandler.mockResolvedValue({
       message: {
         ...baseIncomingMessage,
@@ -1821,12 +1829,13 @@ describe("receiveMessage — message repository branch", () => {
 
     await receiveMessage(baseProps)
 
-    expect(mockCreateOrUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: expect.any(String),
-        messageType: "outgoing",
-      }),
-    )
+    expect(mockUpdateMessageSourceId).toHaveBeenCalledWith({
+      id: matchingOwnSend.id,
+      sourceId: baseIncomingMessage.sourceId,
+      workspaceId: "ws-1",
+      createdAt: matchingOwnSend.createdAt,
+    })
+    expect(mockCreateOrUpdate).not.toHaveBeenCalled()
     expect(mockRecordInboundActivity).not.toHaveBeenCalled()
     expect(mockInvalidateTracking).not.toHaveBeenCalled()
     expect(mockMarkReadByOutbound).not.toHaveBeenCalled()
@@ -1834,6 +1843,37 @@ describe("receiveMessage — message repository branch", () => {
       "ws-1",
       expect.objectContaining({ eventType: "messageCreated" }),
     )
+  })
+
+  test("retries instead of inserting an echo when pending-row reconciliation fails", async () => {
+    const error = new Error("source id update failed")
+    mockFindLastByConversation.mockResolvedValueOnce([
+      {
+        id: "msg-chatbotx-send",
+        sourceId: null,
+        text: fakeCreatedMessage.text,
+        attachments: [],
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        workspaceId: "ws-1",
+      },
+    ])
+    mockUpdateMessageSourceId.mockRejectedValueOnce(error)
+    mockRunChannelHandler.mockResolvedValue({
+      message: {
+        ...baseIncomingMessage,
+        messageType: "outgoing",
+        attachments: [],
+      },
+      contact: { sourceId: "psid-123", firstName: "Test" },
+      postbackAction: null,
+      quickReplyAction: null,
+      ref: null,
+    })
+
+    await expect(receiveMessage(baseProps)).rejects.toThrow(error)
+
+    expect(mockCreateOrUpdate).not.toHaveBeenCalled()
+    expect(mockRecordInboundActivity).not.toHaveBeenCalled()
   })
 
   test("does not mark the conversation read for a duplicate outgoing echo", async () => {
@@ -1855,7 +1895,7 @@ describe("receiveMessage — message repository branch", () => {
 
     await receiveMessage(baseProps)
 
-    expect(mockFindLastByConversation).not.toHaveBeenCalled()
+    expect(mockFindLastByConversation).toHaveBeenCalledTimes(1)
     expect(mockRecordInboundActivity).not.toHaveBeenCalled()
     expect(mockMarkReadByOutbound).not.toHaveBeenCalled()
   })
@@ -1916,9 +1956,9 @@ describe("receiveMessage — message repository branch", () => {
         err: error,
         workspaceId: "ws-1",
         conversationId: "conv-1",
-        messageId: fakeCreatedMessage.id,
+        sourceId: baseIncomingMessage.sourceId,
       },
-      "Unable to match outgoing echo to an own send",
+      "Unable to reconcile outgoing echo with a pending own send",
     )
   })
 

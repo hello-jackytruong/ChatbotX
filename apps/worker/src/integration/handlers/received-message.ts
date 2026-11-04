@@ -1124,9 +1124,14 @@ const isEchoOfOwnSend = async (
  * the attachment file-type signature instead (never on `null === null`, which
  * would pair unrelated media rows).
  */
+type OwnSendContent = {
+  text: string | null
+  attachments: Pick<AttachmentModel, "fileType">[]
+}
+
 const isSameOwnSendContent = (
-  candidate: MessageWithAttachments,
-  message: MessageWithAttachments,
+  candidate: OwnSendContent,
+  message: OwnSendContent,
 ): boolean => {
   if (candidate.text !== null || message.text !== null) {
     return candidate.text !== null && candidate.text === message.text
@@ -1145,6 +1150,32 @@ const attachmentSignature = (
     .map((attachment) => attachment.fileType)
     .sort()
     .join(",")
+
+const findPendingOwnSend = async ({
+  repository,
+  conversation,
+  content,
+}: {
+  repository: IMessageRepository
+  conversation: ConversationModel
+  content: OwnSendContent
+}): Promise<MessageWithAttachments | undefined> => {
+  const recentOutgoing = await repository.findLastByConversation(
+    conversation.id,
+    {
+      limit: SELF_SENT_ECHO_LOOKBACK,
+      messageTypes: ["outgoing"],
+      sinceTime: new Date(Date.now() - SELF_SENT_ECHO_WINDOW_MS),
+      withAttachments: true,
+      workspaceId: conversation.workspaceId,
+    },
+  )
+
+  return recentOutgoing.find(
+    (candidate) =>
+      candidate.sourceId === null && isSameOwnSendContent(candidate, content),
+  )
+}
 
 // Creates or updates the message row (deduplicates webhook retries via sourceId),
 // updates contactInbox/conversation activity timestamps for new rows,
@@ -1388,6 +1419,60 @@ const persistMessage = async (
     workspaceId: inbox.workspaceId,
     conversationId: conversation.id,
   })
+
+  const isOutgoingDirectMessageEcho =
+    !inbound && (incomingMessage.type ?? "message") === "message"
+  let canMarkReadByEcho = true
+
+  // ChatbotX writes its local outgoing row before calling the provider. A
+  // provider echo can arrive before the send worker has attached the provider
+  // source id to that row. Reconcile that race before the echo is inserted;
+  // otherwise TimescaleDB legitimately keeps both rows because their
+  // partitioning `createdAt` values differ.
+  if (isOutgoingDirectMessageEcho && incomingMessage.sourceId) {
+    let pendingOwnSend: MessageWithAttachments | undefined
+    try {
+      pendingOwnSend = await findPendingOwnSend({
+        repository,
+        conversation,
+        content: {
+          text: messageInput.text ?? null,
+          attachments: attachmentInputs,
+        },
+      })
+    } catch (err) {
+      canMarkReadByEcho = false
+      logger.warn(
+        {
+          err,
+          workspaceId: inbox.workspaceId,
+          conversationId: conversation.id,
+          sourceId: incomingMessage.sourceId,
+        },
+        "Unable to reconcile outgoing echo with a pending own send",
+      )
+    }
+    if (pendingOwnSend) {
+      // Do not catch a failed update and continue to insert: retrying is safer
+      // than recreating the exact duplicate this reconciliation prevents.
+      const updated = await messageService.updateSourceId({
+        id: pendingOwnSend.id,
+        sourceId: incomingMessage.sourceId,
+        workspaceId: inbox.workspaceId,
+        createdAt: pendingOwnSend.createdAt,
+      })
+      if (updated) {
+        return {
+          message: {
+            ...pendingOwnSend,
+            sourceId: incomingMessage.sourceId,
+          },
+          isNew: false,
+        }
+      }
+    }
+  }
+
   const { message, isNew } = await upsertMessage({
     repository,
     messageInput,
@@ -1400,33 +1485,7 @@ const persistMessage = async (
       workspaceId: inbox.workspaceId,
     })
   }
-
-  let isOwnSendEcho = false
-  let canMarkReadByEcho = true
-  const isOutgoingDirectMessageEcho =
-    !inbound && (incomingMessage.type ?? "message") === "message"
-
-  if (isNew && isOutgoingDirectMessageEcho) {
-    try {
-      isOwnSendEcho = await isEchoOfOwnSend(
-        { conversation, message },
-        { pendingOnly: true },
-      )
-    } catch (err) {
-      canMarkReadByEcho = false
-      logger.warn(
-        {
-          err,
-          workspaceId: inbox.workspaceId,
-          conversationId: conversation.id,
-          messageId: message.id,
-        },
-        "Unable to match outgoing echo to an own send",
-      )
-    }
-  }
-
-  if (isNew && !isOwnSendEcho) {
+  if (isNew) {
     await persistNewMessageSideEffects({ ...props, message })
 
     if (isOutgoingDirectMessageEcho && canMarkReadByEcho && !props.keepUnread) {
@@ -1447,7 +1506,7 @@ const persistMessage = async (
     }
   }
 
-  if (isNew && !isOwnSendEcho) {
+  if (isNew) {
     // The client renders `attachment.url` as-is, so resolve it here: a
     // lazily-ingested attachment is a provider URL that must go through the
     // media proxy (which also stores it), never be hotlinked from `originPath`.

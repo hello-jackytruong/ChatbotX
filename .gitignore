@@ -45,6 +45,7 @@ yarn-error.log*
 *.pem
 *.key
 .secrets/
+.local-data/
 .idea/
 .windsurf/skills
 
