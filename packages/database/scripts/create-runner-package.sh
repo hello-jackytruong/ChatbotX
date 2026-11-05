@@ -54,11 +54,22 @@ case "$cmd" in
   migrate)
     drizzle="$(installed_version drizzle-orm)"
     pgver="$(installed_version pg)"
+    pino_manifest="$pkgDir/../logger/node_modules/pino/package.json"
+    if [[ ! -f "$pino_manifest" ]]; then
+      echo "pino is not installed: $pino_manifest not found (run pnpm install first)" >&2
+      exit 1
+    fi
+    pino="$(jq -r '.version // empty' "$pino_manifest")"
+    if [[ -z "$pino" || "$pino" == *:* ]]; then
+      echo "pino has no concrete version in $pino_manifest (got '${pino}')" >&2
+      exit 1
+    fi
     jq -n --indent 2 \
       --arg name "@chatbotx.io/database-migrate-runner" \
       --arg drizzle "$drizzle" \
       --arg pg "$pgver" \
-      '{name: $name, private: true, type: "module", dependencies: {"drizzle-orm": $drizzle, pg: $pg}}'
+      --arg pino "$pino" \
+      '{name: $name, private: true, type: "module", dependencies: {"drizzle-orm": $drizzle, pg: $pg, pino: $pino}}'
     ;;
   seed)
     pgver="$(installed_version pg)"
