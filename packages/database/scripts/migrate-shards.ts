@@ -18,7 +18,9 @@ import {
 } from "../src/sharding/message/shard-migration-runner"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const migrationsDir = resolve(__dirname, "../src/sharding/migrations")
+const migrationsDir =
+  process.env.CHATBOTX_SHARD_MIGRATIONS_DIR ??
+  resolve(__dirname, "../src/sharding/migrations")
 
 async function loadMigrations(): Promise<ShardMigration[]> {
   let files: string[]
@@ -64,7 +66,7 @@ async function main(): Promise<void> {
   )
 
   const runner = new ShardMigrationRunner(db)
-  await runner.runPendingMigrations(migrations)
+  await runner.runPendingMigrations(migrations, { failOnUnavailable: true })
 
   console.log("\nAll shard migrations complete.")
 }

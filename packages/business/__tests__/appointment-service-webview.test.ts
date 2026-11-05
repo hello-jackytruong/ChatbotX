@@ -72,6 +72,7 @@ vi.mock("@chatbotx.io/redis", async (importOriginal) => ({
 }))
 
 vi.mock("@chatbotx.io/worker-config", () => ({
+  PURGE_WORKSPACES_INTERVAL_MINUTES: 30,
   ChatJobAction: {
     sendChatMessage: "sendChatMessage",
   },

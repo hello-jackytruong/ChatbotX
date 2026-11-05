@@ -155,6 +155,17 @@ export class MessageShardConnectionManager {
     return this.getShardClient(shards[idx] ?? shards[0])
   }
 
+  async getAllShardClients(): Promise<MessageShardDatabaseClient[]> {
+    const shards = await this.registry.listAll()
+    if (shards.length === 0) {
+      return [this.mainDbShardClient]
+    }
+    const clients = await Promise.all(
+      shards.map((shard) => this.getShardClient(shard)),
+    )
+    return [...new Set(clients)]
+  }
+
   async getActiveShardForWrite(): Promise<MessageShardDatabaseClient> {
     const shards = await this.getActiveShardsForWrite()
     if (shards.length === 0) {
