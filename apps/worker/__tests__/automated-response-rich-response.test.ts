@@ -397,6 +397,7 @@ describe("replyByAI — rich mode routing", () => {
         responseType: "ai_agent",
         workspaceId: baseProps.conversation.workspaceId,
       }),
+      { jobId: "ai-reply-msg-trigger-1" },
     )
     expect(sendRichMessagesMock).not.toHaveBeenCalled()
     expect(executeRichActionsMock).not.toHaveBeenCalled()
