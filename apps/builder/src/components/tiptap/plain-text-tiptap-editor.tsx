@@ -291,7 +291,7 @@ export const PlainTextTiptapEditor = ({
     : "text-white"
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0 max-w-full">
       <EditorContent editor={tiptapEditor} />
 
       <div className={iconBarClassName}>

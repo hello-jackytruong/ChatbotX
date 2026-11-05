@@ -60,6 +60,10 @@
 }
 
 .tiptap.tiptap-plain-text {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 

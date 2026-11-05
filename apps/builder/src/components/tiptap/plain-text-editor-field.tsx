@@ -66,7 +66,7 @@ export const PlainTextEditorField = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("w-full", formItemClassName)}>
+        <FormItem className={cn("w-full min-w-0", formItemClassName)}>
           {label ? (
             <FormLabel className="flex gap-1">
               {label}

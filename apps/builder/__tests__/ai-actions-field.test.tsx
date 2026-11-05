@@ -23,10 +23,10 @@ vi.mock("next-intl", () => ({
     },
 }))
 
-vi.mock("@chatbotx.io/ui/components/form/input-field", () => ({
-  InputField: ({ name, ...props }: { name: string }) => {
+vi.mock("@chatbotx.io/ui/components/form/textarea-field", () => ({
+  TextareaField: ({ name, ...props }: { name: string }) => {
     const { field } = useController({ name })
-    return <input {...field} {...props} />
+    return <textarea {...field} {...props} />
   },
 }))
 
@@ -251,10 +251,10 @@ describe("AIActionsField", () => {
     act(() => addRule?.click())
 
     expect(
-      container.querySelector('input[name="actionRules.0.when"]'),
+      container.querySelector('textarea[name="actionRules.0.when"]'),
     ).toBeNull()
     expect(
-      container.querySelector('input[name="actionRules.1.when"]'),
+      container.querySelector('textarea[name="actionRules.1.when"]'),
     ).not.toBeNull()
   })
 
