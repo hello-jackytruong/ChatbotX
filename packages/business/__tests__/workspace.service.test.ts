@@ -38,7 +38,9 @@ vi.mock("@chatbotx.io/database/client", () => ({
   eq: vi.fn((field: unknown, value: unknown) => ({ field, value })),
   isNull: vi.fn(),
 }))
-vi.mock("@chatbotx.io/database/schema", () => ({
+vi.mock("@chatbotx.io/database/schema", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  contactInboxModel: {},
   workspaceModel: {},
   workspaceUsageModel: { workspaceId: "workspaceId-column" },
   ROOT_TENANT_ID: "1",
