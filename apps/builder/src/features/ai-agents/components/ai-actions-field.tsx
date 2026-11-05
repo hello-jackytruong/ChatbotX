@@ -223,14 +223,14 @@ function AIAgentActionRuleEditor({
   })
 
   return (
-    <AccordionItem className="rounded-md border px-3" value={ruleId}>
-      <div className="flex items-center gap-2">
+    <AccordionItem className="min-w-0 rounded-md border px-3" value={ruleId}>
+      <div className="flex min-w-0 items-center gap-2">
         <div className="min-w-0 flex-1">
           <AccordionTrigger
-            className="py-3 hover:no-underline"
+            className="w-full min-w-0 py-3 hover:no-underline"
             data-testid={`ai-action-rule-trigger-${ruleIndex}`}
           >
-            <span className="truncate">
+            <span className="min-w-0 flex-1 truncate">
               {when || tGlobal("condition.valuePlaceholder")}
             </span>
           </AccordionTrigger>
