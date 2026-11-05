@@ -3,6 +3,7 @@ import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -74,5 +75,35 @@ describe("DialogContent mobile width", () => {
     const className = popup()?.className ?? ""
     expect(className).toContain("w-[calc(100%-2rem)]")
     expect(className).not.toMatch(FULL_WIDTH_CLASS)
+  })
+
+  test("keeps viewport and horizontal-overflow guards when callers add scrolling", () => {
+    render("max-h-screen overflow-y-scroll")
+
+    const className = popup()?.className ?? ""
+    expect(className).toContain("max-h-[calc(100dvh-2rem)]!")
+    expect(className).toContain("overflow-x-hidden!")
+    expect(className).toContain("overflow-y-scroll")
+  })
+
+  test("provides a body that owns scrolling in structured dialogs", () => {
+    act(() => {
+      root.render(
+        <Dialog open>
+          <DialogContent className="flex flex-col overflow-hidden">
+            <DialogTitle>Title</DialogTitle>
+            <DialogDescription>Description</DialogDescription>
+            <DialogBody>Long form</DialogBody>
+          </DialogContent>
+        </Dialog>,
+      )
+    })
+
+    const body = document.querySelector<HTMLElement>(
+      '[data-slot="dialog-body"]',
+    )
+    expect(body?.className).toContain("min-h-0")
+    expect(body?.className).toContain("overflow-x-hidden")
+    expect(body?.className).toContain("overflow-y-auto")
   })
 })

@@ -6,8 +6,8 @@ import type {
   AIAgentActionType,
 } from "@chatbotx.io/database/partials"
 import { ComboboxField } from "@chatbotx.io/ui/components/form/combobox-field"
-import { InputField } from "@chatbotx.io/ui/components/form/input-field"
 import { SelectField } from "@chatbotx.io/ui/components/form/select-field"
+import { TextareaField } from "@chatbotx.io/ui/components/form/textarea-field"
 import {
   Accordion,
   AccordionContent,
@@ -257,7 +257,8 @@ function AIAgentActionRuleEditor({
         </div>
       </div>
       <AccordionContent className="flex flex-col gap-4 border-t pt-4 pb-3">
-        <InputField
+        <TextareaField
+          className="min-h-20 resize-y"
           formItemClassName="[&>label]:font-semibold"
           label={t("when")}
           name={`actionRules.${ruleIndex}.when`}
