@@ -13,6 +13,7 @@ import {
   isNotNull,
   isNull,
   lt,
+  lte,
   or,
   type SQL,
   sql,
@@ -23,7 +24,6 @@ import {
   MessageShardUnavailableError,
 } from "../../../errors"
 import { logger } from "../../../logger"
-import { getSafeSinceTime } from "../../../repositories"
 import type {
   AttachmentLookupRow,
   BulkCreateAttachmentInput,
@@ -65,13 +65,25 @@ import {
 import type { MessageShardDatabaseClient } from "../client"
 import type { MessageShardConnectionManager } from "../connection-manager"
 import type { MessageShardTimeRangeInfo } from "../registry"
-import { attachmentModel, messageModel } from "../shard-schema"
+import {
+  attachmentModel,
+  messageModel,
+  messageSourceIdentityModel,
+} from "../shard-schema"
 import {
   withCreatedAt,
   withPrimaryKeyCollisionRecovery,
 } from "./primary-key-collision"
 
 export { getSafeSinceTime } from "../../../repositories"
+
+type MessageShardTransaction = Parameters<
+  Parameters<MessageShardDatabaseClient["transaction"]>[0]
+>[0]
+type SourceIdentityInput = Pick<
+  CreateMessageInput,
+  "workspaceId" | "contactInboxId" | "sourceId" | "createdAt"
+>
 
 const SHARD_RANGE_CACHE_TAG = "message-shard-range"
 const SHARD_RANGE_CACHE_TTL_S = 30
@@ -83,11 +95,7 @@ const ATTACHMENT_FALLBACK_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000
 // touching only the couple of shards that could hold it.
 const ATTACHMENT_SHARD_WINDOW_MS = 24 * 60 * 60 * 1000
 const RICH_RESPONSE_FALLBACK_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000
-// Echo dedup lookback. An outbound message we save is echoed back by the channel
-// (Instagram/Messenger) seconds later carrying the same sourceId (mid). The dedup
-// guard read must look back past the echo's own createdAt to find the already-saved
-// row; a day comfortably covers channel echo latency plus webhook redelivery.
-const ECHO_DEDUP_LOOKBACK_MS = 24 * 60 * 60 * 1000
+const SOURCE_IDENTITY_LEGACY_LOOKBACK_MS = 24 * 60 * 60 * 1000
 const LIST_INCOMING_TEXTS_BATCH_SIZE = 1000
 
 function dedupeShardsByPhysicalId<T extends { shard: { id: string } }>(
@@ -148,6 +156,135 @@ export class ShardedMessageRepository implements IMessageRepository {
 
   private buildLockKey(conversationId: string, sourceId: string): string {
     return `msg:upsert:${conversationId}:${sourceId}`
+  }
+
+  private sourceIdentityWhere(message: SourceIdentityInput) {
+    if (!message.sourceId) {
+      return
+    }
+    return and(
+      eq(messageSourceIdentityModel.workspaceId, message.workspaceId),
+      eq(messageSourceIdentityModel.contactInboxId, message.contactInboxId),
+      eq(messageSourceIdentityModel.sourceId, message.sourceId),
+    )
+  }
+
+  /** Reads the identity registry and legacy Message rows from the write shard. */
+  private async findSourceIdentityOnWriteShard(
+    message: SourceIdentityInput,
+  ): Promise<{ claimed: boolean; message: MessageModel | null }> {
+    if (!message.sourceId) {
+      return { claimed: false, message: null }
+    }
+    const shardDb = await this.shardManager.getShardForWrite(
+      message.workspaceId,
+    )
+    const where = this.sourceIdentityWhere(message)
+    if (!where) {
+      return { claimed: false, message: null }
+    }
+    const [identity] = await shardDb
+      .select()
+      .from(messageSourceIdentityModel)
+      .where(where)
+      .limit(1)
+
+    if (identity) {
+      const [canonical] = await shardDb
+        .select()
+        .from(messageModel)
+        .where(
+          and(
+            eq(messageModel.workspaceId, message.workspaceId),
+            eq(messageModel.id, identity.messageId),
+            matchesCreatedAt(messageModel.createdAt, identity.messageCreatedAt),
+          ),
+        )
+        .limit(1)
+      return { claimed: true, message: (canonical as MessageModel) ?? null }
+    }
+
+    const timestampWindow = message.createdAt
+      ? and(
+          gte(
+            messageModel.createdAt,
+            new Date(
+              message.createdAt.getTime() - SOURCE_IDENTITY_LEGACY_LOOKBACK_MS,
+            ),
+          ),
+          lte(
+            messageModel.createdAt,
+            new Date(
+              message.createdAt.getTime() + SOURCE_IDENTITY_LEGACY_LOOKBACK_MS,
+            ),
+          ),
+        )
+      : undefined
+    const [legacy] = await shardDb
+      .select()
+      .from(messageModel)
+      .where(
+        and(
+          eq(messageModel.workspaceId, message.workspaceId),
+          eq(messageModel.contactInboxId, message.contactInboxId),
+          eq(messageModel.sourceId, message.sourceId),
+          timestampWindow,
+        ),
+      )
+      .orderBy(desc(messageModel.createdAt), desc(messageModel.id))
+      .limit(1)
+
+    return { claimed: false, message: (legacy as MessageModel) ?? null }
+  }
+
+  private async registerExistingSourceIdentity(
+    message: MessageModel,
+  ): Promise<MessageModel> {
+    if (!message.sourceId) {
+      return message
+    }
+    const shardDb = await this.shardManager.getShardForWrite(
+      message.workspaceId,
+    )
+    const input = {
+      workspaceId: message.workspaceId,
+      contactInboxId: message.contactInboxId,
+      sourceId: message.sourceId,
+      id: message.id,
+      createdAt: message.createdAt,
+    }
+    const registered = await shardDb.transaction((tx) =>
+      this.registerSourceIdentity(tx, input),
+    )
+    if (registered) {
+      return message
+    }
+    const resolved = await this.findSourceIdentityOnWriteShard(input)
+    return resolved.message ?? message
+  }
+
+  private async registerSourceIdentity(
+    tx: MessageShardTransaction,
+    message: Pick<
+      CreateMessageInput,
+      "workspaceId" | "contactInboxId" | "sourceId"
+    > & { createdAt: Date; id: string },
+  ): Promise<boolean> {
+    if (!message.sourceId) {
+      return true
+    }
+    const [identity] = await tx
+      .insert(messageSourceIdentityModel)
+      .values({
+        workspaceId: message.workspaceId,
+        contactInboxId: message.contactInboxId,
+        sourceId: message.sourceId,
+        messageId: message.id,
+        messageCreatedAt: message.createdAt,
+      })
+      .onConflictDoNothing()
+      .returning({ sourceId: messageSourceIdentityModel.sourceId })
+    return Boolean(identity)
   }
 
   async invalidateShardRangeCache(): Promise<void> {
@@ -379,6 +516,11 @@ export class ShardedMessageRepository implements IMessageRepository {
   }
 
   create(message: CreateMessageInput): Promise<MessageModel> {
+    if (message.sourceId) {
+      return this.createOrUpdate(message).then(
+        ({ message: created }) => created,
+      )
+    }
     return withPrimaryKeyCollisionRecovery(message, async (input) => {
       const db = await this.shardManager.getShardForWrite(input.workspaceId)
       const [result] = await db
@@ -401,19 +543,63 @@ export class ShardedMessageRepository implements IMessageRepository {
     message: CreateMessageInput,
   ): Promise<MessageModel | null> {
     return withPrimaryKeyCollisionRecovery(message, async (input) => {
-      const db = await this.shardManager.getShardForWrite(input.workspaceId)
-      const [result] = await db
-        .insert(messageModel)
-        .values(input as typeof messageModel.$inferInsert)
-        .onConflictDoNothing({
-          target: [
-            messageModel.contactInboxId,
-            messageModel.sourceId,
-            messageModel.createdAt,
-          ],
-        })
-        .returning()
-      return (result as MessageModel) ?? null
+      const shardDb = await this.shardManager.getShardForWrite(
+        input.workspaceId,
+      )
+      return await shardDb.transaction(async (tx) => {
+        if (
+          input.sourceId &&
+          !(await this.registerSourceIdentity(
+            tx,
+            input as CreateMessageInput & { createdAt: Date; id: string },
+          ))
+        ) {
+          return null
+        }
+
+        const [result] = await tx
+          .insert(messageModel)
+          .values(input as typeof messageModel.$inferInsert)
+          .onConflictDoNothing({
+            target: [
+              messageModel.contactInboxId,
+              messageModel.sourceId,
+              messageModel.createdAt,
+            ],
+          })
+          .returning()
+        if (result) {
+          return result as MessageModel
+        }
+
+        if (input.sourceId) {
+          const [legacy] = await tx
+            .select()
+            .from(messageModel)
+            .where(
+              and(
+                eq(messageModel.workspaceId, input.workspaceId),
+                eq(messageModel.contactInboxId, input.contactInboxId),
+                eq(messageModel.sourceId, input.sourceId),
+                matchesCreatedAt(
+                  messageModel.createdAt,
+                  (input as CreateMessageInput & { createdAt: Date }).createdAt,
+                ),
+              ),
+            )
+            .limit(1)
+          if (legacy) {
+            await tx
+              .update(messageSourceIdentityModel)
+              .set({
+                messageId: legacy.id,
+                messageCreatedAt: legacy.createdAt,
+              })
+              .where(this.sourceIdentityWhere(input))
+          }
+        }
+        return null
+      })
     })
   }
 
@@ -460,34 +646,6 @@ export class ShardedMessageRepository implements IMessageRepository {
     )
   }
 
-  /**
-   * Read the row a dedup conflict proved exists directly from the write shard
-   * (primary). findBySourceId reads replicas, which can still lag right after a
-   * concurrent insert; the write shard is authoritative. Scoped to the same
-   * (contactInboxId, sourceId, createdAt) the unique index rejected — createdAt
-   * is always set on the conflict path (a conflict on that key requires it).
-   */
-  private async findOnWriteShardBySource(
-    message: CreateMessageInput,
-  ): Promise<MessageModel | null> {
-    if (!(message.sourceId && message.createdAt)) {
-      return null
-    }
-    const db = await this.shardManager.getShardForWrite(message.workspaceId)
-    const [row] = await db
-      .select()
-      .from(messageModel)
-      .where(
-        and(
-          eq(messageModel.contactInboxId, message.contactInboxId),
-          eq(messageModel.sourceId, message.sourceId),
-          matchesCreatedAt(messageModel.createdAt, message.createdAt),
-        ),
-      )
-      .limit(1)
-    return (row as MessageModel) ?? null
-  }
-
   async bulkCreate(
     messages: CreateMessageInput[],
   ): Promise<{ id: string; sourceId: string | null }[]> {
@@ -510,20 +668,274 @@ export class ShardedMessageRepository implements IMessageRepository {
 
       for (let i = 0; i < messages.length; i += CHUNK_SIZE) {
         const chunk = messages.slice(i, i + CHUNK_SIZE).map(withCreatedAt)
-        const rows = await shardDb
-          .insert(messageModel)
-          .values(chunk as (typeof messageModel.$inferInsert)[])
-          .onConflictDoNothing({
-            target: [
-              messageModel.contactInboxId,
-              messageModel.sourceId,
-              messageModel.createdAt,
-            ],
-          })
-          .returning({
-            id: messageModel.id,
-            sourceId: messageModel.sourceId,
-          })
+        const rows = await shardDb.transaction(async (tx) => {
+          const sourceMessages = chunk.filter(
+            (message): message is typeof message & { sourceId: string } =>
+              Boolean(message.sourceId),
+          )
+          const keyOf = (contactInboxId: string, sourceId: string) =>
+            `${contactInboxId}\u0000${sourceId}`
+          const knownKeys = new Set<string>()
+          if (sourceMessages.length > 0) {
+            const contactInboxIds = [
+              ...new Set(
+                sourceMessages.map((message) => message.contactInboxId),
+              ),
+            ]
+            const sourceIds = [
+              ...new Set(sourceMessages.map((message) => message.sourceId)),
+            ]
+            const earliestCreatedAt = Math.min(
+              ...sourceMessages.map((message) => message.createdAt.getTime()),
+            )
+            const latestCreatedAt = Math.max(
+              ...sourceMessages.map((message) => message.createdAt.getTime()),
+            )
+            const identities = await tx
+              .select({
+                contactInboxId: messageSourceIdentityModel.contactInboxId,
+                sourceId: messageSourceIdentityModel.sourceId,
+              })
+              .from(messageSourceIdentityModel)
+              .where(
+                and(
+                  eq(messageSourceIdentityModel.workspaceId, workspaceId),
+                  inArray(
+                    messageSourceIdentityModel.contactInboxId,
+                    contactInboxIds,
+                  ),
+                  inArray(messageSourceIdentityModel.sourceId, sourceIds),
+                ),
+              )
+            for (const identity of identities) {
+              knownKeys.add(keyOf(identity.contactInboxId, identity.sourceId))
+            }
+
+            const legacyRows = await tx
+              .select({
+                contactInboxId: messageModel.contactInboxId,
+                sourceId: messageModel.sourceId,
+                id: messageModel.id,
+                createdAt: messageModel.createdAt,
+              })
+              .from(messageModel)
+              .where(
+                and(
+                  eq(messageModel.workspaceId, workspaceId),
+                  inArray(messageModel.contactInboxId, contactInboxIds),
+                  inArray(messageModel.sourceId, sourceIds),
+                  gte(
+                    messageModel.createdAt,
+                    new Date(
+                      earliestCreatedAt - SOURCE_IDENTITY_LEGACY_LOOKBACK_MS,
+                    ),
+                  ),
+                  lte(
+                    messageModel.createdAt,
+                    new Date(
+                      latestCreatedAt + SOURCE_IDENTITY_LEGACY_LOOKBACK_MS,
+                    ),
+                  ),
+                ),
+              )
+            const identityRows = legacyRows.flatMap((row) => {
+              if (!row.sourceId) {
+                return []
+              }
+              const key = keyOf(row.contactInboxId, row.sourceId)
+              if (knownKeys.has(key)) {
+                return []
+              }
+              knownKeys.add(key)
+              return [
+                {
+                  workspaceId,
+                  contactInboxId: row.contactInboxId,
+                  sourceId: row.sourceId,
+                  messageId: row.id,
+                  messageCreatedAt: row.createdAt,
+                },
+              ]
+            })
+            if (identityRows.length > 0) {
+              await tx
+                .insert(messageSourceIdentityModel)
+                .values(identityRows)
+                .onConflictDoNothing()
+            }
+
+            const pendingMatches = sourceMessages.filter(
+              (message) =>
+                message.messageType === "outgoing" &&
+                (message.type ?? "message") === "message" &&
+                Boolean(message.text),
+            )
+            if (pendingMatches.length > 0) {
+              const earliest = Math.min(
+                ...pendingMatches.map((message) => message.createdAt.getTime()),
+              )
+              const latest = Math.max(
+                ...pendingMatches.map((message) => message.createdAt.getTime()),
+              )
+              const pendingRows = await tx
+                .select({
+                  id: messageModel.id,
+                  contactInboxId: messageModel.contactInboxId,
+                  text: messageModel.text,
+                  createdAt: messageModel.createdAt,
+                })
+                .from(messageModel)
+                .where(
+                  and(
+                    eq(messageModel.workspaceId, workspaceId),
+                    inArray(messageModel.contactInboxId, contactInboxIds),
+                    eq(messageModel.messageType, "outgoing"),
+                    eq(messageModel.type, "message"),
+                    isNull(messageModel.sourceId),
+                    inArray(messageModel.text, [
+                      ...new Set(
+                        pendingMatches.map((message) => message.text as string),
+                      ),
+                    ]),
+                    gte(messageModel.createdAt, new Date(earliest - 120_000)),
+                    lte(messageModel.createdAt, new Date(latest + 120_000)),
+                  ),
+                )
+              const usedPendingIds = new Set<string>()
+              const pendingIdentityRows: {
+                createdAt: Date
+                id: string
+                sourceId: string
+              }[] = []
+              for (const historical of pendingMatches) {
+                const key = keyOf(
+                  historical.contactInboxId,
+                  historical.sourceId,
+                )
+                if (knownKeys.has(key)) {
+                  continue
+                }
+                const matchingPending = pendingRows
+                  .filter(
+                    (pending) =>
+                      pending.contactInboxId === historical.contactInboxId &&
+                      pending.text === historical.text &&
+                      !usedPendingIds.has(pending.id),
+                  )
+                  .sort(
+                    (a, b) =>
+                      Math.abs(
+                        a.createdAt.getTime() - historical.createdAt.getTime(),
+                      ) -
+                      Math.abs(
+                        b.createdAt.getTime() - historical.createdAt.getTime(),
+                      ),
+                  )[0]
+                if (!matchingPending) {
+                  continue
+                }
+                const [claim] = await tx
+                  .insert(messageSourceIdentityModel)
+                  .values({
+                    workspaceId,
+                    contactInboxId: historical.contactInboxId,
+                    sourceId: historical.sourceId,
+                    messageId: matchingPending.id,
+                    messageCreatedAt: matchingPending.createdAt,
+                  })
+                  .onConflictDoNothing()
+                  .returning({ sourceId: messageSourceIdentityModel.sourceId })
+                knownKeys.add(key)
+                if (!claim) {
+                  continue
+                }
+                usedPendingIds.add(matchingPending.id)
+                pendingIdentityRows.push({
+                  id: matchingPending.id,
+                  createdAt: matchingPending.createdAt,
+                  sourceId: historical.sourceId,
+                })
+              }
+              for (const pending of pendingIdentityRows) {
+                await tx
+                  .update(messageModel)
+                  .set({ sourceId: pending.sourceId, updatedAt: new Date() })
+                  .where(
+                    and(
+                      eq(messageModel.workspaceId, workspaceId),
+                      eq(messageModel.id, pending.id),
+                      matchesCreatedAt(
+                        messageModel.createdAt,
+                        pending.createdAt,
+                      ),
+                    ),
+                  )
+              }
+            }
+          }
+
+          const uniqueCandidates = new Map<string, (typeof chunk)[number]>()
+          const noSourceIdMessages: (typeof chunk)[number][] = []
+          for (const message of chunk) {
+            if (!message.sourceId) {
+              noSourceIdMessages.push(message)
+              continue
+            }
+            const key = keyOf(message.contactInboxId, message.sourceId)
+            if (!(knownKeys.has(key) || uniqueCandidates.has(key))) {
+              uniqueCandidates.set(key, message)
+            }
+          }
+
+          const candidates = [...uniqueCandidates.values()]
+          const claims =
+            candidates.length > 0
+              ? await tx
+                  .insert(messageSourceIdentityModel)
+                  .values(
+                    candidates.map((message) => ({
+                      workspaceId,
+                      contactInboxId: message.contactInboxId,
+                      sourceId: message.sourceId as string,
+                      messageId: message.id as string,
+                      messageCreatedAt: message.createdAt,
+                    })),
+                  )
+                  .onConflictDoNothing()
+                  .returning({
+                    contactInboxId: messageSourceIdentityModel.contactInboxId,
+                    sourceId: messageSourceIdentityModel.sourceId,
+                  })
+              : []
+          const claimedKeys = new Set(
+            claims.map((claim) => keyOf(claim.contactInboxId, claim.sourceId)),
+          )
+          const messagesToInsert = [
+            ...noSourceIdMessages,
+            ...candidates.filter((message) =>
+              claimedKeys.has(
+                keyOf(message.contactInboxId, message.sourceId as string),
+              ),
+            ),
+          ]
+          if (messagesToInsert.length === 0) {
+            return []
+          }
+          return await tx
+            .insert(messageModel)
+            .values(messagesToInsert as (typeof messageModel.$inferInsert)[])
+            .onConflictDoNothing({
+              target: [
+                messageModel.contactInboxId,
+                messageModel.sourceId,
+                messageModel.createdAt,
+              ],
+            })
+            .returning({
+              id: messageModel.id,
+              sourceId: messageModel.sourceId,
+            })
+        })
         for (const row of rows) {
           inserted.push({ id: row.id, sourceId: row.sourceId })
         }
@@ -531,6 +943,28 @@ export class ShardedMessageRepository implements IMessageRepository {
 
       return inserted
     })
+  }
+
+  async deleteSourceIdentitiesByWorkspace(
+    workspaceId: string,
+    limit: number,
+  ): Promise<number> {
+    const shardClients = await this.shardManager.getAllShardClients()
+    const results = await Promise.all(
+      shardClients.map((shardDb) =>
+        shardDb.execute(sql`
+          DELETE FROM "MessageSourceIdentity"
+          WHERE ctid IN (
+            SELECT ctid
+            FROM "MessageSourceIdentity"
+            WHERE "workspaceId" = ${workspaceId}
+            LIMIT ${limit}
+            FOR UPDATE SKIP LOCKED
+          )
+        `),
+      ),
+    )
+    return results.reduce((total, result) => total + (result.rowCount ?? 0), 0)
   }
 
   updateContentAttributes(
@@ -832,12 +1266,167 @@ export class ShardedMessageRepository implements IMessageRepository {
     workspaceId: string,
     createdAt: Date,
   ): Promise<{ id: string } | null> {
-    return this.updateAcrossShards(
-      id,
-      workspaceId,
-      { sourceId },
-      "updateSourceId",
-      createdAt,
+    return this.assignSourceIdentity({ id, sourceId, workspaceId, createdAt })
+  }
+
+  private async assignSourceIdentity(input: {
+    createdAt: Date
+    id: string
+    sourceId: string
+    workspaceId: string
+  }): Promise<{ id: string } | null> {
+    if (
+      typeof (this.shardManager as { getShardForWrite?: unknown })
+        .getShardForWrite !== "function"
+    ) {
+      return this.updateAcrossShards(
+        input.id,
+        input.workspaceId,
+        { sourceId: input.sourceId },
+        "updateSourceId",
+        input.createdAt,
+      )
+    }
+
+    const shardDb = await this.shardManager.getShardForWrite(input.workspaceId)
+    const [initial] = await shardDb
+      .select({ conversationId: messageModel.conversationId })
+      .from(messageModel)
+      .where(
+        and(
+          eq(messageModel.id, input.id),
+          eq(messageModel.workspaceId, input.workspaceId),
+          matchesCreatedAt(messageModel.createdAt, input.createdAt),
+        ),
+      )
+      .limit(1)
+    if (!initial) {
+      return this.updateAcrossShards(
+        input.id,
+        input.workspaceId,
+        { sourceId: input.sourceId },
+        "updateSourceId",
+        input.createdAt,
+      )
+    }
+
+    return this.executeWithLock(
+      this.buildLockKey(initial.conversationId, input.sourceId),
+      async () =>
+        await shardDb.transaction(async (tx) => {
+          const [current] = await tx
+            .select()
+            .from(messageModel)
+            .where(
+              and(
+                eq(messageModel.id, input.id),
+                eq(messageModel.workspaceId, input.workspaceId),
+                matchesCreatedAt(messageModel.createdAt, input.createdAt),
+              ),
+            )
+            .limit(1)
+          if (!current) {
+            return null
+          }
+
+          const [identity] = await tx
+            .select()
+            .from(messageSourceIdentityModel)
+            .where(
+              and(
+                eq(messageSourceIdentityModel.workspaceId, input.workspaceId),
+                eq(
+                  messageSourceIdentityModel.contactInboxId,
+                  current.contactInboxId,
+                ),
+                eq(messageSourceIdentityModel.sourceId, input.sourceId),
+              ),
+            )
+            .limit(1)
+
+          const existingRows = await tx
+            .select()
+            .from(messageModel)
+            .where(
+              and(
+                eq(messageModel.workspaceId, input.workspaceId),
+                eq(messageModel.contactInboxId, current.contactInboxId),
+                eq(messageModel.sourceId, input.sourceId),
+              ),
+            )
+
+          const duplicateRows = existingRows.filter(
+            (row) => row.id !== current.id,
+          )
+          if (duplicateRows.length > 0) {
+            await tx.execute(
+              sql`SET LOCAL timescaledb.max_tuples_decompressed_per_dml_transaction = 0`,
+            )
+            for (const duplicate of duplicateRows) {
+              await tx
+                .delete(attachmentModel)
+                .where(
+                  and(
+                    eq(attachmentModel.workspaceId, input.workspaceId),
+                    eq(attachmentModel.messageId, duplicate.id),
+                    eq(attachmentModel.messageCreatedAt, duplicate.createdAt),
+                  ),
+                )
+              await tx
+                .delete(messageModel)
+                .where(
+                  and(
+                    eq(messageModel.workspaceId, input.workspaceId),
+                    eq(messageModel.id, duplicate.id),
+                    matchesCreatedAt(
+                      messageModel.createdAt,
+                      duplicate.createdAt,
+                    ),
+                  ),
+                )
+            }
+          }
+
+          if (identity) {
+            await tx
+              .update(messageSourceIdentityModel)
+              .set({
+                messageId: current.id,
+                messageCreatedAt: current.createdAt,
+              })
+              .where(
+                and(
+                  eq(messageSourceIdentityModel.workspaceId, input.workspaceId),
+                  eq(
+                    messageSourceIdentityModel.contactInboxId,
+                    current.contactInboxId,
+                  ),
+                  eq(messageSourceIdentityModel.sourceId, input.sourceId),
+                ),
+              )
+          } else {
+            await tx.insert(messageSourceIdentityModel).values({
+              workspaceId: input.workspaceId,
+              contactInboxId: current.contactInboxId,
+              sourceId: input.sourceId,
+              messageId: current.id,
+              messageCreatedAt: current.createdAt,
+            })
+          }
+
+          const [updated] = await tx
+            .update(messageModel)
+            .set({ sourceId: input.sourceId, updatedAt: new Date() })
+            .where(
+              and(
+                eq(messageModel.workspaceId, input.workspaceId),
+                eq(messageModel.id, input.id),
+                matchesCreatedAt(messageModel.createdAt, input.createdAt),
+              ),
+            )
+            .returning({ id: messageModel.id })
+          return updated ?? null
+        }),
     )
   }
 
@@ -1433,14 +2022,20 @@ export class ShardedMessageRepository implements IMessageRepository {
       )
 
       const doCreateOrUpdate = async (): Promise<CreateMessageResult> => {
-        const existing = await this.findBySourceId(
-          message.sourceId as string,
-          message.conversationId,
-          message.workspaceId,
-          getSafeSinceTime(message.createdAt, ECHO_DEDUP_LOOKBACK_MS),
-        )
-        if (existing) {
-          return { message: existing, isNew: false }
+        const identity = await this.findSourceIdentityOnWriteShard(message)
+        if (identity.claimed) {
+          return {
+            message: identity.message ?? (message as MessageModel),
+            isNew: false,
+          }
+        }
+        if (identity.message) {
+          return {
+            message: await this.registerExistingSourceIdentity(
+              identity.message,
+            ),
+            isNew: false,
+          }
         }
 
         // Only a genuine DB error (e.g. TimescaleDB decompression, connection
@@ -1462,13 +2057,8 @@ export class ShardedMessageRepository implements IMessageRepository {
         // at info and return the existing row instead of throwing. Try a replica
         // read first; if it still lags, read the write shard (primary), which is
         // guaranteed to see the row the conflict proved exists.
-        const raced =
-          (await this.findBySourceId(
-            message.sourceId as string,
-            message.conversationId,
-            message.workspaceId,
-            getSafeSinceTime(message.createdAt, ECHO_DEDUP_LOOKBACK_MS),
-          )) ?? (await this.findOnWriteShardBySource(message))
+        const raced = (await this.findSourceIdentityOnWriteShard(message))
+          .message
         logger.info(
           {
             conversationId: message.conversationId,
@@ -1506,6 +2096,11 @@ export class ShardedMessageRepository implements IMessageRepository {
       "messageId" | "messageCreatedAt"
     >[],
   ): Promise<MessageWithAttachments> {
+    if (message.sourceId) {
+      return this.createOrUpdateWithAttachments(message, attachments).then(
+        ({ result }) => result,
+      )
+    }
     return withPrimaryKeyCollisionRecovery(message, async (input) => {
       // Plain create path: no ignoreConflict, so a real duplicate throws
       // rather than returning null. A null here would be unexpected.
@@ -1533,6 +2128,17 @@ export class ShardedMessageRepository implements IMessageRepository {
     const db = await this.shardManager.getShardForWrite(message.workspaceId)
 
     return db.transaction(async (tx) => {
+      if (
+        options?.ignoreConflict &&
+        message.sourceId &&
+        !(await this.registerSourceIdentity(
+          tx,
+          message as CreateMessageInput & { createdAt: Date; id: string },
+        ))
+      ) {
+        return null
+      }
+
       // When ignoreConflict is set (create-or-update path), a duplicate row must
       // not throw — the dedup index rejects it and we return null so the caller
       // re-fetches. Without it (plain create path), a duplicate throws as before.
@@ -1616,13 +2222,20 @@ export class ShardedMessageRepository implements IMessageRepository {
         result: MessageWithAttachments
         isNew: boolean
       } | null> => {
-        const existing = await this.findBySourceId(
-          message.sourceId as string,
-          message.conversationId,
-          message.workspaceId,
-          getSafeSinceTime(message.createdAt, ECHO_DEDUP_LOOKBACK_MS),
-        )
-        return existing ? await buildExistingResult(existing) : null
+        const identity = await this.findSourceIdentityOnWriteShard(message)
+        if (identity.claimed) {
+          return identity.message
+            ? await buildExistingResult(identity.message)
+            : {
+                result: { ...(message as MessageModel), attachments: [] },
+                isNew: false,
+              }
+        }
+        return identity.message
+          ? await buildExistingResult(
+              await this.registerExistingSourceIdentity(identity.message),
+            )
+          : null
       }
 
       const doCreateOrUpdate = async (): Promise<{
@@ -1653,13 +2266,8 @@ export class ShardedMessageRepository implements IMessageRepository {
 
         // Conflict: idempotent no-op. Re-read via replica, then the write shard
         // (primary) which is guaranteed to see the conflicting row.
-        const racedBase =
-          (await this.findBySourceId(
-            message.sourceId as string,
-            message.conversationId,
-            message.workspaceId,
-            getSafeSinceTime(message.createdAt, ECHO_DEDUP_LOOKBACK_MS),
-          )) ?? (await this.findOnWriteShardBySource(message))
+        const racedBase = (await this.findSourceIdentityOnWriteShard(message))
+          .message
         logger.info(
           {
             conversationId: message.conversationId,

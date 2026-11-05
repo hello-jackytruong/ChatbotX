@@ -34,6 +34,17 @@ class MessageService extends BaseService {
   withResolvedAttachmentUrls = withResolvedAttachmentUrls
   protected readonly cachePrefix: string = "messages"
 
+  async deleteSourceIdentitiesByWorkspace(props: {
+    limit: number
+    workspaceId: string
+  }): Promise<number> {
+    const repository = await createMessageRepository()
+    return await repository.deleteSourceIdentitiesByWorkspace(
+      props.workspaceId,
+      props.limit,
+    )
+  }
+
   async findByUncached(props: {
     tx?: DatabaseClient
     sinceTime: Date

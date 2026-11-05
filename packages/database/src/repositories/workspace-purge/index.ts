@@ -29,6 +29,7 @@ const deleteWorkspaceRowsBatch = async (
     | HeavyWorkspaceTable
     | "CoexistSyncRun"
     | "FlowAnalyticsSession"
+    | "MessageSourceIdentity"
     | "MessageCleanup",
   workspaceId: string,
   limit: number,

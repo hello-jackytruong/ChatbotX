@@ -23,6 +23,22 @@ the hot/bulk queue-group split described below.
 Every URL is optional and falls back to `REDIS_URL`, so a fresh clone with no
 role-specific env vars set runs today's single-instance topology unchanged.
 
+### Provider message identity
+
+Message rows are stored in time-partitioned shards, so the hypertable's unique
+key includes `createdAt` and cannot prevent a history import from inserting the
+same provider `sourceId` with a slightly different timestamp. Each message
+store now has an unpartitioned `MessageSourceIdentity` registry keyed by
+`workspaceId`, `contactInboxId`, and `sourceId`. Live message writes, send
+responses that attach a provider ID, and bulk history imports claim this key
+before inserting; a repeat import is skipped even when its timestamp differs.
+
+The production builder migration command applies both the main database
+migrations and pending message-shard migrations. It fails the deployment
+migration step if any registered shard is unreachable, so new writers do not
+start against a shard missing the registry table. Newly bootstrapped shards
+create the table from `init-message-shard.sql`.
+
 ## Worker process modes
 
 The worker image defaults to `worker standalone`, which co-locates core queue

@@ -68,6 +68,7 @@ import { integrationOpenRouterService } from "../integration-openrouter/service"
 import { integrationSendGridService } from "../integration-sendgrid/service"
 import { purgeLeaderboardDataForWorkspace } from "../leaderboard/purge"
 import { logger } from "../logger"
+import { messageService } from "../message/service"
 import { userQuotaService } from "../user-quota/service"
 import {
   cancelInFlightBroadcastsForWorkspace,
@@ -310,6 +311,22 @@ class WorkspaceLifecycleService extends BaseService {
       props.workspaceId,
       props.deadlineAt,
     )
+
+    totalDeleted += await drainInBatches({
+      afterBatch: async () => await pause(INTER_CHUNK_DELAY_MS),
+      batchSize: defaultBatchSize,
+      deadlineAt: props.deadlineAt,
+      maxBatches: HEAVY_PURGE_MAX_BATCHES_PER_TABLE,
+      runBatch: async () => ({
+        count: await messageService.deleteSourceIdentitiesByWorkspace({
+          limit: defaultBatchSize,
+          workspaceId: props.workspaceId,
+        }),
+        value: undefined,
+      }),
+      table: "MessageSourceIdentity",
+      workspaceId: props.workspaceId,
+    })
 
     for (const spec of PARTITIONED_WORKSPACE_TABLES) {
       totalDeleted += await drainInBatches({

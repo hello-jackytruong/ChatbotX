@@ -18,7 +18,10 @@ export class ShardMigrationRunner {
     this.registry = new MessageShardRegistry(mainDb)
   }
 
-  async runPendingMigrations(migrations: ShardMigration[]): Promise<void> {
+  async runPendingMigrations(
+    migrations: ShardMigration[],
+    options: { failOnUnavailable?: boolean } = {},
+  ): Promise<void> {
     const sorted = [...migrations].sort((a, b) =>
       a.version.localeCompare(b.version),
     )
@@ -68,6 +71,11 @@ export class ShardMigrationRunner {
         { skipped: failed },
         "Some shards were unreachable and skipped — run again once they are up",
       )
+      if (options.failOnUnavailable) {
+        throw new Error(
+          `Shard migrations could not reach: ${failed.join(", ")}`,
+        )
+      }
     }
   }
 

@@ -68,6 +68,16 @@ COPY packages/database/drizzle drizzle
 RUN bash /app/migrate-runner/scripts/create-runner-package.sh migrate /app/packages/database > package.json \
   && npm install --omit=dev --ignore-scripts
 
+# Shard migrations use the same registry, credential resolution and connection
+# rules as the application. Bundle that runner into the standalone image and
+# ship its SQL separately so deployment can migrate every registered shard.
+WORKDIR /app
+RUN pnpm --filter "@chatbotx.io/database" exec esbuild scripts/migrate-shards.ts \
+  --bundle --platform=node --format=esm \
+  --outfile=/app/migrate-runner/migrate-shards.mjs \
+  && mkdir -p /app/migrate-runner/sharding-migrations \
+  && cp packages/database/src/sharding/migrations/*.sql /app/migrate-runner/sharding-migrations/
+
 # Bundled seed (workspace TS → single ESM file; `pg` stays external — installed below).
 WORKDIR /app
 # `turbo prune` omits the repo-root tsconfig.base.json that packages/database's

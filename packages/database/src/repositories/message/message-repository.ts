@@ -307,6 +307,10 @@ export interface IMessageRepository {
     workspaceId: string,
     createdAt: Date,
   ): Promise<{ conversationId: string; id: string }[]>
+  deleteSourceIdentitiesByWorkspace(
+    workspaceId: string,
+    limit: number,
+  ): Promise<number>
 
   /**
    * Resolves historical messages on the authoritative write shard and inserts

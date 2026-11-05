@@ -1,10 +1,15 @@
 import { drizzle } from "drizzle-orm/node-postgres"
 import type { Pool } from "pg"
-import { attachmentModel, messageModel } from "./shard-schema"
+import {
+  attachmentModel,
+  messageModel,
+  messageSourceIdentityModel,
+} from "./shard-schema"
 
 const messageShardSchema = {
   messageModel,
   attachmentModel,
+  messageSourceIdentityModel,
 }
 
 export type MessageShardDatabaseClient = ReturnType<

@@ -8,6 +8,9 @@ export NODE_OPTIONS="${NODE_OPTIONS:-} --no-node-snapshot --enable-source-maps"
 run_migrate() {
   echo "Running database migrations..."
   node /app/migrate-runner/scripts/run-migrations.mjs
+  echo "Running message shard migrations..."
+  CHATBOTX_SHARD_MIGRATIONS_DIR=/app/migrate-runner/sharding-migrations \
+    node /app/migrate-runner/migrate-shards.mjs
 }
 
 run_seed() {

@@ -128,6 +128,8 @@ export type IntegrationTelegramModel =
 export type IntegrationTiktokModel =
   typeof schema.integrationTiktokModel.$inferSelect
 export type MessageModel = typeof schema.messageModel.$inferSelect
+export type MessageSourceIdentityModel =
+  typeof schema.messageSourceIdentityModel.$inferSelect
 export type MessengerWelcomeMessageFlowModel =
   typeof schema.messengerWelcomeMessageFlowModel.$inferSelect
 export type AttachmentModel = typeof schema.attachmentModel.$inferSelect

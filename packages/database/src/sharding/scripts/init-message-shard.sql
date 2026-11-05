@@ -95,6 +95,21 @@ CREATE TABLE IF NOT EXISTS "Attachment" (
   PRIMARY KEY ("id", "createdAt")
 );
 
+-- Provider IDs need a non-partitioned unique key. The Message hypertable's
+-- unique constraint includes createdAt and cannot deduplicate timestamp drift.
+CREATE TABLE IF NOT EXISTS "MessageSourceIdentity" (
+  "workspaceId" bigint NOT NULL,
+  "contactInboxId" bigint NOT NULL,
+  "sourceId" text NOT NULL,
+  "messageId" bigint NOT NULL,
+  "messageCreatedAt" timestamp(6) with time zone NOT NULL,
+  "createdAt" timestamp(6) with time zone DEFAULT now() NOT NULL,
+  CONSTRAINT "MessageSourceIdentity_pkey"
+    PRIMARY KEY ("workspaceId", "contactInboxId", "sourceId")
+);
+CREATE INDEX IF NOT EXISTS "MessageSourceIdentity_message_idx"
+  ON "MessageSourceIdentity" ("workspaceId", "messageId", "messageCreatedAt");
+
 -- Convert Attachment table to TimescaleDB hypertable
 SELECT create_hypertable(
   '"Attachment"',

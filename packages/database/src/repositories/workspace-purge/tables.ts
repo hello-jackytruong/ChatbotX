@@ -96,6 +96,10 @@ export const NO_FK_WORKSPACE_TABLES = [
     stage: "ctid",
     table: "MessageCleanup",
   },
+  {
+    stage: "ctid",
+    table: "MessageSourceIdentity",
+  },
   { stage: "contactInboxPost", table: "ContactInboxPost" },
   {
     stage: "leaderboard",
