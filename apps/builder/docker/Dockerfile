@@ -56,7 +56,7 @@ RUN --mount=type=cache,target=/app/apps/builder/.next/cache \
   --mount=type=secret,id=TURBO_TEAM,env=TURBO_TEAM \
   SKIP_ENV_CHECK=true pnpm turbo run build --filter=builder
 
-# Standalone image has no pnpm workspace; bundle a tiny migration runner (drizzle-orm + pg only).
+# Standalone image has no pnpm workspace; bundle a tiny migration runner (drizzle-orm + pg + pino).
 # Versions come from the pnpm-installed /app/packages/database/node_modules, not its
 # package.json: that manifest uses `catalog:` specs, which plain npm cannot resolve.
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
@@ -72,8 +72,11 @@ RUN bash /app/migrate-runner/scripts/create-runner-package.sh migrate /app/packa
 # rules as the application. Bundle that runner into the standalone image and
 # ship its SQL separately so deployment can migrate every registered shard.
 WORKDIR /app
+# pg and pino are CommonJS packages with dynamic Node built-in requires;
+# leave them external so Node loads them natively from the runner package.
 RUN pnpm --filter "@chatbotx.io/database" exec esbuild scripts/migrate-shards.ts \
   --bundle --platform=node --format=esm \
+  --external:pg --external:pino \
   --outfile=/app/migrate-runner/migrate-shards.mjs \
   && mkdir -p /app/migrate-runner/sharding-migrations \
   && cp packages/database/src/sharding/migrations/*.sql /app/migrate-runner/sharding-migrations/
