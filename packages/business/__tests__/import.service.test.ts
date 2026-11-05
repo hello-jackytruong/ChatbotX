@@ -32,7 +32,9 @@ vi.mock("@chatbotx.io/database/client", () => ({
   eq: (...args: unknown[]) => ({ eq: args }),
 }))
 
-vi.mock("@chatbotx.io/database/schema", () => ({
+vi.mock("@chatbotx.io/database/schema", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  contactInboxModel: {},
   workspaceUsageModel: {},
   userQuotaModel: {},
   refLinkStatModel: {},

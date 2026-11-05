@@ -48,6 +48,9 @@ vi.mock("@chatbotx.io/database/client", () => ({
 }))
 
 vi.mock("@chatbotx.io/database/repositories", () => ({
+  createMessageRepository: () => ({
+    deleteSourceIdentitiesByWorkspace: vi.fn().mockResolvedValue(0),
+  }),
   connectionRepository: { findByInboxId: mockFindByInboxId },
   HEAVY_WORKSPACE_TABLES: ["ErrorLog"],
   LIVE_RUN_STATUSES: [],

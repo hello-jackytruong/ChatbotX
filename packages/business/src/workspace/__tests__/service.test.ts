@@ -93,6 +93,7 @@ vi.mock("@chatbotx.io/database/partials", async (importOriginal) => {
 
 vi.mock("@chatbotx.io/database/schema", () => ({
   ROOT_TENANT_ID: "1",
+  contactInboxModel: {},
   workspaceDeletionRecordModel: { workspaceId: {} },
   workspaceMemberModel: {},
   workspaceModel: {},
