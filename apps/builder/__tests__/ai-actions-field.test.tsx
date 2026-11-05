@@ -242,6 +242,29 @@ describe("AIActionsField", () => {
     expect(trigger?.textContent).toContain("Customer asks for a refund")
   })
 
+  test("keeps long rule titles inside the space reserved for header controls", () => {
+    act(() => root.render(<TestForm />))
+
+    const longRuleTitle =
+      "Customer provides a phone number while requesting enrollment, a trial lesson, pricing details, and a callback"
+    act(() => {
+      form.setValue("actionRules.0.when", longRuleTitle)
+    })
+
+    const trigger = container.querySelector<HTMLElement>(
+      '[data-testid="ai-action-rule-trigger-0"]',
+    )
+    const title = trigger?.querySelector("span")
+
+    expect(title?.textContent).toBe(longRuleTitle)
+    expect(trigger?.className.split(" ")).toEqual(
+      expect.arrayContaining(["min-w-0", "w-full"]),
+    )
+    expect(title?.className.split(" ")).toEqual(
+      expect.arrayContaining(["min-w-0", "flex-1", "truncate"]),
+    )
+  })
+
   test("opens only the newly added rule", () => {
     act(() => root.render(<TestForm />))
 
