@@ -107,6 +107,24 @@ checkout_line="$(grep -n '^[[:space:]]*checkout_release_under_lock' "$SCRIPT_DIR
   echo "FAIL: scope baselines must be recorded only after combined activation" >&2
   exit 1
 }
+# These literals assert that workflow variables are evaluated on the host.
+# shellcheck disable=SC2016
+[[ "$workflow_text" == *'git checkout --quiet dev'* && \
+  "$workflow_text" == *'git merge --ff-only --quiet "$release_sha"'* ]] || {
+  echo "FAIL: CI checkout must not print the production file diff" >&2
+  exit 1
+}
+# shellcheck disable=SC2016
+[[ "$workflow_text" == *'install -d -m 700 "$deploy_log_dir"'* && \
+  "$workflow_text" == *'chmod 600 "$deploy_log"'* && \
+  "$workflow_text" == *'>"$deploy_log" 2>&1'* ]] || {
+  echo "FAIL: detailed deployment output must stay in a restricted host-only log" >&2
+  exit 1
+}
+[[ "$workflow_text" != *'production-full.sh status'* ]] || {
+  echo "FAIL: failed CI activation must not publish the production container inventory" >&2
+  exit 1
+}
 [[ "$source_text" == *'rollback_completed_scopes'* ]] || {
   echo "FAIL: a mixed-scope failure must restore scopes activated earlier in the release" >&2
   exit 1

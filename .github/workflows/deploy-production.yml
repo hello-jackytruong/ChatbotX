@@ -310,41 +310,49 @@ jobs:
           }
           export CHATBOTX_DEPLOY_LOCK_FD=9
 
-          git fetch --quiet origin dev
-          remote_sha="$(git rev-parse origin/dev)"
-          if [ "$remote_sha" != "$release_sha" ]; then
-            echo "Skipping stale release $release_sha; origin/dev is now $remote_sha"
-            exit 75
-          fi
-          git checkout dev
-          git merge --ff-only "$release_sha"
-          [ "$(git rev-parse HEAD)" = "$release_sha" ] || {
-            echo "Checked-out release does not match the requested SHA" >&2
-            exit 1
-          }
+          deploy_log_dir="${CHATBOTX_DEPLOY_LOG_DIR:-/var/log/chatbotx-production}"
+          deploy_log="$deploy_log_dir/deploy-$release_sha.log"
+          install -d -m 700 "$deploy_log_dir"
+          : >"$deploy_log"
+          chmod 600 "$deploy_log"
+          find "$deploy_log_dir" -maxdepth 1 -type f -name 'deploy-*.log' \
+            -mtime +30 -delete
 
-          ./scripts/docker/production-full.sh pull-deploy \
-            "$release_sha" "$image_prefix" "$deploy_services"
+          set +e
+          (
+            set -Eeuo pipefail
+            git fetch --quiet origin dev
+            remote_sha="$(git rev-parse origin/dev)"
+            if [ "$remote_sha" != "$release_sha" ]; then
+              echo "Skipping stale release; origin/dev changed before activation."
+              exit 75
+            fi
+            git checkout --quiet dev
+            git merge --ff-only --quiet "$release_sha"
+            [ "$(git rev-parse HEAD)" = "$release_sha" ] || {
+              echo "Checked-out release does not match the requested SHA" >&2
+              exit 1
+            }
+
+            ./scripts/docker/production-full.sh pull-deploy \
+              "$release_sha" "$image_prefix" "$deploy_services"
+          ) >"$deploy_log" 2>&1
+          deploy_status=$?
+          set -e
+
+          if [ "$deploy_status" -ne 0 ]; then
+            echo "Production activation failed with exit code $deploy_status." >&2
+            echo "Detailed diagnostics were retained in the restricted host deployment log." >&2
+            exit "$deploy_status"
+          fi
+          echo "Production activation completed successfully."
           REMOTE
 
-      - name: Capture production status after a failed activation
+      - name: Report failed activation
         if: failure() && steps.activate.outcome == 'failure'
-        env:
-          PROD_HOST: ${{ secrets.PROD_HOST }}
-          PROD_PORT: ${{ secrets.PROD_PORT }}
-          PROD_USER: ${{ secrets.PROD_USER }}
         shell: bash
         run: |
-          set -euo pipefail
-          ssh \
-            -i "$HOME/.ssh/chatbotx-production" \
-            -p "${PROD_PORT:-22}" \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=yes \
-            "$PROD_USER@$PROD_HOST" \
-            'cd /root/apps/ChatbotX && ./scripts/docker/production-full.sh status' \
-            || true
+          echo "::error::Production activation failed. Detailed diagnostics remain on the production host; no host inventory is published to Actions."
 
       - name: Summarize successful activation
         if: success()

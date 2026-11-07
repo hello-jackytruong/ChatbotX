@@ -102,6 +102,17 @@ source_text="$(<"$SCRIPT_DIR/production.sh")"
 assert_contains "$source_text" 'new PrismaPg' "Prisma 7 readiness must use its PostgreSQL adapter"
 assert_contains "$source_text" 'activate_previous_image' "Failed activation must restore the previous image"
 assert_contains "$source_text" 'backup_object_bytes' "Complete backup must include RustFS object bytes"
+# The literal shell source is the contract under test.
+# shellcheck disable=SC2016
+[[ "$source_text" != *'Verified custom-format backup: $dump_path'* ]] || {
+  echo "FAIL: Zalo deployment logs must not disclose database backup paths" >&2
+  exit 1
+}
+# shellcheck disable=SC2016
+[[ "$source_text" != *'Verified RustFS object-byte backup: $target'* ]] || {
+  echo "FAIL: Zalo deployment logs must not disclose object-backup paths" >&2
+  exit 1
+}
 if (validate_encrypted_backup_directory unsafe /tmp 1) >/dev/null 2>&1; then
   echo "FAIL: unsafe backup destinations must fail closed" >&2
   exit 1

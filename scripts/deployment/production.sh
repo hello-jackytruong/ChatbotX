@@ -459,15 +459,18 @@ assert_datastores_unchanged() {
 }
 
 prune_database_backups() {
-  local backup_file cutoff_minutes
+  local backup_file cutoff_minutes expired_count=0 overflow_count=0
   local -a backup_files=()
   cutoff_minutes="$((MAX_BACKUP_DAYS * 24 * 60))"
 
   while IFS= read -r backup_file; do
     [[ -n "$backup_file" ]] || continue
-    log "Removing database backup older than ${MAX_BACKUP_DAYS} days: $backup_file"
     rm -f -- "$backup_file"
+    ((expired_count += 1))
   done < <(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'postgres-*.dump' -mmin "+$cutoff_minutes" -print)
+  if (( expired_count > 0 )); then
+    log "Removed $expired_count database backup(s) older than ${MAX_BACKUP_DAYS} days."
+  fi
 
   mapfile -t backup_files < <(
     find "$BACKUP_DIR" -maxdepth 1 -type f -name 'postgres-*.dump' \
@@ -475,9 +478,10 @@ prune_database_backups() {
   )
   if (( ${#backup_files[@]} > MAX_BACKUP_FILES )); then
     for backup_file in "${backup_files[@]:MAX_BACKUP_FILES}"; do
-      log "Removing database backup above the ${MAX_BACKUP_FILES}-file limit: $backup_file"
       rm -f -- "$backup_file"
+      ((overflow_count += 1))
     done
+    log "Removed $overflow_count database backup(s) above the ${MAX_BACKUP_FILES}-file limit."
   fi
 
   find "$BACKUP_DIR" -maxdepth 1 -type f -name '*.tmp' -mmin +1440 -delete
@@ -509,7 +513,7 @@ backup_database() {
   mv -- "$temporary" "$backup_file"
   prune_database_backups
   retained_count="$(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'postgres-*.dump' | wc -l | tr -d ' ')"
-  log "Backup verified: $backup_file (${retained_count}/${MAX_BACKUP_FILES} files retained)."
+  log "Database backup verified (${retained_count}/${MAX_BACKUP_FILES} files retained)."
 }
 
 install_backup_cron() {
