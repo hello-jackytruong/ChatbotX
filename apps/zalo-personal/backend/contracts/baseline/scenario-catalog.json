@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "account-session",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/care-session-service.test.ts",
+        "backend/tests/contact-ghost-filter.test.ts",
+        "backend/tests/ghost-soft-hide-after-24h.test.ts",
+        "backend/tests/ghost-visible-within-24h.test.ts",
+        "backend/tests/manual-disconnect-needs-qr.test.ts",
+        "backend/tests/security/refresh-token-service.test.ts",
+        "backend/tests/zalo-ghost-fix.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "inbound-outbound-message",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/chat-operations-routes.test.ts",
+        "backend/tests/chat-routes.test.ts",
+        "backend/tests/deleted-nick-aggregate-count.test.ts",
+        "backend/tests/unit/zalo-message-sync.test.ts",
+        "frontend/src/components/chat/slash-popup-rules.spec.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "media-storage-antivirus",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/media-dedup.test.ts",
+        "backend/tests/media-source-nick-tags.test.ts",
+        "backend/tests/media-trash-gc.test.ts",
+        "backend/tests/profile-media.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "friend-contact-identity",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/contact-ghost-filter.test.ts",
+        "backend/tests/dedup-merge.test.ts",
+        "backend/tests/duplicate-detector-merge-policy.test.ts",
+        "backend/tests/friend-routes-all-nicks.test.ts",
+        "backend/tests/friend-routes.test.ts",
+        "backend/tests/friend-serializer.test.ts",
+        "backend/tests/friend-sync-cron.test.ts",
+        "backend/tests/friend-sync-service.test.ts",
+        "backend/tests/unit/tag-service-merge.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "group-membership",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/group-management.test.ts",
+        "backend/tests/group-moderation-routes.test.ts",
+        "backend/tests/group-routes.test.ts",
+        "backend/tests/group-scan-routes.test.ts",
+        "backend/tests/group-scan-worker.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "automation-worker-cron",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/friend-sync-cron.test.ts",
+        "backend/tests/friend-sync-service.test.ts",
+        "backend/tests/group-scan-worker.test.ts",
+        "backend/tests/sequence-step-worker-block.test.ts",
+        "backend/tests/unit/facebook-token-refresh-cron.test.ts",
+        "backend/tests/unit/zalo-message-sync.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "auth-rbac-privacy-tenancy",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/care-notify-privacy.test.ts",
+        "backend/tests/deleted-nick-privacy.test.ts",
+        "backend/tests/privacy-redact-regression.test.ts",
+        "backend/tests/security/ai-capabilities.test.ts",
+        "backend/tests/security/auth-flow.test.ts",
+        "backend/tests/security/hmac.test.ts",
+        "backend/tests/security/refresh-token-service.test.ts",
+        "backend/tests/security/require-active-user.test.ts",
+        "backend/tests/security/security-audit.test.ts",
+        "backend/tests/security/security-headers.test.ts",
+        "backend/tests/security/socket-auth.test.ts",
+        "backend/tests/security/tenant-context.test.ts",
+        "backend/tests/security/tenant-guard.test.ts",
+        "backend/tests/zinstant-proxy-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "retry-restart-idempotency",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/dedup-merge.test.ts",
+        "backend/tests/media-dedup.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "id": "frontend-api-socket-state",
+      "risk": "P0",
+      "evidence": [
+        "backend/tests/contracts/runtime-socket-inventory.test.ts",
+        "backend/tests/integration/socket/socket-wire-contract.test.ts",
+        "backend/tests/security/socket-auth.test.ts",
+        "frontend/src/components/chat/slash-popup-rules.spec.ts",
+        "frontend/src/composables/work-scope-logic.spec.ts"
+      ],
+      "status": "PARTIAL"
+    }
+  ]
+}

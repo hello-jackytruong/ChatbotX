@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sourceCommit": "c03c03245a1010d1e279d0548edc5b1f568f3a9e",
+  "node": "v26.6.0",
+  "packageManager": "npm/11.18.0",
+  "schemaSha256": "981409634d42a77478eea9611b21240a2f2c1c4174dcfda98d0739e125d157e2",
+  "packageLocks": [
+    {
+      "file": "backend/package-lock.json",
+      "sha256": "052961b2763055b6403f8d76c53abca51b801e4e5b59ca9efcd42f11f4233c88"
+    },
+    {
+      "file": "frontend/package-lock.json",
+      "sha256": "dc7a7ebbfd2d2ff4dbd0200d557afc405ed8cfa16cc5af8b2dcfe1e4629f2dc9"
+    }
+  ]
+}

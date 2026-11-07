@@ -1,0 +1,10 @@
+{
+  "reason": "These integration tests require an isolated PostgreSQL database and are not part of the deterministic unit suite.",
+  "databaseTests": [
+    "tests/security/ai-capabilities.test.ts",
+    "tests/security/auth-flow.test.ts",
+    "tests/security/refresh-token-service.test.ts",
+    "tests/security/require-active-user.test.ts",
+    "tests/security/security-audit.test.ts"
+  ]
+}

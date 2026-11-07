@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "registrations": [
+    {
+      "order": 0,
+      "owner": "backend/src/shared/realtime/socket-auth.ts",
+      "side": "server",
+      "event": "__auth_middleware__"
+    },
+    {
+      "order": 1,
+      "owner": "backend/src/shared/realtime/socket-auth.ts",
+      "side": "server",
+      "event": "connection"
+    },
+    {
+      "order": 2,
+      "owner": "backend/src/shared/realtime/socket-auth.ts",
+      "side": "socket",
+      "event": "disconnect"
+    },
+    {
+      "order": 3,
+      "owner": "backend/src/modules/zalo/zalo-socket.ts",
+      "side": "server",
+      "event": "connection"
+    },
+    {
+      "order": 4,
+      "owner": "backend/src/modules/zalo/zalo-socket.ts",
+      "side": "socket",
+      "event": "org:join"
+    },
+    {
+      "order": 5,
+      "owner": "backend/src/modules/zalo/zalo-socket.ts",
+      "side": "socket",
+      "event": "zalo:subscribe"
+    },
+    {
+      "order": 6,
+      "owner": "backend/src/modules/zalo/zalo-socket.ts",
+      "side": "socket",
+      "event": "zalo:unsubscribe"
+    },
+    {
+      "order": 7,
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts",
+      "side": "server",
+      "event": "connection"
+    },
+    {
+      "order": 8,
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts",
+      "side": "socket",
+      "event": "chat:typing"
+    }
+  ],
+  "rooms": [
+    "org:synthetic-org",
+    "user:synthetic-user"
+  ]
+}
