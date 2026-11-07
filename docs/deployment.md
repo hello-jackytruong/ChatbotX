@@ -39,6 +39,30 @@ cd /root/apps/ChatbotX
 ./scripts/deployment/production.sh deploy
 ```
 
+When Zalo Personal is configured on the same host, deploy both application groups through the merged configuration with:
+
+```bash
+pnpm docker:prod:full
+```
+
+Use `pnpm docker:prod:chatbotx` or `pnpm docker:prod:zalo` for a scoped deployment. Zalo requires `CHATBOTX_IMAGE_TAG=sha-<git-sha>`, the matching `CHATBOTX_EXPECTED_GIT_SHA`, and `CHATBOTX_IMAGE_PREFIX`; it pulls and verifies that immutable image instead of accepting a local tag. The full command validates both Compose files first, then preserves the backup and migration gates owned by each deployment script.
+
+Zalo is an app-only production overlay over the existing PostgreSQL, Redis and
+RustFS containers. A Zalo-only deploy snapshots their container IDs,
+`StartedAt` values and restart counts, bootstraps logical namespaces through
+one-shot containers, activates only `zalo-personal` with `--no-deps`, and then
+verifies the shared identities again. It never calls the ChatbotX datastore,
+backup or Drizzle migration path. CI records successful baselines separately
+in `production-chatbotx` and `production-zalo`.
+
+The first Zalo rollout additionally requires the inventory, encrypted backup,
+restore drill, capacity gate and one-time automation readiness flag in
+[`docs/zalo-personal/docker-runbook.md`](zalo-personal/docker-runbook.md). Do not
+apply production migrations while merely validating this configuration.
+Zalo's complete backup command includes its database, separately custodied
+PostgreSQL globals, and bytes from both RustFS buckets; install its daily
+schedule with `scripts/docker/zalo-personal/production.sh install-backup-cron`.
+
 The script:
 
 1. prevents concurrent deployments;
@@ -53,8 +77,10 @@ The script:
    image tag when the new containers fail to become healthy.
 
 The deployment commands never run `docker compose down`, remove volumes, or
-prune images. Old images and database backups are deliberately retained for
-recovery.
+prune Docker globally. After a successful activation they retain the current,
+rollback and recent release images, then remove only obsolete local release
+tags owned by this project. Database backups remain governed by their explicit
+retention policy.
 The script provides explicit operational commands:
 
 ```bash
@@ -113,6 +139,11 @@ first run:
 | `PROD_SSH_KEY` | Dedicated private SSH key used only by GitHub Actions |
 | `PROD_SSH_KNOWN_HOSTS` | Verified `known_hosts` entry for the server |
 
+Keep these secrets on the existing `production` GitHub environment. The
+`production-chatbotx` and `production-zalo` environments are automatic baseline
+markers only; they do not need SSH secrets. For fully unattended deployment,
+do not configure required reviewers on these environments.
+
 Generate a dedicated key on a trusted workstation and install only its public
 half on the server:
 
@@ -138,6 +169,95 @@ Do not store that token in the repository or `.env`. Docker retains the login
 under the server account. The workflow uses its built-in `GITHUB_TOKEN` with
 `packages: write` to publish images and does not need a separate write token.
 
+### One-time unattended-production checklist
+
+Automatic deployment is disabled until `/root/apps/ChatbotX/.env` has mode
+`0600` and contains `PRODUCTION_AUTOMATION_READY=1`. Set that flag only after
+all items below pass. It is a one-time gate; later merges to `dev` need no SSH
+or migration command.
+
+Core ChatbotX values:
+
+- `APP_URL` uses HTTPS;
+- `BETTER_AUTH_SECRET` and `REALTIME_BROADCAST_SECRET` contain at least 32
+  random characters;
+- `ENCRYPTION_KEY` is exactly 64 hexadecimal characters;
+- `POSTGRES_USER`, a strong `POSTGRES_PASSWORD`, `S3_ACCESS_KEY_ID`, a strong
+  `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, and a 32-character-or-longer
+  `JAVASCRIPT_EXECUTOR_TOKEN` are set;
+- production values do not contain `change-me`, `replace-with`,
+  `insecure-default`, or the development value `secretkey`.
+
+Zalo values:
+
+- `ZALO_APP_URL` and `ZALO_S3_PUBLIC_URL` use HTTPS;
+- `ZALO_DB_USER=zalo_personal`, a strong `ZALO_DB_PASSWORD`, and
+  `ZALO_DATABASE_URL` target `postgres:5432/zalo_personal`, with reserved
+  password characters percent-encoded;
+- `ZALO_REDIS_URL=redis://redis:6379/1`;
+- `ZALO_DEPLOYMENT_MODE=migrate` when importing existing Zalo data, or `fresh`
+  only after an empty-install inventory;
+- `ZALO_JWT_SECRET` contains at least 32 characters,
+  `ZALO_ENCRYPTION_KEY` is 64 hexadecimal characters, and the Zalo database
+  role, RustFS identity, and bucket differ from ChatbotX;
+- `ZALO_AUTOMATION_STUB_MODE=false`.
+
+Prepare two different encrypted backup mounts:
+
+```bash
+install -d -m 700 \
+  /mnt/encrypted-offsite/chatbotx/zalo-personal \
+  /mnt/encrypted-admin/chatbotx/postgres-globals
+touch \
+  /mnt/encrypted-offsite/chatbotx/zalo-personal/.chatbotx-encrypted-backup-target \
+  /mnt/encrypted-admin/chatbotx/postgres-globals/.chatbotx-encrypted-backup-target
+chmod 600 /root/apps/ChatbotX/.env
+```
+
+Configure and verify:
+
+```dotenv
+ZALO_BACKUP_OFFSITE_DIR=/mnt/encrypted-offsite/chatbotx/zalo-personal
+ZALO_BACKUP_OFFSITE_VERIFIED=1
+ZALO_GLOBALS_BACKUP_OFFSITE_DIR=/mnt/encrypted-admin/chatbotx/postgres-globals
+ZALO_GLOBALS_BACKUP_OFFSITE_VERIFIED=1
+PRODUCTION_AUTOMATION_READY=1
+```
+
+Do not use `ZALO_ALLOW_LOCAL_BACKUP_ONLY=1` for unattended production. Verify
+Nginx routes, Node.js 24, `flock`, free disk, swap, current container health,
+and GHCR login, then run the read-only gate:
+
+```bash
+cd /root/apps/ChatbotX
+./scripts/docker/production-full.sh check
+```
+
+### What every merge to `dev` does
+
+1. Run type-check, lint, ChatbotX tests, Zalo contracts/tests/build,
+   deployment shell tests, and workflow lint.
+2. Compare each scope with its own successful production baseline and build
+   only affected immutable `sha-<commit>` images.
+3. Acquire one host lock before checkout and reject superseded commits.
+4. Validate the complete `.env`, encrypted backup mounts, Compose model,
+   shared-service health, host capacity, and every selected scope before the
+   first application mutation.
+5. Ensure ChatbotX and Zalo backup schedules are installed.
+6. Pull images, verify OCI Git revisions, back up data, reject destructive
+   non-expand/contract migrations, and apply Drizzle/Prisma migrations.
+7. Activate only affected services with `--no-deps`, run readiness probes,
+   and automatically restore previous images when activation fails.
+8. Preserve current and rollback images, remove obsolete local release tags,
+   and move a scope's successful baseline only after its environment job
+   succeeds.
+
+No deployment system can guarantee every release succeeds: a bad secret, full
+disk, unavailable registry, or incompatible migration must fail. This workflow
+fails before mutation where possible and fails closed with service-scoped
+image rollback otherwise, while leaving the previous ChatbotX services
+running.
+
 The deployment job updates the server checkout only when `origin/dev` still
 matches the image commit. The production script checks the remote branch again
 after pulling the images and before touching the database, so a superseded
@@ -154,9 +274,12 @@ CHATBOTX_DEPLOY_SERVICES=builder,worker \
 ```
 
 `detect-affected-services.mjs` compares the latest successful GitHub deployment
-for the `production` environment with the current commit. Using the deployed
-commit instead of only the preceding push keeps changes cumulative when pushes
-overlap, builds are cancelled, or a stale workflow is rejected. A Builder-only
+for each of `production-chatbotx` and `production-zalo` with the current
+commit. The workflow activates every affected service together under one host
+lock, then records the two scope baselines independently only after the whole
+activation succeeds. Using deployed commits instead of only the preceding push
+keeps changes cumulative when pushes overlap, builds are cancelled, or a stale
+workflow is rejected. A Builder-only
 change therefore builds and restarts only Builder; a shared-package change
 includes every application that depends on that package. Changes to the
 lockfile, Compose, production scripts, root build configuration,
@@ -167,16 +290,19 @@ incomplete release. A documentation-only change does not run this workflow,
 and a change with no production application consumer passes the quality gate
 without activating anything.
 
-`pull-deploy` first downloads only the selected images. It verifies that every
-image's embedded Git revision matches the requested commit before recording it
-as deployable. Untouched services retain their exact running image tags.
+`pull-deploy` first preflights every selected scope, then downloads only the
+selected images. It verifies that every image's embedded Git revision matches
+the requested commit before recording it as deployable. Untouched services
+retain their exact running image tags.
 PostgreSQL is backed up and migrations run before cutover; selected services
 then activate one at a time in dependency-safe order with `--no-deps`, so
 Compose cannot restart an unrelated application or datastore. Each selected
 service has independent current and previous image state. A failed health check
 rolls back all services touched by that release while leaving every other
-container unchanged. Existing commit tags are never rewritten by a workflow
-rerun.
+container unchanged. If a later Zalo scope or the final shared-state smoke
+fails, the dispatcher also restores any ChatbotX scope activated earlier in
+the same combined release. Existing commit tags are never rewritten by a
+workflow rerun.
 
 A workflow superseded by a newer `dev` commit exits with a temporary-failure
 status rather than reporting a successful deployment. The next workflow then
@@ -230,7 +356,9 @@ heap cap.
 
 ## Automatic database backups
 
-Install the root cron job once after the first successful deployment:
+The unattended deploy installs or reconciles the backup schedules before the
+first application mutation. These commands remain available for manual repair
+and inspection:
 
 ```bash
 cd /root/apps/ChatbotX
