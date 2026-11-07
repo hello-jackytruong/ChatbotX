@@ -17,6 +17,8 @@ const WORKFLOW_CONTEXT_PATTERN = /context: \$\{\{ matrix\.context \}\}/
 const WORKFLOW_ACTIVATION_ENVIRONMENT_PATTERN = /environment: production/
 const WORKFLOW_BASELINE_ENVIRONMENT_PATTERN =
   /environment: \$\{\{ matrix\.environment \}\}/
+const DEV_OPTIONAL_ENV_FILE_PATTERN =
+  /env_file:\s*\n\s*- path: \.\/\.env\s*\n\s*required: false/
 const WORKFLOW_DISPATCH_PATTERN = /production-full\.sh pull-deploy/
 const WORKFLOW_BOOTSTRAP_LOCK_PATTERN =
   /exec 9>.*chatbotx-production\.lock[\s\S]*flock -n 9[\s\S]*git fetch[\s\S]*git checkout/
@@ -34,6 +36,7 @@ const FORBIDDEN_PRODUCTION_PATTERNS = [
 ]
 const fixtureEnvironment = {
   ...process.env,
+  CHATBOTX_ENV_FILE: ".env.example",
   APP_URL: "https://chatbotx.example.test",
   POSTGRES_PASSWORD: "chatbotx-postgres-password",
   S3_ACCESS_KEY_ID: "chatbotx-storage-root",
@@ -205,6 +208,10 @@ function verifyNoDestructiveProductionCommands() {
 }
 
 function verifyOrchestrationContracts() {
+  const developmentCompose = readFileSync(
+    path.join(repositoryRoot, "docker-compose.dev.yml"),
+    "utf8",
+  )
   const developmentScript = readFileSync(
     path.join(repositoryRoot, "scripts/docker/development.mjs"),
     "utf8",
@@ -221,6 +228,7 @@ function verifyOrchestrationContracts() {
     path.join(repositoryRoot, ".github/workflows/deploy-production.yml"),
     "utf8",
   )
+  assert.match(developmentCompose, DEV_OPTIONAL_ENV_FILE_PATTERN)
   assert.doesNotMatch(developmentScript, ZALO_DATA_SERVICE_PATTERN)
   const downAction = standaloneScript.match(DEV_DOWN_ACTION_PATTERN)?.[0]
   assert.ok(downAction, "dev-down action is missing")

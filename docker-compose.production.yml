@@ -25,7 +25,7 @@ x-app-build: &app-build
 
 x-app-common: &app-common
   env_file:
-    - ./.env
+    - ${CHATBOTX_ENV_FILE:-./.env}
   restart: unless-stopped
   networks:
     - app
