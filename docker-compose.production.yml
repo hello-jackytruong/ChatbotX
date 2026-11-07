@@ -171,6 +171,55 @@ services:
         rc anonymous set public "local/$${S3_BUCKET}/public"
     logging: *default-logging
 
+  clamav:
+    image: clamav/clamav-debian:1.4
+    restart: unless-stopped
+    networks:
+      - app
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: [CMD, /usr/local/bin/clamdcheck.sh]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1536M
+          pids: 256
+    logging: *default-logging
+
+  adminer:
+    image: adminer:5.4.2
+    profiles: [ops]
+    restart: unless-stopped
+    networks:
+      - app
+    ports:
+      - 127.0.0.1:${ADMINER_PORT:-8080}:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *default-logging
+
+  redis-ui:
+    image: redis/redisinsight:2.70
+    profiles: [ops]
+    restart: unless-stopped
+    networks:
+      - app
+    ports:
+      - 127.0.0.1:${REDIS_UI_PORT:-5540}:5540
+    volumes:
+      - redis-ui-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    logging: *default-logging
+
   builder:
     <<: *app-common
     init: true
@@ -340,3 +389,5 @@ volumes:
   postgres-data:
   redis-data:
   filesystem-data:
+  clamav-data:
+  redis-ui-data:

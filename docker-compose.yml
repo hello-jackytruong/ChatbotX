@@ -90,6 +90,14 @@ services:
       - "6379:6379"
     volumes:
       - cache-data:/data
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - noeviction
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -107,6 +115,20 @@ services:
     volumes:
       - redis-ui-data:/data
 
+  clamav:
+    <<: *network
+    image: clamav/clamav-debian:1.4
+    ports:
+      - "127.0.0.1:${CLAMAV_PORT:-3310}:3310"
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+
 networks:
   chatbotx-network:
     driver: bridge
@@ -116,3 +138,4 @@ volumes:
   filesystem-data:
   cache-data:
   redis-ui-data:
+  clamav-data:
