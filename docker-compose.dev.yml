@@ -7,7 +7,8 @@ x-service-common: &service-common
   platform: linux/amd64
   restart: unless-stopped
   env_file:
-    - ./.env
+    - path: ./.env
+      required: false
   extra_hosts:
     - "host.docker.internal:host-gateway"
   networks:
@@ -25,7 +26,9 @@ services:
     # image: chatbotx-builder:latest
     build:
       context: .
-      dockerfile: apps/builder/docker/Dockerfile
+      # Local Docker uses Next.js dev mode so an 8 GiB Docker Desktop VM can
+      # start the UI. Production keeps the standalone optimized Dockerfile.
+      dockerfile: apps/builder/docker/Dockerfile.dev
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,9 +47,22 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 120s
     environment:
-      - RUN_DB_MIGRATE=true
-      - RUN_DB_SEED=true
+      # Database changes are explicit through `pnpm docker:dev:prepare:chatbotx`.
+      - RUN_DB_MIGRATE=false
+      - RUN_DB_SEED=false
+      # Local Docker must not inherit production-domain redirects from .env.
+      - NODE_ENV=development
+      - BETTER_AUTH_URL=http://localhost:3123
+      - NEXT_PUBLIC_BUILDER_URL=http://localhost:3123
+      - NEXT_PUBLIC_BROKER_URL=http://localhost:3123
+      - NEXT_PUBLIC_INTERNAL_STORAGE_URL=http://localhost:9000/chatbotx/
+      - FORCE_PUBLIC_HTTPS=false
+      - MCP_PROXY_URL=http://host.docker.internal:3333
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-chatbotx}:${POSTGRES_PASSWORD:-secretkey}@postgres:5432/${POSTGRES_DB:-chatbotx}?schema=public
+      - REDIS_URL=redis://redis:6379/0
+      - S3_ENDPOINT=http://filesystem:9000
 
   gateway:
     platform: linux/amd64
@@ -83,6 +99,9 @@ services:
         condition: service_healthy
     environment:
       - JAVASCRIPT_EXECUTOR_URL=http://javascript-executor:3210
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-chatbotx}:${POSTGRES_PASSWORD:-secretkey}@postgres:5432/${POSTGRES_DB:-chatbotx}?schema=public
+      - REDIS_URL=redis://redis:6379/0
+      - S3_ENDPOINT=http://filesystem:9000
 
   javascript-executor:
     platform: linux/amd64
@@ -126,7 +145,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://redis:6379/0
       NEXT_PUBLIC_BUILDER_URL: http://builder:3000
       REALTIME_BUILDER_URL: http://builder:3000
 

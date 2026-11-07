@@ -1,0 +1,3097 @@
+{
+  "version": 1,
+  "routeCount": 618,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/a/:code",
+      "owner": "backend/src/modules/contacts/appointment-public-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/a/:code",
+      "owner": "backend/src/modules/contacts/appointment-public-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/appointments",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/appointments",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/public/appointments",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/appointments/action",
+      "owner": "backend/src/modules/contacts/appointment-public-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/appointments/action",
+      "owner": "backend/src/modules/contacts/appointment-public-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/public/appointments/action",
+      "owner": "backend/src/modules/contacts/appointment-public-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/contacts",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/contacts",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/public/contacts",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/contacts/:id",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/contacts/:id",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/public/contacts/:id",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/conversations",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/conversations",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/conversations/:id/messages",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/public/conversations/:id/messages",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/public/messages/send",
+      "owner": "backend/src/modules/api/public-api-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/account-folders",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/account-folders",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/account-folders",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/account-folders/:id",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/account-folders/:id",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/account-folders/:id/members",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/account-folders/reorder",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/account-folders/sync-by-owner",
+      "owner": "backend/src/modules/chat/folder-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/engagement/backfill",
+      "owner": "backend/src/modules/engagement/engagement-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/engagement/recompute",
+      "owner": "backend/src/modules/engagement/engagement-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/migrate-status-table",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/privacy/audit",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/admin/privacy/audit",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/privacy/reset-lock/:userId",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/rbac/create-test-users",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/rbac/migrate-legacy-users",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/rbac/seed-default-groups",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/run-detector",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/assistant-config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/ai/assistant-config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/ai/assistant-config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/ai/config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/ai/config",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/format-rich",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/providers",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/ai/providers",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/ai/providers/:id",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/providers/:id/models",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/ai/providers/:id/models",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/sales-handoff-message",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/sentiment/:id",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/suggest",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ai/summarize/:id",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/usage",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/ai/usage",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/conversion-funnel",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/analytics/conversion-funnel",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analytics/custom",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/response-time",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/analytics/response-time",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/team-performance",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/analytics/team-performance",
+      "owner": "backend/src/modules/analytics/analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/appointments",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/appointments",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/appointments",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/appointments/:id",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/appointments/:id",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/appointments/:id",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/appointments/:id",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/appointments/:id/status",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/appointments/settings",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/appointments/settings",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/appointments/settings",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/appointments/today",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/appointments/today",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/appointments/upcoming",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/appointments/upcoming",
+      "owner": "backend/src/modules/contacts/appointment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/audit-logs",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/audit-logs",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/chat/send-handoff",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/config",
+      "owner": "backend/src/modules/config/config-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/config",
+      "owner": "backend/src/modules/config/config-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/contacts/:contactId/apply-ai-suggestion",
+      "owner": "backend/src/modules/ai/ai-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:contactId/notes",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:contactId/notes",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:contactId/notes",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/contacts/:id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/contacts/:id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/appointments",
+      "owner": "backend/src/modules/contacts/contact-sub-resource-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/appointments",
+      "owner": "backend/src/modules/contacts/contact-sub-resource-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/cockpit",
+      "owner": "backend/src/modules/contacts/cockpit-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/cockpit",
+      "owner": "backend/src/modules/contacts/cockpit-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/crm-tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/crm-tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:id/crm-tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/contacts/:id/crm-tags/:tagId",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/engagement-timeline",
+      "owner": "backend/src/modules/engagement/engagement-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/engagement-timeline",
+      "owner": "backend/src/modules/engagement/engagement-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/friendships",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/friendships",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:id/link-parent",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:id/merge-into",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/contacts/:id/tags",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/:id/teammates",
+      "owner": "backend/src/modules/contacts/cockpit-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/:id/teammates",
+      "owner": "backend/src/modules/contacts/cockpit-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:id/unlink-parent",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/:id/virtual-conversation",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/backfill-friend-display-name",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/backfill-global-id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/backfill-missing-friends",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/backfill-orphan-friends",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/by-zalo-uid/:uid",
+      "owner": "backend/src/modules/contacts/contact-sub-resource-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/by-zalo-uid/:uid",
+      "owner": "backend/src/modules/contacts/contact-sub-resource-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/duplicates",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/duplicates",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/duplicates/:groupId/dismiss",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/duplicates/:groupId/merge",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/intelligence/recompute",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/parent-candidates",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/parent-candidates",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/parent-candidates/:id/accept",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/parent-candidates/:id/dismiss",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/pipeline",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/pipeline",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/quick-create",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/contacts/resolve-by-keys",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/sources",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/sources",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/contacts/stats",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/contacts/stats",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/conversations/:id",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/:id",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations/:id",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/attachments",
+      "owner": "backend/src/modules/chat/chat-attachment-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/card",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/forward",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/link",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/mark-read",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/:id/messages",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations/:id/messages",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/messages",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/conversations/:id/messages/:msgId",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/messages/:msgId/edit",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/messages/:msgId/undo",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/pin",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/conversations/:id/reactions",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/reactions",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/restore",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/send-block",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/sticker",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/conversations/:id/tab",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/touch-profile",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/typing",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/unpin",
+      "owner": "backend/src/modules/chat/chat-operations-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/:id/upload-image",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/counts",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations/counts",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/conversations/ensure-by-uid",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/event-counts",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations/event-counts",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/sidebar-tags",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/conversations/sidebar-tags",
+      "owner": "backend/src/modules/chat/chat-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm-tag-groups",
+      "owner": "backend/src/modules/contacts/crm-tag-group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/crm-tag-groups",
+      "owner": "backend/src/modules/contacts/crm-tag-group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/crm-tag-groups",
+      "owner": "backend/src/modules/contacts/crm-tag-group-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/crm-tag-groups/:id",
+      "owner": "backend/src/modules/contacts/crm-tag-group-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/crm-tag-groups/:id",
+      "owner": "backend/src/modules/contacts/crm-tag-group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/crm-tags",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/crm-tags",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/crm-tags",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/crm-tags/:id",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/crm-tags/:id",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/crm-tags/reorder",
+      "owner": "backend/src/modules/contacts/crm-tag-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer-list-entries/:entryId/lead-detail",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customer-list-entries/:entryId/lead-detail",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer-lists",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customer-lists",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/customer-lists/:id",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer-lists/:id",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customer-lists/:id",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/customer-lists/:id",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/archive",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer-lists/:id/entries",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customer-lists/:id/entries",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/entries",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/customer-lists/:id/entries/:entryId",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/customer-lists/:id/entries/:entryId",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/entries/:entryId/find-zalo",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/entries/bulk",
+      "owner": "backend/src/modules/lists/list-entry-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/rescan-zalo",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/:id/unarchive",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/customer-lists/dry-run",
+      "owner": "backend/src/modules/lists/list-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customers/:id/activity-log",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customers/:id/activity-log",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customers/:id/timeline",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/customers/:id/timeline",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/action-hub/me",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/action-hub/me",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/action-hub/picker/depts",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/action-hub/picker/depts",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/action-hub/picker/users",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/action-hub/picker/users",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/action-hub/system",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/action-hub/system",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/action-hub/team",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/action-hub/team",
+      "owner": "backend/src/modules/dashboard/dashboard-action-hub-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/appointments",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/appointments",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/kpi",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/kpi",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/message-volume",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/message-volume",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/pipeline",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/pipeline",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/sources",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/dashboard/sources",
+      "owner": "backend/src/modules/dashboard/dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/departments",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/departments",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/departments",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/departments/:id",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/departments/:id",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/departments/:id/members-tree",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/departments/:id/members-tree",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/departments/:id/members",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/departments/:id/members/:userId",
+      "owner": "backend/src/modules/rbac/department-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/devices",
+      "owner": "backend/src/modules/devices/device-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/devices/:fcmToken",
+      "owner": "backend/src/modules/devices/device-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/filter-presets",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/filter-presets",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/filter-presets",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/filter-presets/:id",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/filter-presets/:id",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/filter-presets/:id/use",
+      "owner": "backend/src/modules/chat/preset-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/friends-db/all-nicks",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/friends-db/all-nicks",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:friendId/zalo-label",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/friends/:id",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:id/ensure-conversation",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:id/evaluate-promote",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:id/promote-to-parent",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:id/promote",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/friends/:id/score-breakdown",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/friends/:id/score-breakdown",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/friends/:id/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/friends/:id/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/friends/:id/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/friends/:id/tags/:tagId",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/integrations",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/integrations",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/integrations",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/integrations/:id",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/integrations/:id",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/integrations/:id/logs",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/integrations/:id/logs",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/integrations/:id/sync",
+      "owner": "backend/src/modules/integrations/integration-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/leads/stuck",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/leads/stuck",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/leads/stuck/scan",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/leads/stuck/send-template",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/avatar",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/change-password",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me/internal-contact",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/me/internal-contact",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me/onboarding",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/me/onboarding",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/onboarding/dismiss",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/onboarding/reopen",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/onboarding/skip-step",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me/preferences",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/me/preferences",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/me/preferences/:key",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me/preferences/:key",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/me/preferences/:key",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/me/preferences/:key",
+      "owner": "backend/src/modules/auth/user-preference-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/me/profile",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/media/:id",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/media/:id",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/:id/favorite",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/media/:id/permanent",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/:id/restore",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/:id/send",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/media/:id/watermark",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/:id/watermark",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/album/send",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/media/bulk",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/download",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/download",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/favorites",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/favorites",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/folders",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/folders",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/folders",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/save-from-chat-batch",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/save-from-chat",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/stats",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/stats",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/suggest",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/suggest",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/tags",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/tags",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/trash",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/trash",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/media/trash/empty",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/media/upload",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/uploaders",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/media/uploaders",
+      "owner": "backend/src/modules/media/media-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/notes/:id",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/notes/:id",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notes/:id/ai-parse",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notes/:id/link-appointment",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notes/:id/reactions",
+      "owner": "backend/src/modules/contacts/notes-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/notifications",
+      "owner": "backend/src/modules/notifications/notification-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/notifications",
+      "owner": "backend/src/modules/notifications/notification-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/organization",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/organization",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/organization",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/organization/automation-settings",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/organization/automation-settings",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/organization/automation-settings",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/organization/system-notify-nick",
+      "owner": "backend/src/modules/auth/org-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/permission-groups",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/permission-groups",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/permission-groups",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/permission-groups/:id",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/permission-groups/:id",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/permission-groups/:id",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/permission-groups/:id",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/permission-groups/meta",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/permission-groups/meta",
+      "owner": "backend/src/modules/rbac/permission-group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/privacy/lock",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/privacy/my-nicks",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/privacy/my-nicks",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/privacy/otp/request",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/privacy/otp/status",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/privacy/otp/status",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/privacy/otp/verify",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/privacy/status",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/privacy/status",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/profile",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/profile",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/public/org-branding",
+      "owner": "backend/src/modules/branding/org-branding-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/public/org-branding",
+      "owner": "backend/src/modules/branding/org-branding-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/rbac/users",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/rbac/users",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/rbac/users/:id/permission-group",
+      "owner": "backend/src/modules/rbac/user-assignment-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/appointments",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/appointments",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/audit",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/audit",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/automation",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/automation",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/contacts",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/contacts",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/crm-usage",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/crm-usage",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/engagement",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/engagement",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/export",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/export",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/lead-pool",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/lead-pool",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/messages",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/messages",
+      "owner": "backend/src/modules/dashboard/report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/nick-fleet",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/nick-fleet",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/overview",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/overview",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/pipeline",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/pipeline",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/sales-performance",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/reports/sales-performance",
+      "owner": "backend/src/modules/dashboard/report-analytics-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/saved-reports",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/saved-reports",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/saved-reports",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/saved-reports/:id",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/saved-reports/:id",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/saved-reports/:id",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/saved-reports/:id",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/saved-reports/:id/run",
+      "owner": "backend/src/modules/analytics/saved-report-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scoring/config",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/scoring/config",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/scoring/config",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scoring/nba-templates",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/scoring/nba-templates",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/scoring/recompute-all",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scoring/rules",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/scoring/rules",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/scoring/rules/:id",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/scoring/seed-defaults",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scoring/stage-transitions",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/scoring/stage-transitions",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scoring/stuck-thresholds",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/scoring/stuck-thresholds",
+      "owner": "backend/src/modules/scoring/scoring-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/search",
+      "owner": "backend/src/modules/search/search-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/search",
+      "owner": "backend/src/modules/search/search-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/api-key",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/settings/api-key",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/api-key/generate",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/statuses",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/settings/statuses",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/statuses",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/settings/statuses/:id",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/statuses/:id",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/statuses/reorder",
+      "owner": "backend/src/modules/contacts/status-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/webhook",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/settings/webhook",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/webhook",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/webhook/test",
+      "owner": "backend/src/modules/api/webhook-settings-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/setup",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/setup/status",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/setup/status",
+      "owner": "backend/src/modules/auth/auth-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/status",
+      "owner": "backend/src/app.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/compile-template",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system-notifications/logs",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/system-notifications/logs",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/logs/:id/retry",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system-notifications/org-config",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/system-notifications/org-config",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/system-notifications/org-config",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/preview-welcome",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system-notifications/recipients",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/system-notifications/recipients",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/recipients/:userId/check-live",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system-notifications/recipients/health",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/system-notifications/recipients/health",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/recipients/recheck-all",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system-notifications/settings",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/system-notifications/settings",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/system-notifications/settings/sender",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/test",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/system-notifications/welcome-image",
+      "owner": "backend/src/modules/system-notifications/system-notify-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tags",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/tags/",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/tags/:id",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/tags/:id",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tags/merge",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tags/zalo-accounts",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/tags/zalo-accounts",
+      "owner": "backend/src/modules/tags/tag-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teams",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/teams",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/teams",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/teams/:id",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/teams/:id",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teams/:id/members",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/teams/:id/members",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/teams/:id/members",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/teams/:id/members/:userId",
+      "owner": "backend/src/modules/auth/team-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/telegram-bridge/:zaloAccountId/status",
+      "owner": "backend/src/modules/integrations/providers/telegram-bridge/telegram-bridge-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/telegram-bridge/:zaloAccountId/status",
+      "owner": "backend/src/modules/integrations/providers/telegram-bridge/telegram-bridge-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/telegram-bridge/disable/:zaloAccountId",
+      "owner": "backend/src/modules/integrations/providers/telegram-bridge/telegram-bridge-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/telegram-bridge/link-code",
+      "owner": "backend/src/modules/integrations/providers/telegram-bridge/telegram-bridge-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/telegram-bridge/provision/:zaloAccountId",
+      "owner": "backend/src/modules/integrations/providers/telegram-bridge/telegram-bridge-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timeline/export",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/timeline/export",
+      "owner": "backend/src/modules/activity/timeline-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/users",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/users/:id",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/users/:id",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/:id/handoff",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/users/:id/max-privacy-nicks",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/users/:id/password",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/:userId/resend-credentials",
+      "owner": "backend/src/modules/system-notifications/user-create-with-zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/bulk-assign",
+      "owner": "backend/src/modules/auth/user-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/check-zalo-by-phone",
+      "owner": "backend/src/modules/system-notifications/user-create-with-zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/create-with-zalo",
+      "owner": "backend/src/modules/system-notifications/user-create-with-zalo-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/credentials/export",
+      "owner": "backend/src/modules/zalo/credential-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/credentials/export",
+      "owner": "backend/src/modules/zalo/credential-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/credentials/import",
+      "owner": "backend/src/modules/zalo/credential-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends-db",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends-db",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends-db/sync",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/alias",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/alias",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/block-feed",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/block-feed",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/block",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/:userId/block",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/aliases",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/aliases",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/find",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/find",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/lookup-by-phone",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/online",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/online",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/recommendations",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/recommendations",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/:userId",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/:userId/accept",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/:userId/reject",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/:userId/status",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/:userId/status",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/sent",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/friends/requests/sent",
+      "owner": "backend/src/modules/zalo/friend-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/group-scans",
+      "owner": "backend/src/modules/zalo/group-scan-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/group-scans/:scanId",
+      "owner": "backend/src/modules/zalo/group-scan-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/group-scans/:scanId",
+      "owner": "backend/src/modules/zalo/group-scan-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/group-scans/:scanId/members",
+      "owner": "backend/src/modules/zalo/group-scan-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/group-scans/:scanId/members",
+      "owner": "backend/src/modules/zalo/group-scan-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/block",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/block/:userId",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/blocked",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/blocked",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/deputies",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/deputies/:userId",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/disperse",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/ensure-conversation",
+      "owner": "backend/src/modules/contacts/contact-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/leave",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/link",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/link",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/link/disable",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/link/enable",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/members",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/members",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/members",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/members",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/name",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/pending",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/pending",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls/:pollId",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls/:pollId",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls/:pollId/lock",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls/:pollId/share",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/polls/:pollId/vote",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/settings",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/:groupId/transfer",
+      "owner": "backend/src/modules/zalo/group-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/groups/join-link",
+      "owner": "backend/src/modules/zalo/group-moderation-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/profile",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/profile",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:accountId/profile",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/avatar",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/avatars",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/avatars",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/avatars/:avatarId",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/avatars/:avatarId/reuse",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/last-online/:userId",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/last-online/:userId",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:accountId/profile/status",
+      "owner": "backend/src/modules/zalo/profile-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:id",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:id/access",
+      "owner": "backend/src/modules/zalo/zalo-access-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:id/access",
+      "owner": "backend/src/modules/zalo/zalo-access-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/access",
+      "owner": "backend/src/modules/zalo/zalo-access-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:id/access/:accessId",
+      "owner": "backend/src/modules/zalo/zalo-access-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:id/access/:accessId",
+      "owner": "backend/src/modules/zalo/zalo-access-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:id/labels",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:id/labels",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:id/labels/:labelId",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/labels/assign-thread",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/labels/sync",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/labels/touch",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/login",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:id/owner",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:id/phone",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/zalo-accounts/:id/privacy-mode",
+      "owner": "backend/src/modules/privacy/privacy-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:id/proxy",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:id/purge-empty",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/reconnect",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/restore",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/zalo-accounts/:id/sdk-limits",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/:id/sdk-limits",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:id/status",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:id/status",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/sync-contacts",
+      "owner": "backend/src/modules/zalo/zalo-sync-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/:id/sync-history",
+      "owner": "backend/src/modules/zalo/zalo-sync-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/:id/uptime",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/:id/uptime",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/archived",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/archived",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/bulk-action",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-accounts/check-phone",
+      "owner": "backend/src/modules/zalo/zalo-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/enriched",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/enriched",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/labels-overview",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/labels-overview",
+      "owner": "backend/src/modules/zalo/zalo-labels-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/sdk-limits",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/sdk-limits",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/zalo-accounts/sdk-limits/org",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-accounts/stats",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-accounts/stats",
+      "owner": "backend/src/modules/zalo/zalo-dashboard-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-bankcard",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-bankcard",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-sticker-list",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-sticker-list",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-sticker/:catId/:id",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-sticker/:catId/:id",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/zalo-user-info/:uid",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/v1/zalo-user-info/:uid",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-user-info/batch",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/zalo-user-info/find-by-phone",
+      "owner": "backend/src/modules/contacts/zinstant-proxy-routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "owner": "backend/src/app.ts"
+    }
+  ],
+  "failures": []
+}

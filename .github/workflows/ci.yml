@@ -159,6 +159,64 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+  # Zalo Personal keeps its Community npm lockfiles inside the imported module.
+  # This prevents pnpm peer resolution from changing its Fastify/Tiptap behavior,
+  # while still exposing one root command surface and one mandatory CI gate.
+  zalo-personal:
+    name: Zalo Personal
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            apps/zalo-personal/backend/package-lock.json
+            apps/zalo-personal/frontend/package-lock.json
+
+      - name: Install Zalo Personal dependencies
+        run: pnpm zalo-personal:install
+
+      - name: Verify imported source
+        run: pnpm zalo-personal:source:check
+
+      - name: Test contracts, logic, and builds
+        run: pnpm zalo-personal:test:full
+
+      - name: Verify Docker contracts
+        run: pnpm test:docker:zalo-personal
+
+      - name: Verify production deployment automation
+        run: pnpm test:deployment
+
+      - name: Lint production shell scripts
+        run: |
+          shellcheck \
+            scripts/deployment/production.sh \
+            scripts/deployment/production-selective.test.sh \
+            scripts/docker/production-full.sh \
+            scripts/docker/production-full.test.sh \
+            scripts/docker/zalo-personal/production.sh \
+            scripts/docker/zalo-personal/production-selective.test.sh \
+            scripts/docker/zalo-personal/init-database.sh \
+            scripts/docker/zalo-personal/init-rustfs.sh
+
+      - name: Lint GitHub Actions workflows
+        run: >-
+          docker run --rm -v "$PWD:/repo" --workdir /repo
+          rhysd/actionlint:1.7.12 -color
+
+      - name: Build production image
+        run: docker build -f apps/zalo-personal/docker/Dockerfile apps/zalo-personal
+
   # Tests are split into eight shards, each on its own 4-vCPU runner. Import cost,
   # not test bodies, dominates every suite (business measured `import 2812s`
   # vs `tests 86s` on CI), and a change to `database` or `business` makes
@@ -223,8 +281,9 @@ jobs:
       - name: Test affected workspaces
         if: github.event_name == 'pull_request'
         run: |
-          export TURBO_SCM_BASE="$(git rev-parse HEAD^1)"
-          export TURBO_SCM_HEAD="$(git rev-parse HEAD)"
+          TURBO_SCM_BASE="$(git rev-parse HEAD^1)"
+          TURBO_SCM_HEAD="$(git rev-parse HEAD)"
+          export TURBO_SCM_BASE TURBO_SCM_HEAD
           pnpm turbo run test --affected --concurrency=2 -- --shard=${{ matrix.shard }}/${{ matrix.total }}
 
       # Turbo does not parallelize *within* a suite, so wall clock is bounded

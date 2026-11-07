@@ -77,6 +77,43 @@ test("requests a full deployment when no successful production baseline exists",
   assert.equal(baseline, "")
 })
 
+test("resolves ChatbotX and Zalo baselines independently", async () => {
+  const environments = []
+  const fetchImpl = (url) => {
+    if (url.includes("/deployments?")) {
+      const environment = new URL(url).searchParams.get("environment")
+      environments.push(environment)
+      return jsonResponse([
+        {
+          id: environment === "production-chatbotx" ? 11 : 22,
+          sha:
+            environment === "production-chatbotx"
+              ? "a".repeat(40)
+              : "b".repeat(40),
+        },
+      ])
+    }
+    return jsonResponse([{ state: "success" }])
+  }
+
+  const chatbotx = await findLatestSuccessfulProductionDeployment({
+    environment: "production-chatbotx",
+    fetchImpl,
+    repository: "owner/repository",
+    token: "test-token",
+  })
+  const zalo = await findLatestSuccessfulProductionDeployment({
+    environment: "production-zalo",
+    fetchImpl,
+    repository: "owner/repository",
+    token: "test-token",
+  })
+
+  assert.equal(chatbotx, "a".repeat(40))
+  assert.equal(zalo, "b".repeat(40))
+  assert.deepEqual(environments, ["production-chatbotx", "production-zalo"])
+})
+
 test("selects only applications reported by the dependency graph", () => {
   assert.deepEqual(
     selectAffectedServices({
@@ -108,7 +145,16 @@ test("uses a full deployment for global build inputs", () => {
     "worker",
     "realtime",
     "javascript-executor",
+    "zalo-personal",
   ])
+})
+
+test("uses a full deployment when the host dispatcher changes", () => {
+  const result = selectAffectedServices({
+    changedFiles: ["scripts/docker/production-full.sh"],
+  })
+  assert.equal(result.fullDeploy, true)
+  assert.equal(result.services.length, 5)
 })
 
 test("uses a full deployment for database and migration changes", () => {
@@ -123,13 +169,14 @@ test("uses a full deployment for database and migration changes", () => {
     "worker",
     "realtime",
     "javascript-executor",
+    "zalo-personal",
   ])
 })
 
 test("uses a full deployment when dependency detection fails", () => {
   assert.equal(
     selectAffectedServices({ detectionFailed: true }).services.length,
-    4,
+    5,
   )
 })
 
@@ -144,6 +191,39 @@ test("adds Docker build inputs outside a workspace to their service", () => {
 
 test("returns a valid placeholder matrix when no app is affected", () => {
   assert.deepEqual(buildServiceMatrix([]), {
-    include: [{ label: "none", image: "none", dockerfile: "none" }],
+    include: [
+      { label: "none", image: "none", context: ".", dockerfile: "none" },
+    ],
+  })
+})
+
+test("selects Zalo only for Zalo application inputs", () => {
+  assert.deepEqual(
+    selectAffectedServices({
+      changedFiles: ["apps/zalo-personal/backend/src/app.ts"],
+    }).services,
+    ["zalo-personal"],
+  )
+})
+
+test("ignores Zalo documentation-only changes", () => {
+  assert.deepEqual(
+    selectAffectedServices({
+      changedFiles: ["docs/zalo-personal/docker-runbook.md"],
+    }).services,
+    [],
+  )
+})
+
+test("uses the application-local Zalo build context", () => {
+  assert.deepEqual(buildServiceMatrix(["zalo-personal"]), {
+    include: [
+      {
+        label: "zalo-personal",
+        image: "chatbotx-zalo-personal",
+        context: "./apps/zalo-personal",
+        dockerfile: "docker/Dockerfile",
+      },
+    ],
   })
 })

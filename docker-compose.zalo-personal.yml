@@ -1,0 +1,105 @@
+services:
+  # Explicit bootstrap only. Normal `up` never includes or depends on this
+  # service, so starting Zalo cannot mutate PostgreSQL.
+  zalo-database-init:
+    image: timescale/timescaledb-ha:pg18-all
+    profiles: [prepare]
+    restart: "no"
+    networks:
+      - chatbotx-network
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-chatbotx}
+      POSTGRES_USER: ${POSTGRES_USER:-chatbotx}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-secretkey}
+      ZALO_DB_NAME: ${ZALO_DB_NAME:-zalo_personal}
+      ZALO_DB_USER: ${ZALO_DB_USER:-zalo_personal}
+      ZALO_DB_PASSWORD: ${ZALO_DB_PASSWORD:-zalo-personal-dev-password}
+      ZALO_DB_CONNECTION_LIMIT: ${ZALO_DB_CONNECTION_LIMIT:-30}
+    volumes:
+      - ./scripts/docker/zalo-personal/init-database.sh:/usr/local/bin/init-zalo-database:ro
+    entrypoint: [/bin/sh, /usr/local/bin/init-zalo-database]
+
+  zalo-filesystem-init:
+    image: rustfs/rc:v0.1.22
+    profiles: [prepare]
+    restart: "no"
+    networks:
+      - chatbotx-network
+    environment:
+      RUSTFS_ADMIN_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-chatbotx}
+      RUSTFS_ADMIN_SECRET_KEY: ${RUSTFS_SECRET_KEY:-secretkey}
+      CHATBOTX_S3_BUCKET: ${S3_BUCKET:-chatbotx}
+      ZALO_S3_ACCESS_KEY_ID: ${ZALO_S3_ACCESS_KEY_ID:-zalo-personal-dev}
+      ZALO_S3_SECRET_ACCESS_KEY: ${ZALO_S3_SECRET_ACCESS_KEY:-zalo-personal-dev-secret}
+      ZALO_S3_BUCKET: ${ZALO_S3_BUCKET:-zalocrm-attachments}
+    volumes:
+      - ./scripts/docker/zalo-personal/init-rustfs.sh:/usr/local/bin/init-rustfs:ro
+      - ./scripts/docker/zalo-personal/rustfs-policy.json:/config/rustfs-policy.json:ro
+    entrypoint: [/bin/sh, /usr/local/bin/init-rustfs]
+
+  zalo-personal:
+    image: chatbotx-zalo-personal:${CHATBOTX_ZALO_PERSONAL_IMAGE_TAG:-dev}
+    build:
+      context: ./apps/zalo-personal
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    init: true
+    networks:
+      - chatbotx-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      APP_URL: ${ZALO_APP_URL:-http://localhost:3080}
+      CRM_LOGIN_URL: ${ZALO_APP_URL:-http://localhost:3080}
+      JWT_SECRET: ${ZALO_JWT_SECRET:-zalo-personal-development-jwt-secret-32-chars}
+      ENCRYPTION_KEY: ${ZALO_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      TOKEN_ENCRYPTION_KEY: ${ZALO_TOKEN_ENCRYPTION_KEY:-}
+      FB_TOKEN_ENC_KEY: ${ZALO_FB_TOKEN_ENC_KEY:-}
+      DATABASE_URL: ${ZALO_DATABASE_URL:-postgresql://zalo_personal:zalo-personal-dev-password@postgres:5432/zalo_personal}
+      REDIS_URL: ${ZALO_REDIS_URL:-redis://redis:6379/1}
+      STORAGE_DRIVER: r2
+      S3_ENDPOINT: http://filesystem:9000
+      S3_PUBLIC_URL: ${ZALO_S3_PUBLIC_URL:-http://localhost:9000/zalocrm-attachments}
+      S3_BUCKET: ${ZALO_S3_BUCKET:-zalocrm-attachments}
+      S3_REGION: ${ZALO_S3_REGION:-us-east-1}
+      S3_ACCESS_KEY: ${ZALO_S3_ACCESS_KEY_ID:-zalo-personal-dev}
+      S3_SECRET_KEY: ${ZALO_S3_SECRET_ACCESS_KEY:-zalo-personal-dev-secret}
+      MEDIA_AV_ENABLED: ${ZALO_MEDIA_AV_ENABLED:-0}
+      MEDIA_AV_FAIL_CLOSED: ${ZALO_MEDIA_AV_FAIL_CLOSED:-1}
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
+      AUTOMATION_STUB_MODE: ${ZALO_AUTOMATION_STUB_MODE:-false}
+      FRIEND_INVITE_TEST_MODE: "false"
+    ports:
+      - "127.0.0.1:${ZALO_APP_PORT:-3080}:3000"
+    volumes:
+      - zalo-file-storage:/var/lib/zalo-crm/files
+    tmpfs:
+      - /tmp:size=256m,noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/api/v1/setup/status').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    stop_grace_period: 30s
+
+volumes:
+  # Retained until the attachment inventory proves every referenced object is
+  # in RustFS. This plan never deletes the volume automatically.
+  zalo-file-storage:

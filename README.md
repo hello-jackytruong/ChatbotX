@@ -146,7 +146,23 @@
 
 To have the project up and running, please follow the [Quick Start Guide](https://chatbotx.io/docs/quickstart).
 
-**Self-hosting ChatbotX without developing on it?** Use **[chatbotx-docker-compose](https://github.com/ChatbotXIO/chatbotx-docker-compose)** — a standalone repo that runs the pre-built `ghcr.io` images with `docker compose up`, no local checkout of this monorepo required. The compose files in this repository (`docker-compose.yml`, `docker-compose.dev.yml`) provision local infrastructure only and expect the apps to run from source via `pnpm dev`.
+**Self-hosting ChatbotX without developing on it?** Use **[chatbotx-docker-compose](https://github.com/ChatbotXIO/chatbotx-docker-compose)** — a standalone repo that runs the pre-built `ghcr.io` images with `docker compose up`, no local checkout of this monorepo required.
+
+This repository supports both source development (`pnpm dev`) and a complete local Docker stack. Database preparation is explicit and only needs to be run on first setup or after new migrations:
+
+```bash
+pnpm docker:dev:prepare   # migrate/seed ChatbotX and migrate Zalo Personal
+pnpm docker:dev:full      # start every local container
+```
+
+Individual groups can be started independently with `pnpm docker:dev:infra`, `pnpm docker:dev:chatbotx`, or `pnpm docker:dev:zalo`. Use `pnpm docker:dev:status` to inspect the complete stack and `pnpm docker:dev:down` to stop it without deleting volumes.
+
+ChatbotX and Zalo Personal share one PostgreSQL, Redis and RustFS container.
+They use separate PostgreSQL databases/roles, Redis DB 0/1 and RustFS
+buckets/credentials. Starting or stopping the Zalo group does not stop shared
+infrastructure; see the [Zalo Docker runbook](docs/zalo-personal/docker-runbook.md).
+
+The local Builder image runs Next.js in development mode so the complete stack fits in an 8 GiB Docker Desktop VM. Production continues to use the optimized standalone image and its guarded deployment workflow.
 
 ## Project Structure
 
@@ -246,6 +262,11 @@ The default Docker Compose stack includes:
 - RustFS object storage on `9000` and console on `9001`
 - MailHog SMTP on `1025` and UI on `8025`
 - Adminer on `8080`
+- ChatbotX Builder through the gateway on `3123` when the `chatbotx` or `full` group is started
+- Zalo Personal UI/API on `3080` when the `zalo` or `full` group is started
+
+Zalo reuses PostgreSQL `5432`, Redis `6379` (logical DB 1), and RustFS `9000`;
+there are no extra PostgreSQL or Redis containers or host ports.
 
 ## Support
 

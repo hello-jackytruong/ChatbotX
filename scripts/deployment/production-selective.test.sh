@@ -113,6 +113,20 @@ assert_equal \
   'Manual rollback requires the next activation to be a full deployment'
 state_unset force-full-next-deploy
 
+state_set previous-tag-builder 'builder-baseline'
+state_set deployed-git-sha "$(printf 'b%.0s' {1..40})"
+state_set previous-deployed-git-sha "$(printf 'a%.0s' {1..40})"
+CHATBOTX_AUTOMATIC_ROLLBACK=1 rollback_release builder
+assert_equal \
+  "$(printf 'a%.0s' {1..40})" \
+  "$(state_get deployed-git-sha)" \
+  'Combined-release rollback restores the last successful deployment SHA'
+assert_equal \
+  '' \
+  "$(state_get force-full-next-deploy)" \
+  'Combined-release rollback keeps the successful baseline aligned'
+unset CHATBOTX_AUTOMATIC_ROLLBACK
+
 DOCKER_CALLS=()
 FAIL_DOCKER_SERVICE='builder'
 set_service_tag builder 'builder-new'
@@ -149,5 +163,28 @@ else
   stale_status=$?
 fi
 assert_equal '75' "$stale_status" 'Stale deployments use the temporary-failure exit code'
+
+production_source="$(<"$TEST_SCRIPT_DIR/production.sh")"
+activation_source="$(sed -n '/^activate_built_release()/,/^rollback_release()/p' "$TEST_SCRIPT_DIR/production.sh")"
+assert_contains \
+  "$activation_source" \
+  'guard_migration_compatibility' \
+  'Migration compatibility is checked before automatic migration'
+assert_contains \
+  "$activation_source" \
+  'clean_old_releases' \
+  'Successful activation automatically removes obsolete local image tags'
+assert_contains \
+  "$activation_source" \
+  'assert_datastores_unchanged' \
+  'Application deployment verifies shared datastore container identity'
+assert_contains \
+  "$production_source" \
+  '--no-recreate' \
+  'Application deployment must not recreate shared datastores'
+assert_not_contains \
+  "$production_source" \
+  'docker compose down' \
+  'Production automation never tears down the stack'
 
 printf 'Selective production deployment tests passed.\n'

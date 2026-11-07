@@ -27,6 +27,7 @@
       "!**/.github/assets/readme",
       "!**/apps/builder/public/brand",
       "!**/apps/builder/public/chat-widget/plugin-toggle.svg",
+      "!**/apps/zalo-personal",
       "!**/.claude"
     ]
   },

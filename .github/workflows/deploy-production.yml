@@ -32,6 +32,9 @@ jobs:
       has_services: ${{ steps.affected.outputs.has_services }}
       services: ${{ steps.affected.outputs.services }}
       matrix: ${{ steps.affected.outputs.matrix }}
+      baseline_matrix: ${{ steps.affected.outputs.baseline_matrix }}
+      chatbotx_services: ${{ steps.affected.outputs.chatbotx_services }}
+      deploy_zalo: ${{ steps.affected.outputs.deploy_zalo }}
       full_deploy: ${{ steps.affected.outputs.full_deploy }}
       reason: ${{ steps.affected.outputs.reason }}
     steps:
@@ -63,41 +66,56 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASE_SHA=""
-          if [ "${{ github.event_name }}" = "push" ]; then
-            if ! BASE_SHA="$(node scripts/deployment/detect-affected-services.mjs \
-              --resolve-production-baseline \
-              --github-repository "$GITHUB_REPOSITORY" \
-              --environment production)"; then
-              echo "::warning::Could not read production deployment history; using a full deployment"
-              BASE_SHA=""
+          detect_scope() {
+            local scope="$1" environment="$2" output="$3" base_sha=""
+            if [ "${{ github.event_name }}" = "push" ]; then
+              base_sha="$(node scripts/deployment/detect-affected-services.mjs \
+                --resolve-production-baseline \
+                --github-repository "$GITHUB_REPOSITORY" \
+                --environment "$environment" 2>/dev/null || true)"
             fi
-          fi
-
-          if [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
-            node scripts/deployment/detect-affected-services.mjs \
-              --full \
-              --head "$HEAD_SHA" \
-              --github-output "$GITHUB_OUTPUT"
-          else
-            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
-              if ! git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
-                echo "::warning::Could not fetch the production baseline; using a full deployment"
-                BASE_SHA=""
-              fi
-            fi
-            if [ -z "$BASE_SHA" ]; then
-              node scripts/deployment/detect-affected-services.mjs \
-                --full \
-                --head "$HEAD_SHA" \
-                --github-output "$GITHUB_OUTPUT"
+            if [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]]; then
+              git cat-file -e "$base_sha^{commit}" 2>/dev/null || \
+                git fetch --no-tags --depth=1 origin "$base_sha" || base_sha=""
             else
-              node scripts/deployment/detect-affected-services.mjs \
-                --base "$BASE_SHA" \
-                --head "$HEAD_SHA" \
-                --github-output "$GITHUB_OUTPUT"
+              base_sha=""
             fi
-          fi
+            if [ -n "$base_sha" ]; then
+              node scripts/deployment/detect-affected-services.mjs \
+                --scope "$scope" --base "$base_sha" --head "$HEAD_SHA" >"$output"
+            else
+              echo "::warning::No successful $scope baseline; using the full $scope"
+              node scripts/deployment/detect-affected-services.mjs \
+                --scope "$scope" --full --head "$HEAD_SHA" >"$output"
+            fi
+          }
+
+          detect_scope chatbotx production-chatbotx "$RUNNER_TEMP/chatbotx-scope.json"
+          detect_scope zalo production-zalo "$RUNNER_TEMP/zalo-scope.json"
+
+          node --input-type=module - "$RUNNER_TEMP/chatbotx-scope.json" \
+            "$RUNNER_TEMP/zalo-scope.json" "$GITHUB_OUTPUT" <<'NODE'
+          import { readFileSync, appendFileSync } from "node:fs";
+          import { buildServiceMatrix } from "./scripts/deployment/detect-affected-services.mjs";
+          const [chatbotxPath, zaloPath, outputPath] = process.argv.slice(2);
+          const chatbotx = JSON.parse(readFileSync(chatbotxPath, "utf8"));
+          const zalo = JSON.parse(readFileSync(zaloPath, "utf8"));
+          const services = [...new Set([...chatbotx.services, ...zalo.services])];
+          const baselineInclude = [];
+          if (chatbotx.services.length) baselineInclude.push({ scope: "chatbotx", environment: "production-chatbotx" });
+          if (zalo.services.includes("zalo-personal")) baselineInclude.push({ scope: "zalo", environment: "production-zalo" });
+          appendFileSync(outputPath, [
+            `has_services=${services.length > 0}`,
+            `services=${services.join(",")}`,
+            `chatbotx_services=${chatbotx.services.join(",")}`,
+            `deploy_zalo=${zalo.services.includes("zalo-personal")}`,
+            `matrix=${JSON.stringify(buildServiceMatrix(services))}`,
+            `baseline_matrix=${JSON.stringify({ include: baselineInclude })}`,
+            `full_deploy=${chatbotx.fullDeploy || zalo.fullDeploy}`,
+            `reason=ChatbotX and Zalo use independent successful deployment baselines`,
+            "",
+          ].join("\n"));
+          NODE
 
       - name: Summarize deployment scope
         env:
@@ -198,7 +216,7 @@ jobs:
         if: steps.existing-image.outputs.exists != 'true'
         uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           platforms: ${{ env.BUILD_PLATFORMS }}
@@ -212,7 +230,7 @@ jobs:
           cache-to: type=gha,scope=production-${{ matrix.label }},mode=min
 
   deploy:
-    name: Deploy to production
+    name: Activate production release
     if: >-
       github.ref == 'refs/heads/dev' &&
       needs.detect.outputs.has_services == 'true' &&
@@ -246,6 +264,7 @@ jobs:
           chmod 600 "$HOME/.ssh/chatbotx-production" "$HOME/.ssh/known_hosts"
 
       - name: Pull and activate release
+        id: activate
         env:
           PROD_HOST: ${{ secrets.PROD_HOST }}
           PROD_PORT: ${{ secrets.PROD_PORT }}
@@ -276,23 +295,96 @@ jobs:
           deploy_services="$3"
           cd /root/apps/ChatbotX
 
+          [[ "$release_sha" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "Invalid release SHA" >&2
+            exit 1
+          }
+          command -v flock >/dev/null || {
+            echo "flock is required" >&2
+            exit 1
+          }
+          exec 9>"${CHATBOTX_DEPLOY_LOCK:-/var/lock/chatbotx-production.lock}"
+          flock -n 9 || {
+            echo "Another production operation is already running" >&2
+            exit 1
+          }
+          export CHATBOTX_DEPLOY_LOCK_FD=9
+
           git fetch --quiet origin dev
           remote_sha="$(git rev-parse origin/dev)"
           if [ "$remote_sha" != "$release_sha" ]; then
             echo "Skipping stale release $release_sha; origin/dev is now $remote_sha"
             exit 75
           fi
-
           git checkout dev
           git merge --ff-only "$release_sha"
-          checked_out_sha="$(git rev-parse HEAD)"
-          if [ "$checked_out_sha" != "$release_sha" ]; then
-            echo "Server dev branch is at $checked_out_sha, expected $release_sha" >&2
+          [ "$(git rev-parse HEAD)" = "$release_sha" ] || {
+            echo "Checked-out release does not match the requested SHA" >&2
             exit 1
-          fi
-          CHATBOTX_IMAGE_PREFIX="$image_prefix" \
-          CHATBOTX_IMAGE_TAG="sha-$release_sha" \
-          CHATBOTX_EXPECTED_GIT_SHA="$release_sha" \
-          CHATBOTX_DEPLOY_SERVICES="$deploy_services" \
-            ./scripts/deployment/production.sh pull-deploy
+          }
+
+          ./scripts/docker/production-full.sh pull-deploy \
+            "$release_sha" "$image_prefix" "$deploy_services"
           REMOTE
+
+      - name: Capture production status after a failed activation
+        if: failure() && steps.activate.outcome == 'failure'
+        env:
+          PROD_HOST: ${{ secrets.PROD_HOST }}
+          PROD_PORT: ${{ secrets.PROD_PORT }}
+          PROD_USER: ${{ secrets.PROD_USER }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh \
+            -i "$HOME/.ssh/chatbotx-production" \
+            -p "${PROD_PORT:-22}" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$PROD_USER@$PROD_HOST" \
+            'cd /root/apps/ChatbotX && ./scripts/docker/production-full.sh status' \
+            || true
+
+      - name: Summarize successful activation
+        if: success()
+        env:
+          DEPLOY_SERVICES: ${{ needs.detect.outputs.services }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          {
+            echo "### Production activation succeeded"
+            echo "- Services: $DEPLOY_SERVICES"
+            echo "- Revision: $RELEASE_SHA"
+            echo "- Backups, migrations, readiness, rollback state, and image retention completed on the host."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  record-successful-baseline:
+    name: Record ${{ matrix.scope }} production baseline
+    if: >-
+      github.ref == 'refs/heads/dev' &&
+      needs.detect.outputs.has_services == 'true' &&
+      needs.deploy.result == 'success'
+    needs:
+      - detect
+      - deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.detect.outputs.baseline_matrix) }}
+    environment: ${{ matrix.environment }}
+    permissions:
+      contents: read
+    steps:
+      - name: Record successful scope deployment
+        env:
+          DEPLOY_SCOPE: ${{ matrix.scope }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          {
+            echo "### Successful production baseline"
+            echo "- Scope: $DEPLOY_SCOPE"
+            echo "- Revision: $RELEASE_SHA"
+            echo "- Recorded only after the combined production activation succeeded."
+          } >> "$GITHUB_STEP_SUMMARY"

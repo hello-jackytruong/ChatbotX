@@ -1,0 +1,2574 @@
+{
+  "version": 1,
+  "objectCount": 368,
+  "objects": [
+    {
+      "kind": "interface",
+      "name": "AccountActivityItem",
+      "file": "frontend/src/composables/use-contacts.ts",
+      "line": 238,
+      "signatureSha256": "3bd24e4729031297200f0926249b0a88afb90e38ea5ae4297bc8e1ba81bbe491"
+    },
+    {
+      "kind": "interface",
+      "name": "AccountFolder",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 25,
+      "signatureSha256": "169d39fbf39e02bb9ec93482504eda1b5a4e8d055ecf326d6f318b7597024ec2"
+    },
+    {
+      "kind": "type",
+      "name": "Action",
+      "file": "backend/src/modules/rbac/permission-types.ts",
+      "line": 17,
+      "signatureSha256": "54d5ebb4250a8360c9df45fab0847f0f92deefe9c06187f7ba4c3fa19e017c59"
+    },
+    {
+      "kind": "type",
+      "name": "ActionEventKey",
+      "file": "backend/src/modules/scoring/signal-detector.ts",
+      "line": 168,
+      "signatureSha256": "3beb68e22638b64d61358fbf4902b0dc4941940dc6562d68863aa66c40415b75"
+    },
+    {
+      "kind": "interface",
+      "name": "ActionMeta",
+      "file": "frontend/src/constants/activity-types.ts",
+      "line": 45,
+      "signatureSha256": "7a13cd282bdb8911ee9e0cfdeec0de0b514f5668106f33178d03549af14841fa"
+    },
+    {
+      "kind": "type",
+      "name": "ActiveTab",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 59,
+      "signatureSha256": "8d93230c1ff730772d52ab0e8d82910201ca42c03cec2396a131a3f5e06b25cd"
+    },
+    {
+      "kind": "type",
+      "name": "ActivityCategory",
+      "file": "backend/src/modules/activity/action-types.ts",
+      "line": 9,
+      "signatureSha256": "4923871f64f693e9f461cecac1ad2cffff38aebace47d0d2b7f7591da2326a01"
+    },
+    {
+      "kind": "type",
+      "name": "ActivityCategory",
+      "file": "frontend/src/constants/activity-types.ts",
+      "line": 13,
+      "signatureSha256": "4f68a756c9da3fd03607d9564cfd6077d72045e6bc9d53d2f17da15faf7253c5"
+    },
+    {
+      "kind": "interface",
+      "name": "ActivityLogItem",
+      "file": "frontend/src/composables/use-timeline.ts",
+      "line": 9,
+      "signatureSha256": "abd3d14ce2baa1c54b2480bf40798ec725cac47093d0563b584d6753f52364ec"
+    },
+    {
+      "kind": "type",
+      "name": "ActorType",
+      "file": "backend/src/modules/activity/action-types.ts",
+      "line": 21,
+      "signatureSha256": "4dd7d0253d44b367fdeccc462466b2809ae8075515af59a360e98a8a437c93fc"
+    },
+    {
+      "kind": "interface",
+      "name": "AggregateDisplay",
+      "file": "backend/src/modules/contacts/contact-aggregate-display.ts",
+      "line": 48,
+      "signatureSha256": "b6048f66456e45e895f11cbbc011fe9e94d7cf2a93f3fd68111b9c5e905c4861"
+    },
+    {
+      "kind": "interface",
+      "name": "AggregateMessageInput",
+      "file": "backend/src/modules/contacts/contact-aggregate.ts",
+      "line": 42,
+      "signatureSha256": "791c668a55c3807ab226140e33fca5fcf4122c36dd03f1fd49da478fa5397b11"
+    },
+    {
+      "kind": "type",
+      "name": "AiCapability",
+      "file": "backend/src/modules/ai/ai-capabilities.ts",
+      "line": 31,
+      "signatureSha256": "63234211afd8d739112d21067794ea4f1465d1cab03eaf4a339293adf14ce17d"
+    },
+    {
+      "kind": "class",
+      "name": "AiCapabilityError",
+      "file": "backend/src/modules/ai/ai-capabilities.ts",
+      "line": 45
+    },
+    {
+      "kind": "interface",
+      "name": "AiConfig",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 32,
+      "signatureSha256": "66687833cc6f5b3367cf1d1390f97f265f1c6701fa62b1b9c2ec9932576e89b9"
+    },
+    {
+      "kind": "interface",
+      "name": "AiFormatResult",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 344,
+      "signatureSha256": "4631c1333ee98f4a362017cc65429bad6f5ddea90f59e830d1a83abe45a0e1e8"
+    },
+    {
+      "kind": "interface",
+      "name": "AiPrefill",
+      "file": "frontend/src/composables/appointment-helpers.ts",
+      "line": 133,
+      "signatureSha256": "3170e2931757098eafd0383abc4814a080a246534296d4f9ec7839f62afbc77c"
+    },
+    {
+      "kind": "interface",
+      "name": "AiSentiment",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 26,
+      "signatureSha256": "ba59837cacc1e54437a6ce3ac333c120d22e03b0ebb72d5309cea51225849b5b"
+    },
+    {
+      "kind": "type",
+      "name": "AiTaskType",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 13,
+      "signatureSha256": "42385ef050a832ef4ca1111f584450da5af7e606afc09b5d77e0ba540579471d"
+    },
+    {
+      "kind": "interface",
+      "name": "AlbumInfo",
+      "file": "backend/src/modules/zalo/zalo-message-helpers.ts",
+      "line": 121,
+      "signatureSha256": "ce7f0524f7ac771cfbad1f98abc01083feaea439c9a60f4a40c56c377fb52ecb"
+    },
+    {
+      "kind": "interface",
+      "name": "Appointment",
+      "file": "frontend/src/composables/use-appointments.ts",
+      "line": 10,
+      "signatureSha256": "c04a2e4f41e8e5301f59fbe3f75971ab849eb33ce15e4b0027ef5f541f050b19"
+    },
+    {
+      "kind": "type",
+      "name": "AppointmentEx",
+      "file": "frontend/src/composables/appointment-helpers.ts",
+      "line": 30,
+      "signatureSha256": "4428162b5af0c6e49276b5e796b3d0f4773868892b83475b0529a1a84cf65529"
+    },
+    {
+      "kind": "interface",
+      "name": "AppointmentExtras",
+      "file": "frontend/src/composables/appointment-helpers.ts",
+      "line": 21,
+      "signatureSha256": "bf950d9e2b5d5fcc9aa91ef29ecbbcaf46eb1c44579bc65a393a13ad5bf37e3f"
+    },
+    {
+      "kind": "interface",
+      "name": "AppointmentFilters",
+      "file": "frontend/src/composables/use-appointments.ts",
+      "line": 42,
+      "signatureSha256": "ab254ce4c9bfbed5372c3f9e3c767fc9ba2fdb101f1e4033daf740cb6bea8359"
+    },
+    {
+      "kind": "interface",
+      "name": "AppointmentItem",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 81,
+      "signatureSha256": "24c080ccb326eb116f8be37a7733a161d6f3a12fa07b9be9d88aace677bff649"
+    },
+    {
+      "kind": "interface",
+      "name": "AppointmentStatusItem",
+      "file": "frontend/src/composables/use-dashboard.ts",
+      "line": 29,
+      "signatureSha256": "f875a71b590022ab21790cf8de327f29ceb8c291fbfd7a0fd7bbc6cef48cab8e"
+    },
+    {
+      "kind": "type",
+      "name": "AttemptOutcome",
+      "file": "backend/src/modules/campaign/campaign-service.ts",
+      "line": 19,
+      "signatureSha256": "a6669b853fb84fa3617a133a90c2ac9bd2ce41438a449f9b6ce2395278cb6c67"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationAction",
+      "file": "frontend/src/composables/use-automation-rules.ts",
+      "line": 10,
+      "signatureSha256": "05941c4a096c6cb0ec10271a569d51d06a6f8da9de9f7176639b824b7135fa53"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationCondition",
+      "file": "frontend/src/composables/use-automation-rules.ts",
+      "line": 4,
+      "signatureSha256": "121837b1377c9af87d157716fb97905293ed00f5d6443ef7d0351b3aed484655"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationContext",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 23,
+      "signatureSha256": "95e333dda33b8c9fb18a953466b3f154f9e4e7fab42ed7070d0eec2d5f54612e"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationEvent",
+      "file": "backend/src/shared/ee-registry/event-bus.ts",
+      "line": 14,
+      "signatureSha256": "2a8bf18061ccbde24f0501efeb3958cf734764935a6a50c19ee8aa4f85d80f47"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationHooks",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 140,
+      "signatureSha256": "031fd957e64632d87fd140dbe8bdd39ced33734cd48aaa4dc5a8966f2b110d7f"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationRule",
+      "file": "frontend/src/composables/use-automation-rules.ts",
+      "line": 20,
+      "signatureSha256": "599abe00c060c043f44aa67f84c1bcc63d4776da34488fd0ff20e2092f14ea22"
+    },
+    {
+      "kind": "interface",
+      "name": "AutomationTemplateContext",
+      "file": "backend/src/shared/templating/template-renderer.ts",
+      "line": 1,
+      "signatureSha256": "3944a51320eceb56a07e9426c5dcc09dda0bf1ec40d288d4dfe078bdbbcf42fd"
+    },
+    {
+      "kind": "type",
+      "name": "AutomationTriggerType",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 17,
+      "signatureSha256": "b60fccf8ad00a9be42e3041db3ef0f99539697e7b32cfdcbdf4df3ba98230b0c"
+    },
+    {
+      "kind": "interface",
+      "name": "AutoTagDef",
+      "file": "frontend/src/constants/auto-tags.ts",
+      "line": 14,
+      "signatureSha256": "c824e4eb76f0ec080d0d3a951c5d938f8b0ae0fcd1f026f542ed23a6cac979c0"
+    },
+    {
+      "kind": "type",
+      "name": "AutoTagKey",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 145,
+      "signatureSha256": "5ff8ea141e78215f9eb1369711d91888b7246e2390734b4a64976e27c9348eaf"
+    },
+    {
+      "kind": "type",
+      "name": "AutoTagKey",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 71,
+      "signatureSha256": "c98b8b7db84cc896450f75b91a03fc373b91cf70a367983f1905bfd66936552c"
+    },
+    {
+      "kind": "interface",
+      "name": "AvatarItem",
+      "file": "frontend/src/composables/use-profile.ts",
+      "line": 21,
+      "signatureSha256": "a5dd263fb5c1071e8d8bfc4e214c648e3134d4097b98d0689806253a852d10c9"
+    },
+    {
+      "kind": "interface",
+      "name": "BackfillResult",
+      "file": "backend/src/modules/contacts/backfill-global-id.ts",
+      "line": 75,
+      "signatureSha256": "6294dd71bc23425b64a866cdb4654edd315dd7bec5fe6dde3eec7b0cc220d819"
+    },
+    {
+      "kind": "interface",
+      "name": "BackfillResult",
+      "file": "backend/src/modules/scoring/backfill-cron.ts",
+      "line": 32,
+      "signatureSha256": "eff49ebed388d9dcd6e34cc28ac7da7cb8ed2daab09a5e940d1702c3d0f8ded0"
+    },
+    {
+      "kind": "interface",
+      "name": "BackfillResult",
+      "file": "backend/src/modules/zalo/zalo-history-backfill.ts",
+      "line": 52,
+      "signatureSha256": "1a38bcf019bbd6656e754065e45ae0459db112bd67e06adf9459e69aebecd4ef"
+    },
+    {
+      "kind": "interface",
+      "name": "Block",
+      "file": "frontend/src/_ee-stubs/automation/api/types.ts",
+      "line": 2,
+      "signatureSha256": "92b4720e5b47b94e1320d50afdc44d32d176b6e5a6968405bbee4fcf3ab18937"
+    },
+    {
+      "kind": "interface",
+      "name": "BuildMessagesInput",
+      "file": "backend/src/modules/lists/list-system-messages.ts",
+      "line": 92,
+      "signatureSha256": "11e55c3f853f89281887a4e9f620393c111adc0ff64a0b990a5e0733f5b119c9"
+    },
+    {
+      "kind": "interface",
+      "name": "BulkActionResult",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 106,
+      "signatureSha256": "0c6404c2f9e1da182f48b6c13c24cbe3261a7df27b40fa246a99531442748015"
+    },
+    {
+      "kind": "interface",
+      "name": "CachedCampaign",
+      "file": "backend/src/modules/integrations/_shared/meta-campaign-cache.service.ts",
+      "line": 16,
+      "signatureSha256": "386918876aff09e7e9a333243e1db7135158999750a32d5a9e7a79fb64277088"
+    },
+    {
+      "kind": "interface",
+      "name": "CachedSignalRule",
+      "file": "backend/src/modules/scoring/config-cache.ts",
+      "line": 22,
+      "signatureSha256": "b6161dd7215a62592155dfc6a30f6ad88587db1586ee25ab4cf311c4284c9fb0"
+    },
+    {
+      "kind": "type",
+      "name": "CareStatusValue",
+      "file": "frontend/src/constants/care-status.ts",
+      "line": 18,
+      "signatureSha256": "797ad11aa226fd7415b8a59f4ac7e5fb8626fb5a037bc5b74ea9196fe2c231ef"
+    },
+    {
+      "kind": "interface",
+      "name": "CategoryLimit",
+      "file": "backend/src/modules/zalo/sdk-limit-service.ts",
+      "line": 12,
+      "signatureSha256": "e51c0a3339baec7d925acacd12a6740dc89566eb1d966715e9235c6ffce153d7"
+    },
+    {
+      "kind": "interface",
+      "name": "CategoryMeta",
+      "file": "frontend/src/constants/activity-types.ts",
+      "line": 24,
+      "signatureSha256": "6c9e629980ae18611486edc039cf1fa1efe6581b9dd12d554840a162ff934a90"
+    },
+    {
+      "kind": "interface",
+      "name": "CheckZaloResult",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 49,
+      "signatureSha256": "41cba589899c9181b60b0bef2c2d6b41988d621e7211c148cfae7e01787c34fb"
+    },
+    {
+      "kind": "interface",
+      "name": "CheckZaloResult",
+      "file": "frontend/src/composables/use-zalo-phone-check.ts",
+      "line": 23,
+      "signatureSha256": "415a87ad4529f48493a7cfcb7559a0df510141b63613d3bf07ecaa681e91e4ec"
+    },
+    {
+      "kind": "interface",
+      "name": "CockpitData",
+      "file": "frontend/src/composables/use-contact-cockpit.ts",
+      "line": 19,
+      "signatureSha256": "9f4169ec5b7aed0cedc8e33852da145825ca6faa6f00c7a9dc7311687f38476e"
+    },
+    {
+      "kind": "interface",
+      "name": "ConfirmOptions",
+      "file": "frontend/src/composables/use-confirm.ts",
+      "line": 14,
+      "signatureSha256": "e18fdeae2bbfd57dae0bb3ea2b9c080c720491a158d32728fe1ec85c4a8f5ac7"
+    },
+    {
+      "kind": "interface",
+      "name": "ConsolidateResult",
+      "file": "backend/src/modules/contacts/conversation-consolidate.ts",
+      "line": 16,
+      "signatureSha256": "c5ee454b3451a42f7a438079e4402b9bc3a2324133357e3106ffea95f97d38ce"
+    },
+    {
+      "kind": "interface",
+      "name": "Contact",
+      "file": "frontend/src/composables/use-contacts.ts",
+      "line": 11,
+      "signatureSha256": "f75d4a9fdcc409f42a9596a4f963b8d93da526493465b8fb7e4ce0a317a01629"
+    },
+    {
+      "kind": "interface",
+      "name": "ContactAggregateResult",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 203,
+      "signatureSha256": "859f3244a2ec0c92378c6076d89a7e5f99690decdbba508e21ce5183b86d5a8a"
+    },
+    {
+      "kind": "interface",
+      "name": "ContactFilters",
+      "file": "frontend/src/composables/use-contacts.ts",
+      "line": 270,
+      "signatureSha256": "01c2bb3f0b831f7fd8cc028b94c26931e7798717a08ce27b6c8969b00524436b"
+    },
+    {
+      "kind": "interface",
+      "name": "ContactProfileResponse",
+      "file": "frontend/src/composables/use-contact-profile.ts",
+      "line": 20,
+      "signatureSha256": "0ae52ce510cb8f5af83653eb9b82a775cd529cce6095b0d8847482a6732e9681"
+    },
+    {
+      "kind": "interface",
+      "name": "ContactScope",
+      "file": "backend/src/modules/contacts/contact-scope.ts",
+      "line": 19,
+      "signatureSha256": "ab5b08d718b3a17bc033c361a43efe3a9502dc6981cee287f531c582c96ed069"
+    },
+    {
+      "kind": "type",
+      "name": "ContentClass",
+      "file": "backend/src/modules/rbac/rbac-middleware.ts",
+      "line": 70,
+      "signatureSha256": "b975532554a97e18a85062eed3dd9f7e6920b1b7f066379aae7f13e3bc3f8951"
+    },
+    {
+      "kind": "interface",
+      "name": "Conversation",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 106,
+      "signatureSha256": "d08b91e6d7270f609dd481e13f96808512a0b22d40b003f7d70125f56be1f7cf"
+    },
+    {
+      "kind": "interface",
+      "name": "ConversionFunnelData",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 12,
+      "signatureSha256": "eaf606d20702c443bb5a61cad46e1827ccbc39f46ab29886f8f5aeb6174ed95b"
+    },
+    {
+      "kind": "interface",
+      "name": "ConversionFunnelResult",
+      "file": "backend/src/modules/analytics/reports/conversion-funnel.ts",
+      "line": 12,
+      "signatureSha256": "d41f2c5dd17c0a582509feed6a8fccef201c01430dbd8e8cd632017237f2c410"
+    },
+    {
+      "kind": "interface",
+      "name": "CreateMediaMessageInput",
+      "file": "backend/src/modules/chat/chat-helpers.ts",
+      "line": 61,
+      "signatureSha256": "a6590bae42dc74c7633b5bc1e5a070dc7c0221e40990b303fd248437447e6310"
+    },
+    {
+      "kind": "interface",
+      "name": "CreatePollPayload",
+      "file": "frontend/src/composables/use-polls.ts",
+      "line": 7,
+      "signatureSha256": "aa5ee39c0c1327d4ee9a9662a6d542979f21dc8291cd55e09f0fe66c6fcbf182"
+    },
+    {
+      "kind": "interface",
+      "name": "CreateSocketOpts",
+      "file": "frontend/src/api/socket.ts",
+      "line": 34,
+      "signatureSha256": "888fc6df0c1d7a895d784962019f91ca47efe7bc71994ab5a2e543d716e0fee4"
+    },
+    {
+      "kind": "interface",
+      "name": "CreateUserInput",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 65,
+      "signatureSha256": "a0af32d19fe8bd47cf7aab4da3975a9d785ecfa9b9ddd28658aa6a103b365782"
+    },
+    {
+      "kind": "interface",
+      "name": "CreateUserResult",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 339,
+      "signatureSha256": "9cdf9ab56f16287bff5e12e4ac8c0ec5e317df62288ee12b6ca61b149c500352"
+    },
+    {
+      "kind": "interface",
+      "name": "CrewMember",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 11,
+      "signatureSha256": "d128144c65cf80b4fb0c72f472274d25205d802b78e1d753e7503e18e1e378ff"
+    },
+    {
+      "kind": "interface",
+      "name": "CrmTagDef",
+      "file": "frontend/src/composables/use-crm-tag-defs.ts",
+      "line": 14,
+      "signatureSha256": "4c1a00d9adc33a50e5ce3a1cd2bd2e7bce4d4ef3e154c881ec0b9daa63c0a61f"
+    },
+    {
+      "kind": "interface",
+      "name": "CustomerBlockArgs",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 119,
+      "signatureSha256": "4eaedf702a70bef38fec7d9c55afee3055ed6cd17bc64d5b352888bf41eda212"
+    },
+    {
+      "kind": "interface",
+      "name": "CustomerListEntry",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 74,
+      "signatureSha256": "0e90e99374cfaaae6a597080816a7a8c9c1dcc0ec610c291bdd720644d29147d"
+    },
+    {
+      "kind": "interface",
+      "name": "CustomerListSummary",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 10,
+      "signatureSha256": "61a1044f9c7f1242674efef73d7e11ed331ae4bb6b30039b56a177a2f49aa45b"
+    },
+    {
+      "kind": "interface",
+      "name": "CustomReportResult",
+      "file": "backend/src/modules/analytics/reports/custom-report.ts",
+      "line": 21,
+      "signatureSha256": "69e1676ef2686ff447888a7dea254e5bd7ab0981484935860329ec05a9ca6ff7"
+    },
+    {
+      "kind": "interface",
+      "name": "CustomReportResult",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 44,
+      "signatureSha256": "69e1676ef2686ff447888a7dea254e5bd7ab0981484935860329ec05a9ca6ff7"
+    },
+    {
+      "kind": "interface",
+      "name": "DailyResponseTime",
+      "file": "backend/src/modules/analytics/reports/response-time.ts",
+      "line": 7,
+      "signatureSha256": "b98382aead04d47c8ce5006b1f4142f359ac6df70e6bbe62957d3e526f7792b0"
+    },
+    {
+      "kind": "interface",
+      "name": "DailyRow",
+      "file": "backend/src/modules/engagement/engagement-service.ts",
+      "line": 269,
+      "signatureSha256": "7e0ca73fe0652af9c049f524f7bdb85ea938df1d60388ae60cdc67387276c301"
+    },
+    {
+      "kind": "interface",
+      "name": "DbFriend",
+      "file": "frontend/src/composables/use-friends.ts",
+      "line": 4,
+      "signatureSha256": "73e4db82ab72027e4570665a0398c7ef54e64d33cf314f08bc453f7059c4fb9a"
+    },
+    {
+      "kind": "interface",
+      "name": "DecayJobResult",
+      "file": "backend/src/modules/scoring/decay-cron.ts",
+      "line": 22,
+      "signatureSha256": "2ea2ca056f050e13646e6fa917783d0cb6e2bb1b75088e6c4a7c30345f7c6a33"
+    },
+    {
+      "kind": "type",
+      "name": "DecisionTimeline",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 12,
+      "signatureSha256": "a835e944e0d869a19b9a1e036290a590ecfc17b92c13c35ab1e411d21e5a0b7a"
+    },
+    {
+      "kind": "type",
+      "name": "DensityMode",
+      "file": "frontend/src/composables/use-friends-state.ts",
+      "line": 17,
+      "signatureSha256": "38ae5a6400fad469d3e804585f1a25090a889692f0cb54de96cd96f72fdcc955"
+    },
+    {
+      "kind": "interface",
+      "name": "DepartmentNode",
+      "file": "backend/src/modules/rbac/department-service.ts",
+      "line": 21,
+      "signatureSha256": "6a32dd5d80138c457dd728f234296ba787d384f57ac18148698b4abc95308d64"
+    },
+    {
+      "kind": "interface",
+      "name": "DepartmentNode",
+      "file": "frontend/src/stores/rbac.ts",
+      "line": 14,
+      "signatureSha256": "5700cab455e5bf282f528eda4aeca1711f8978cea1099b96f983156b83d3d081"
+    },
+    {
+      "kind": "type",
+      "name": "DeptRole",
+      "file": "backend/src/modules/rbac/department-service.ts",
+      "line": 19,
+      "signatureSha256": "fae0ac56badbe1b476ef4739dfc0f1efc37516b7446b7e1767e4c6cafe9671f2"
+    },
+    {
+      "kind": "interface",
+      "name": "DetectedSignal",
+      "file": "backend/src/modules/scoring/signal-detector.ts",
+      "line": 15,
+      "signatureSha256": "cd3bcee1583182f2a8826fc6b952d95be41b27c414615aa6fe0f240e8423724d"
+    },
+    {
+      "kind": "interface",
+      "name": "DeviceMeta",
+      "file": "backend/src/modules/auth/refresh-token-service.ts",
+      "line": 24,
+      "signatureSha256": "b4c82a624182d97b96612c5a06281f5bb7940bb302df5db9e5b35c3aacf8b88e"
+    },
+    {
+      "kind": "interface",
+      "name": "DryRunResult",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 111,
+      "signatureSha256": "e65eedcfe81a98f49b18713d07e77026c938909899fdf0765eaa56d170e6438b"
+    },
+    {
+      "kind": "interface",
+      "name": "DuplicateGroup",
+      "file": "frontend/src/composables/use-contacts.ts",
+      "line": 260,
+      "signatureSha256": "07a844e953890c57f250fb04d378af6ce6f84502e87ceccae62b68987183d87d"
+    },
+    {
+      "kind": "interface",
+      "name": "EmitChatArgs",
+      "file": "backend/src/shared/realtime/emit-chat.ts",
+      "line": 31,
+      "signatureSha256": "8653732e05dae55025c7d348700b7f9154c3940456b98815fc6cdb98342408d7"
+    },
+    {
+      "kind": "interface",
+      "name": "EmitChatConv",
+      "file": "backend/src/shared/realtime/emit-chat.ts",
+      "line": 27,
+      "signatureSha256": "d890b02183f2694361c0929a29fc5dce3d79908fcb9192877b052f33b0b1b318"
+    },
+    {
+      "kind": "type",
+      "name": "EngagementPattern",
+      "file": "backend/src/modules/engagement/engagement-service.ts",
+      "line": 28,
+      "signatureSha256": "d5ebf158ddc012289bdb271f31e46e6013a2a817c1b00c793441dcc780500eef"
+    },
+    {
+      "kind": "type",
+      "name": "EngagementPatternKey",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 74,
+      "signatureSha256": "85398e98375527317a447fcf9d800fe4541a1350152392697594ff507a18cc10"
+    },
+    {
+      "kind": "interface",
+      "name": "EnrichedAccount",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 18,
+      "signatureSha256": "1acb6147095ec0cd387a407fd698502ee508bf93b3ecbccf21501793921a4f41"
+    },
+    {
+      "kind": "type",
+      "name": "EntryStatus",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 9,
+      "signatureSha256": "7a88f266951a5f54b9730bea326ee97335fcfef3a52205c39c51694e811c0966"
+    },
+    {
+      "kind": "type",
+      "name": "EntryStatusTab",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 122,
+      "signatureSha256": "941cf8480b0a47f230acd2d32a77ae67ba0e8fc6901fe0b76686111c70ee8280"
+    },
+    {
+      "kind": "interface",
+      "name": "ExtractedEntities",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 24,
+      "signatureSha256": "254eac5117a9a779076fc4ab5d92c99969abb7e908729201d1c1f5c0c47071ac"
+    },
+    {
+      "kind": "interface",
+      "name": "ExtractedPropertyNeed",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 15,
+      "signatureSha256": "0b048beb42e11b43759413da470e821e4dd335cfbcb3b3a0116a92a310167a44"
+    },
+    {
+      "kind": "type",
+      "name": "FacebookLeadsImporter",
+      "file": "backend/src/shared/ee-registry/integrations.ts",
+      "line": 20,
+      "signatureSha256": "fbb2f9fda481075c0cf650523df958a4f60d0aea0fbb69355d8be3906a67d95b"
+    },
+    {
+      "kind": "interface",
+      "name": "FilterState",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 85,
+      "signatureSha256": "c39bb7f938ab91174ff349bda403fef1c137a88d798b0472ebbe78dd325eaa94"
+    },
+    {
+      "kind": "interface",
+      "name": "FormattedMessage",
+      "file": "backend/src/shared/text-formatter.ts",
+      "line": 25,
+      "signatureSha256": "020d8346b3b9c69ef28a7645250c6eaf4cb073eece64a1cab183f7070819b1c8"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendAcceptedArgs",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 101,
+      "signatureSha256": "9fc7c572958ccf487dbb5b9b78007f18bcedc77f2a592451467658ef919549e8"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendBackfillResult",
+      "file": "backend/src/modules/contacts/backfill-global-id.ts",
+      "line": 205,
+      "signatureSha256": "605b8b97d85634aa0e759d346fbcb3d688516f297884fd5af48ec3398b77246f"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendDisplayNameResult",
+      "file": "backend/src/modules/contacts/backfill-friend-display-name.ts",
+      "line": 44,
+      "signatureSha256": "9edb6a1164a19a6cd56da1974f73eefbb671d7d5382aa1782b8a03ff3d2e4b3d"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendInviteClaimedPayload",
+      "file": "frontend/src/composables/use-muc-tieu-socket.ts",
+      "line": 21,
+      "signatureSha256": "615d827f350d65d6d9d4b20c357dda28bfd692cd7e17e539160160434d0b5712"
+    },
+    {
+      "kind": "type",
+      "name": "FriendKindFilter",
+      "file": "frontend/src/composables/use-friends-state.ts",
+      "line": 16,
+      "signatureSha256": "2e8d06f502e99053ce60710b19f328ec75cb4b49c8dccfa0f1b6d8d0d0461681"
+    },
+    {
+      "kind": "type",
+      "name": "FriendRelation",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 36,
+      "signatureSha256": "52d3d88ae528f5f26ae0eb4fb487e0fd00099f37525fb42d40dacca5f0c66cbd"
+    },
+    {
+      "kind": "type",
+      "name": "FriendRelation",
+      "file": "frontend/src/composables/use-zalo-phone-check.ts",
+      "line": 10,
+      "signatureSha256": "52d3d88ae528f5f26ae0eb4fb487e0fd00099f37525fb42d40dacca5f0c66cbd"
+    },
+    {
+      "kind": "type",
+      "name": "FriendRow",
+      "file": "backend/src/shared/friend-serializer.ts",
+      "line": 91,
+      "signatureSha256": "d09f4cc7ee8796d4a0654fd7bb7b5538dbed29abed555312cf802bbdd0aed73d"
+    },
+    {
+      "kind": "type",
+      "name": "FriendRowWithContact",
+      "file": "backend/src/shared/friend-serializer.ts",
+      "line": 96,
+      "signatureSha256": "807cd56cd74ada50eeb98e501c16c37de09f91cc0de39c1cb360a328fef3bf11"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendshipInfo",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 72,
+      "signatureSha256": "4dd39c0df7dab8a74c93159d61e890b62a88368a12a96fb72c543ece18b17f17"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendUpdatedPayload",
+      "file": "backend/src/shared/friend-serializer.ts",
+      "line": 124,
+      "signatureSha256": "0912d223ff0acea44438d754bb9a2545e421d831426de9b7f4115dd6951d48d8"
+    },
+    {
+      "kind": "interface",
+      "name": "FriendUpdatedPayload",
+      "file": "frontend/src/composables/use-friend-socket.ts",
+      "line": 22,
+      "signatureSha256": "99376dd6571559cc93e321fa0178c30c6a79448d8ba8ab3ef588c86e2db7becf"
+    },
+    {
+      "kind": "interface",
+      "name": "FunnelStage",
+      "file": "backend/src/modules/analytics/reports/conversion-funnel.ts",
+      "line": 6,
+      "signatureSha256": "20645a5b368f9f6397eedcf6c4e6c112db83e63a46308720e6b651ac50a2bf60"
+    },
+    {
+      "kind": "interface",
+      "name": "FunnelStage",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 6,
+      "signatureSha256": "36f738c08300e2574c7863b7468068ae9ebb362ba114ee22b46d1c3ec3e2c086"
+    },
+    {
+      "kind": "type",
+      "name": "Gender",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 8,
+      "signatureSha256": "b6463621fc4693526a378c6ffe7e3aec49ed5c12272fb892ce37c7c2eb3c8e46"
+    },
+    {
+      "kind": "type",
+      "name": "Gender",
+      "file": "backend/src/modules/zalo/profile-operations.ts",
+      "line": 9,
+      "signatureSha256": "84884d7bac180523a78f6189656230c94db967252844a7264b37d981b952d786"
+    },
+    {
+      "kind": "type",
+      "name": "GrantsJson",
+      "file": "backend/src/modules/rbac/permission-types.ts",
+      "line": 78,
+      "signatureSha256": "36390b76a53949492869dda73ecd6bc72bbdf250805da108a1c3102e9e1a1e5f"
+    },
+    {
+      "kind": "interface",
+      "name": "GroupConvFields",
+      "file": "backend/src/modules/zalo/group-info-refresh.ts",
+      "line": 20,
+      "signatureSha256": "f585b1f993dd730789f64e7a500394fcc3cfbeab7d84f699746244c49ada1e38"
+    },
+    {
+      "kind": "interface",
+      "name": "GroupScan",
+      "file": "frontend/src/composables/use-groups.ts",
+      "line": 11,
+      "signatureSha256": "b568011593b44d4bb769b39db460103da3227e8619ccdedebe778d137aad4848"
+    },
+    {
+      "kind": "interface",
+      "name": "GroupScanJobData",
+      "file": "backend/src/modules/zalo/group-scan-queue.ts",
+      "line": 37,
+      "signatureSha256": "f73c9da7caa236968e573c2392306cfb271696a473f80a2d27418269efa536fc"
+    },
+    {
+      "kind": "interface",
+      "name": "GroupScanMember",
+      "file": "frontend/src/composables/use-groups.ts",
+      "line": 22,
+      "signatureSha256": "914c73da43cc3de1189bc85d40efc83e54c94b7dbdf91e80a4a0988a004ffb24"
+    },
+    {
+      "kind": "type",
+      "name": "GroupScanState",
+      "file": "frontend/src/composables/use-groups.ts",
+      "line": 9,
+      "signatureSha256": "488c4d4ea9c83f5f4e3395dbdf681e329de18ec4d7d813033e48cee068609096"
+    },
+    {
+      "kind": "type",
+      "name": "GroupUpdates",
+      "file": "backend/src/modules/zalo/group-info-refresh.ts",
+      "line": 25,
+      "signatureSha256": "bbdbdc6313d055b0ae96253305e49e06f22bf2ec453d78a148c51b88e8baeafe"
+    },
+    {
+      "kind": "interface",
+      "name": "HandleMessageResult",
+      "file": "backend/src/modules/chat/message-handler.ts",
+      "line": 68,
+      "signatureSha256": "629e16b6961c88a7a194babb34e9a3350fd67ceed1f7283705030bc981a7bac6"
+    },
+    {
+      "kind": "interface",
+      "name": "HmacRequestInput",
+      "file": "backend/src/shared/security/hmac.ts",
+      "line": 38,
+      "signatureSha256": "9696874b523d69f3e4c5cd44f680ca687b921c8cc9a0f848241ec35be031704b"
+    },
+    {
+      "kind": "interface",
+      "name": "HmacRequestResult",
+      "file": "backend/src/shared/security/hmac.ts",
+      "line": 53,
+      "signatureSha256": "53e54c06a37d48e0fa7c2124c89e76b01ff284dfa13a4b436b24c71869a8e2d1"
+    },
+    {
+      "kind": "interface",
+      "name": "ImageMetadata",
+      "file": "backend/src/shared/utils/image-metadata.ts",
+      "line": 10,
+      "signatureSha256": "13b0c9e48cc5a2ce48d41f7e1a596bd7c1ca760bb9918f24925b81701eb93c48"
+    },
+    {
+      "kind": "interface",
+      "name": "ImportResult",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 51,
+      "signatureSha256": "958e90f2c397c94eb676bb105fe998a7b01bd7b84b78bae57b89d955aa78740a"
+    },
+    {
+      "kind": "interface",
+      "name": "InboundCtx",
+      "file": "backend/src/modules/scoring/scoring-hooks.ts",
+      "line": 38,
+      "signatureSha256": "3e66aa8a3cf66fc92aa97760ecfe002bdd0aca5c7ae65058f6dfad011829ad27"
+    },
+    {
+      "kind": "type",
+      "name": "IncomeRange",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 9,
+      "signatureSha256": "abe0c5e30fa0ff2c8efd939f6e93e55c3f2d4410c574fa16da4a7297f186f383"
+    },
+    {
+      "kind": "interface",
+      "name": "IncomingClassification",
+      "file": "frontend/src/composables/work-scope-logic.ts",
+      "line": 60,
+      "signatureSha256": "6d29c02ab42ee4a2889d24943f72855bc1b4b98795a0136835e5b470e1e799b2"
+    },
+    {
+      "kind": "interface",
+      "name": "IncomingMessage",
+      "file": "backend/src/modules/chat/message-handler.ts",
+      "line": 25,
+      "signatureSha256": "72f932abeb089dd337ea472fb943a8219e95d28b8de90f2a0940a2fa09f88595"
+    },
+    {
+      "kind": "interface",
+      "name": "IncrementInput",
+      "file": "backend/src/modules/engagement/engagement-service.ts",
+      "line": 30,
+      "signatureSha256": "ffa5f8a24a99919054908f0fea7af122adfdd2fa10acd9b1d36e763d53e5ac3c"
+    },
+    {
+      "kind": "interface",
+      "name": "InteractionInput",
+      "file": "backend/src/modules/contacts/contact-aggregate.ts",
+      "line": 170,
+      "signatureSha256": "27ff066c3bd91cb109d4e58477cc4fcc6adf2644c865966eabf95446244617c3"
+    },
+    {
+      "kind": "interface",
+      "name": "InteractionToday",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 58,
+      "signatureSha256": "fe27fe1278b8392bb70dc7da61f393b57f05de963c81375a80cb076cf8ad4b99"
+    },
+    {
+      "kind": "type",
+      "name": "InvalidReason",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 19,
+      "signatureSha256": "b20d51d8d1173f60b85276ee1f4268d57ad69c176a9d70ece830bea4af36e494"
+    },
+    {
+      "kind": "interface",
+      "name": "IssuedRefreshToken",
+      "file": "backend/src/modules/auth/refresh-token-service.ts",
+      "line": 30,
+      "signatureSha256": "6ee7a887afe4a4d5950177863552aa87efae9d6e1a3d0eda0bc5ad8bc54068a7"
+    },
+    {
+      "kind": "interface",
+      "name": "JwtPayload",
+      "file": "backend/src/modules/auth/auth-service.ts",
+      "line": 17,
+      "signatureSha256": "7202045a8f0aa4a0bd79616f9bcc12b45f46e92a272c5e2cc9eb663bda5e5e67"
+    },
+    {
+      "kind": "interface",
+      "name": "KpiData",
+      "file": "frontend/src/composables/use-dashboard.ts",
+      "line": 4,
+      "signatureSha256": "759ca6d070bf68aae697f0c80486aa633dd21106b538bcb5f6f25023f49af3c9"
+    },
+    {
+      "kind": "type",
+      "name": "LastMessageWithin",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 77,
+      "signatureSha256": "5033418d6b092a21be35988f834e3c4d1383cfeb60f7a0d8fd1e7dbf25670d4e"
+    },
+    {
+      "kind": "type",
+      "name": "LeadSource",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 13,
+      "signatureSha256": "b40a0f3c253a7326f86729285f81ad800d1b9b25f5292a745fd0099fc771e959"
+    },
+    {
+      "kind": "type",
+      "name": "LeadSource",
+      "file": "backend/src/modules/integrations/_shared/normalized-lead.schema.ts",
+      "line": 11,
+      "signatureSha256": "aa4806be7458e08f3bf836fcc582bab1c9bcaac84b4d6523d048f7618353bef5"
+    },
+    {
+      "kind": "type",
+      "name": "Lifecycle",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 72,
+      "signatureSha256": "9ab9e0243fc8d6f29809eeab52477ccc1eb060aeab76847b99c922dba86e9e04"
+    },
+    {
+      "kind": "interface",
+      "name": "ListenerContext",
+      "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
+      "line": 377,
+      "signatureSha256": "e4c27635d81100898359645d1f0adc79afcd90531daafa49a96bb45cc8079f14"
+    },
+    {
+      "kind": "interface",
+      "name": "ListMediaParams",
+      "file": "frontend/src/api/media.ts",
+      "line": 35,
+      "signatureSha256": "5fbae6bfb54a064ac107bb35b8664b8d1eb1dbd39f2a64e6088607549fc268d6"
+    },
+    {
+      "kind": "type",
+      "name": "ListSourceType",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 5,
+      "signatureSha256": "7bb02174dbd5e55bde0b1d44b7c0b8dce842735a7f0e0d09c765589cb5c4c2f5"
+    },
+    {
+      "kind": "type",
+      "name": "ListStatus",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 7,
+      "signatureSha256": "5e11a64b870ce40c2bf796ee1440a4e7027b78b286a7ae63646d48d0212cc985"
+    },
+    {
+      "kind": "type",
+      "name": "ListStatusFilter",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 121,
+      "signatureSha256": "117c594ca207959510273a305f0f701a51702d0b1f080a1455513bbd1e283ba2"
+    },
+    {
+      "kind": "interface",
+      "name": "LogActivityInput",
+      "file": "backend/src/modules/activity/activity-logger.ts",
+      "line": 12,
+      "signatureSha256": "15ab52134b3e93ed32e4fcd07914724002e3fd968779f1be4546040320e177b9"
+    },
+    {
+      "kind": "interface",
+      "name": "LogEventInput",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 48,
+      "signatureSha256": "a2c68a0cdbb7484c223bf0e31b67e93428e0ed0cdff046aaba1cfda3d5d9ae62"
+    },
+    {
+      "kind": "interface",
+      "name": "MappedRow",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 45,
+      "signatureSha256": "8ff6d891043e53a3a7089e6d4f62bf8f13ccc2c67af5314ee7802458445289d0"
+    },
+    {
+      "kind": "interface",
+      "name": "MappedRow",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 43,
+      "signatureSha256": "bbdcfc76ec2433a460499bb79c213ee50e33c19f46caa6a745e0ecc1d9b10e5c"
+    },
+    {
+      "kind": "interface",
+      "name": "MediaAssetItem",
+      "file": "frontend/src/api/media.ts",
+      "line": 6,
+      "signatureSha256": "4a4a1e776db9389041624f1c31ea5ed1ae2c7d97cca587655a5d64e97ad22a77"
+    },
+    {
+      "kind": "interface",
+      "name": "MediaFolder",
+      "file": "frontend/src/api/media.ts",
+      "line": 118,
+      "signatureSha256": "a1919b6af79ad2cb9da8559b43aaab62d9bed579e3ba8eb8a4295db05e387771"
+    },
+    {
+      "kind": "type",
+      "name": "MediaKind",
+      "file": "backend/src/modules/media/media-service.ts",
+      "line": 38,
+      "signatureSha256": "5798b10da7b00c35ab418a0217b7e22c35f9bbdc9554d77e160b7ab09f4fe93b"
+    },
+    {
+      "kind": "type",
+      "name": "MediaSource",
+      "file": "backend/src/modules/media/media-service.ts",
+      "line": 39,
+      "signatureSha256": "c94d1e9e70ae7fc8f9dc121b91b2b784116eb0cb41f6648881a089bc0ebacf01"
+    },
+    {
+      "kind": "type",
+      "name": "MediaUsageEventType",
+      "file": "backend/src/modules/media/media-service.ts",
+      "line": 386,
+      "signatureSha256": "05ffa6c1e767e08acca3c3d6ed5ad7508a194f85c9c3411c78a932cd4876ba53"
+    },
+    {
+      "kind": "interface",
+      "name": "MeKpi",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 19,
+      "signatureSha256": "25fc7bc588e51fc3e5263f7ed1e67d128802d213abff6806ca07f59c09f478c0"
+    },
+    {
+      "kind": "interface",
+      "name": "MentionMark",
+      "file": "frontend/src/composables/use-rich-format.ts",
+      "line": 7,
+      "signatureSha256": "f95bf02171ec51d0b1f621b1cbd62bd57e8769a986f3108f8e3b9383062497e5"
+    },
+    {
+      "kind": "interface",
+      "name": "MentionRef",
+      "file": "backend/src/shared/text-formatter.ts",
+      "line": 19,
+      "signatureSha256": "cf9635d903290ea3498437cb6619ac02f32e4ce443ea0a9d3a105faca5b22195"
+    },
+    {
+      "kind": "interface",
+      "name": "MeResponse",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 99,
+      "signatureSha256": "be15ec44886161d074c0aa7e5d64ef6d356b2507ae5761290aeedaa1547b4279"
+    },
+    {
+      "kind": "interface",
+      "name": "Message",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 147,
+      "signatureSha256": "7edde8135821bb8845f3ffe654bfc61381326ccaa9f10497f952a8aa8af0fa98"
+    },
+    {
+      "kind": "interface",
+      "name": "MessagePersistedEvent",
+      "file": "backend/src/shared/bridge-bus.ts",
+      "line": 19,
+      "signatureSha256": "658c7600b3eb8d232c92c2abf6fba32c3ee443a17a4d75c78358010943f470c1"
+    },
+    {
+      "kind": "interface",
+      "name": "MessageReactionDetail",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 139,
+      "signatureSha256": "511c351a35044879a49e6ed8b8f5d1e543ae4d951b4cbcb88f68aa4f45a63984"
+    },
+    {
+      "kind": "interface",
+      "name": "MessageReactionView",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 130,
+      "signatureSha256": "6691276d7dba9f7e55e038dac283ba1ad52cdbdb296d50825b6fd721b866f4fe"
+    },
+    {
+      "kind": "type",
+      "name": "MessageReplyState",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 83,
+      "signatureSha256": "e2e4de8415f0d06d44dae7a2c74f41d87eef359d0c0be4563227861b54a1628a"
+    },
+    {
+      "kind": "interface",
+      "name": "MessageTemplate",
+      "file": "frontend/src/composables/use-message-templates.ts",
+      "line": 9,
+      "signatureSha256": "df21ecbf70652d9c7e28452407d0089890f89641c03755327556eb5fcbac77bf"
+    },
+    {
+      "kind": "interface",
+      "name": "MessageTemplateFolder",
+      "file": "frontend/src/composables/use-message-templates.ts",
+      "line": 26,
+      "signatureSha256": "c8ec11319d8962b4f6c9750233acfff576f7fff4ec7a079c430ec7229720f0cc"
+    },
+    {
+      "kind": "interface",
+      "name": "MessageVolumeItem",
+      "file": "frontend/src/composables/use-dashboard.ts",
+      "line": 13,
+      "signatureSha256": "dd8bb9254ee7faa0e29dabae536652d7bd6c21d554a900808ca33483ce0d7832"
+    },
+    {
+      "kind": "interface",
+      "name": "MissingFriendBackfillResult",
+      "file": "backend/src/modules/contacts/backfill-missing-friends.ts",
+      "line": 14,
+      "signatureSha256": "e6cbbc8169a55be0a0c250a2f4876d7e0cabdd40d473848df2bfa08d2e4e5ebb"
+    },
+    {
+      "kind": "type",
+      "name": "NbaCategory",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 130,
+      "signatureSha256": "fa9d0ec7367da25c7cd2eae0151045a149c173ee6f675149fa60e43cd808b12b"
+    },
+    {
+      "kind": "interface",
+      "name": "NbaTemplateSeed",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 132,
+      "signatureSha256": "96b5ee4a996296f3f559b0829b008ec16c52df3e56f235e86fc75e07bc7d108d"
+    },
+    {
+      "kind": "interface",
+      "name": "NickDayMetrics",
+      "file": "backend/src/modules/zalo/nick-metrics-service.ts",
+      "line": 13,
+      "signatureSha256": "40f015402e14001c7dd5417d469590cb09a32c9a938c41b7ee07ac47bd1d04de"
+    },
+    {
+      "kind": "interface",
+      "name": "NickMetricsToday",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 76,
+      "signatureSha256": "356dcb1c793001ca8d22f53cd04cae13e1f2b519a5d1230cc9b42f4e35e268cf"
+    },
+    {
+      "kind": "interface",
+      "name": "NormalizedLead",
+      "file": "backend/src/modules/integrations/_shared/normalized-lead.schema.ts",
+      "line": 13,
+      "signatureSha256": "c5c95b4997604dec7a664c56afacdef582f4f9da324ff204ddb2c149650c9ff2"
+    },
+    {
+      "kind": "interface",
+      "name": "NormalizedPhone",
+      "file": "backend/src/shared/phone/normalize-vn-phone.ts",
+      "line": 34,
+      "signatureSha256": "c1602f34b70a83943ede3f0e43600871b3d79b1665e6f646979711b671a2b0fc"
+    },
+    {
+      "kind": "interface",
+      "name": "NormalizedZaloProfile",
+      "file": "backend/src/modules/contacts/zalo-profile-capture.ts",
+      "line": 23,
+      "signatureSha256": "916c69e5776c360dc39d365cc43cc5522f868f3438eadcd5ca1c8426dd73256c"
+    },
+    {
+      "kind": "interface",
+      "name": "Note",
+      "file": "frontend/src/composables/use-notes.ts",
+      "line": 23,
+      "signatureSha256": "0f15f80e67d8e6a7a833818003620199137d1338ce76936096de994d609264b8"
+    },
+    {
+      "kind": "interface",
+      "name": "NoteAppointmentLink",
+      "file": "frontend/src/composables/use-notes.ts",
+      "line": 15,
+      "signatureSha256": "26b3c869980397999fee25bd0e5731884589f7479a8add357968579e1feec2cc"
+    },
+    {
+      "kind": "interface",
+      "name": "NoteReaction",
+      "file": "frontend/src/composables/use-notes.ts",
+      "line": 8,
+      "signatureSha256": "32b186883182c0fbb4fc77a66250befad5bf8eea06ba8af64fb3376ca1671ab9"
+    },
+    {
+      "kind": "interface",
+      "name": "NotifyCustomerBlockArgs",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 126,
+      "signatureSha256": "956b8612d55cb5a8821372d22f96d9119a1582a9d4cf280be67b125fca7962c2"
+    },
+    {
+      "kind": "interface",
+      "name": "NotifyDedupResult",
+      "file": "backend/src/modules/integrations/_shared/notify-dedup.service.ts",
+      "line": 16,
+      "signatureSha256": "6e8c02322666894891716f4df95a458b159f37159f8ef7919d83167247f284c1"
+    },
+    {
+      "kind": "interface",
+      "name": "NotifyNewInboundArgs",
+      "file": "backend/src/modules/push/push-service.ts",
+      "line": 139,
+      "signatureSha256": "3d0e69fef7d4643ee076dab53fbf420c468dd7f66facb75a574fc7c3a0f8863f"
+    },
+    {
+      "kind": "class",
+      "name": "OnboardingError",
+      "file": "backend/src/modules/auth/onboarding-service.ts",
+      "line": 38
+    },
+    {
+      "kind": "type",
+      "name": "OnboardingStep",
+      "file": "backend/src/modules/auth/onboarding-service.ts",
+      "line": 16,
+      "signatureSha256": "6202a6189e764328856015d8827debd5deaca7d9a66c7ab9a140452e446a5dc6"
+    },
+    {
+      "kind": "type",
+      "name": "OnboardingStepKey",
+      "file": "frontend/src/stores/rbac.ts",
+      "line": 40,
+      "signatureSha256": "74919d3082e143f05798c9cc23f8cfe3e261f6cea28c53cf9eb4a1b45323226e"
+    },
+    {
+      "kind": "interface",
+      "name": "OnboardingSummary",
+      "file": "backend/src/modules/auth/onboarding-service.ts",
+      "line": 216,
+      "signatureSha256": "889213130515ddd1fa92627b5dabcd003b0b0c0e213df61220cff6f221732e36"
+    },
+    {
+      "kind": "interface",
+      "name": "OnboardingSummary",
+      "file": "frontend/src/stores/rbac.ts",
+      "line": 42,
+      "signatureSha256": "c43d8f91b06c1803be7e6dca27d015b65fc12f2efd192dbbd1413178eb426edc"
+    },
+    {
+      "kind": "interface",
+      "name": "OnTagAddedArgs",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 94,
+      "signatureSha256": "ec554713fecd6e4f95ac0c8fac3948fa3d138ede8c0a03317145a10facd8b8f1"
+    },
+    {
+      "kind": "type",
+      "name": "OpCategory",
+      "file": "backend/src/shared/zalo-operations.ts",
+      "line": 30,
+      "signatureSha256": "0c7fbf2eb26a0279c9da3a6d18e1cb66c0b9f49bad9a793030518265b2b1bb1f"
+    },
+    {
+      "kind": "interface",
+      "name": "OrgBranding",
+      "file": "frontend/src/api/public-branding.ts",
+      "line": 13,
+      "signatureSha256": "1501b4e9dd814dd5ea39c682bb27ef5064ee4d25801b33d8896e7bf356f174c9"
+    },
+    {
+      "kind": "interface",
+      "name": "OrgUser",
+      "file": "frontend/src/composables/use-users.ts",
+      "line": 8,
+      "signatureSha256": "aef168867bed52b361340ff4837c659ef8da8e5d45bb26805c1bc34051eca939"
+    },
+    {
+      "kind": "interface",
+      "name": "OtpContext",
+      "file": "backend/src/modules/privacy/otp-service.ts",
+      "line": 98,
+      "signatureSha256": "94416b4de2021bad91a6851f5cd489bd76632266d47346115d766130ed907f38"
+    },
+    {
+      "kind": "interface",
+      "name": "OtpStatus",
+      "file": "backend/src/modules/privacy/otp-service.ts",
+      "line": 508,
+      "signatureSha256": "ca274efd2587580fa7b7fff8adfcb02b35d590b8bada7dd106188f3e8fe1f178"
+    },
+    {
+      "kind": "interface",
+      "name": "OtpStatus",
+      "file": "frontend/src/stores/privacy.ts",
+      "line": 25,
+      "signatureSha256": "0b47f7a69f78000ceeffb29ab0deeed016e5da9b01f642ee66fcbb7572ed7a04"
+    },
+    {
+      "kind": "interface",
+      "name": "OwnerScope",
+      "file": "backend/src/modules/rbac/owner-scope.ts",
+      "line": 19,
+      "signatureSha256": "c56e6710ee5d285b0b6a2f64d4f682635177834241ca257e1c24711318adb8f2"
+    },
+    {
+      "kind": "type",
+      "name": "ParsedAppointment",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 211,
+      "signatureSha256": "7f279937b1b3f9766e69442da2ed77188365915c440b2fc5e183a8208528fbdf"
+    },
+    {
+      "kind": "type",
+      "name": "ParsedAppointment",
+      "file": "backend/src/modules/ai/appointment-fallback-parser.ts",
+      "line": 16,
+      "signatureSha256": "3ed482cb3bd304dff3b6987cf72cca559c81b014f589dc9d1cf55fbfbe6e6808"
+    },
+    {
+      "kind": "interface",
+      "name": "ParsedAppointment",
+      "file": "frontend/src/composables/use-notes.ts",
+      "line": 38,
+      "signatureSha256": "2447b0fdb7a511403ee3b886aa4ef8404fbedbe54d485c9bd085f73582884d60"
+    },
+    {
+      "kind": "interface",
+      "name": "ParsedLine",
+      "file": "backend/src/modules/lists/types.ts",
+      "line": 30,
+      "signatureSha256": "60551210c4fbc70407ac33a90ec330f6d5fc2ffde79a0c1261ef9779aab3d595"
+    },
+    {
+      "kind": "type",
+      "name": "Permission",
+      "file": "backend/src/modules/zalo/zalo-route-helpers.ts",
+      "line": 10,
+      "signatureSha256": "93fbe6926d4389f9bf23060918a975ba36ca76f11d7e4401ca8ac374fd142a1f"
+    },
+    {
+      "kind": "interface",
+      "name": "PermissionGroupNode",
+      "file": "backend/src/modules/rbac/permission-group-service.ts",
+      "line": 14,
+      "signatureSha256": "25252018c275129cd25f7746f7d8a92dc2547a309c90b13a48127c0cf73fc4c1"
+    },
+    {
+      "kind": "interface",
+      "name": "PermissionGroupNode",
+      "file": "frontend/src/stores/rbac.ts",
+      "line": 28,
+      "signatureSha256": "dc0e116fde6f1d575011f1ded7322f5b6ef35d22850ee8422581f20841b1c424"
+    },
+    {
+      "kind": "interface",
+      "name": "PersistedFriendsState",
+      "file": "frontend/src/composables/use-friends-state.ts",
+      "line": 19,
+      "signatureSha256": "ee55806578a6f866ccc59a66368dec3545047c14482019050c3144a38c489244"
+    },
+    {
+      "kind": "type",
+      "name": "PhoneInvalidReason",
+      "file": "backend/src/shared/phone/normalize-vn-phone.ts",
+      "line": 32,
+      "signatureSha256": "428cb7ce39e91c5ac12aaaf82b7f7fa079517d74e18557d95d7b67f031aaf5f5"
+    },
+    {
+      "kind": "interface",
+      "name": "PickerDept",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 182,
+      "signatureSha256": "d963f62bc1b242599e28bd85eb5b23225bb5db24506e771dff241c6b8159d16c"
+    },
+    {
+      "kind": "interface",
+      "name": "PickerUser",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 173,
+      "signatureSha256": "7b61ebc731b431a056ee22441faad978868e07b5306124a6a066aee7a358d0f9"
+    },
+    {
+      "kind": "interface",
+      "name": "PipelineItem",
+      "file": "frontend/src/composables/use-dashboard.ts",
+      "line": 19,
+      "signatureSha256": "5e5509c74a48d1b1337d968293cce7724c4df98b2d7b7150a6485a679453d583"
+    },
+    {
+      "kind": "interface",
+      "name": "PresenceEntry",
+      "file": "backend/src/modules/zalo/presence-service.ts",
+      "line": 21,
+      "signatureSha256": "7dd83890ac6f833ce7e1da25438ae2e6b48666f0ad86ff8910b48d5345435b62"
+    },
+    {
+      "kind": "interface",
+      "name": "PriorityInputs",
+      "file": "backend/src/modules/engagement/priority-service.ts",
+      "line": 22,
+      "signatureSha256": "77b77c5e13c05add6084fcefdde3d51a689a07a2420a10eda5945732a823e30a"
+    },
+    {
+      "kind": "interface",
+      "name": "PrivacyContext",
+      "file": "backend/src/modules/privacy/redact.ts",
+      "line": 15,
+      "signatureSha256": "63a01966ce229de4547111a65ef98015d2e7269b43819f5a06c90a22d8a7943d"
+    },
+    {
+      "kind": "class",
+      "name": "PrivacyOtpError",
+      "file": "backend/src/modules/privacy/otp-service.ts",
+      "line": 200
+    },
+    {
+      "kind": "interface",
+      "name": "PrivacySplit",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 14,
+      "signatureSha256": "e0856cae1ea709a559a086ec77ef2d5deb07117cb17ffb6cf45c8c23a451063b"
+    },
+    {
+      "kind": "interface",
+      "name": "PrivacyStatus",
+      "file": "frontend/src/stores/privacy.ts",
+      "line": 11,
+      "signatureSha256": "98c064e62217705d48a33f10fd71b60b8e139916e690928251fe6a86ec74e411"
+    },
+    {
+      "kind": "interface",
+      "name": "ProfileOpsResult",
+      "file": "backend/src/modules/zalo/profile-operations.ts",
+      "line": 17,
+      "signatureSha256": "438d1b0d01516fcc596ecfcb26a8e8a44151a89cd90ed10da6e34631091302a8"
+    },
+    {
+      "kind": "interface",
+      "name": "PromotionResult",
+      "file": "backend/src/modules/scoring/stage-promotion.ts",
+      "line": 28,
+      "signatureSha256": "8e498da8426ff8afb8a4e92b51463bc7bab37404da83381f20fc2d53be4e12d3"
+    },
+    {
+      "kind": "type",
+      "name": "PropertyPurpose",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 11,
+      "signatureSha256": "d5b9f2302b95e391eb5e94d6bda4fc35f9fd44469763fc798ceaf5e971598239"
+    },
+    {
+      "kind": "type",
+      "name": "PropertyType",
+      "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
+      "line": 10,
+      "signatureSha256": "0886c61c7e07cebc8ea8adbd7a25dd08e3b101265e0c32d475224fef7263eb63"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderDef",
+      "file": "backend/src/modules/ai/provider-registry.ts",
+      "line": 18,
+      "signatureSha256": "a76499a11ede176dd4a4ae4c65567c19a2872c5a2d14d2b6dbc49c0afd977d4c"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderId",
+      "file": "backend/src/modules/ai/provider-registry.ts",
+      "line": 35,
+      "signatureSha256": "215d9d1e853f100622b8696fb99b567287a5b029bfd55fd7ac420931008cad2b"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderInfo",
+      "file": "backend/src/modules/ai/provider-registry.ts",
+      "line": 26,
+      "signatureSha256": "3bc78b08cd8029ae1fc42e569b3049029fb89a680ba818b84d49aed4af931c97"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderModel",
+      "file": "backend/src/modules/ai/provider-registry.ts",
+      "line": 15,
+      "signatureSha256": "ca1c594334d9eda401edd5c6289bc3805a53cf0834e5047b892ac24d018f5df6"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderModel",
+      "file": "backend/src/modules/ai/providers/list-models.ts",
+      "line": 9,
+      "signatureSha256": "ca1c594334d9eda401edd5c6289bc3805a53cf0834e5047b892ac24d018f5df6"
+    },
+    {
+      "kind": "interface",
+      "name": "PushPayload",
+      "file": "backend/src/modules/push/push-service.ts",
+      "line": 91,
+      "signatureSha256": "7d5b04e545b68cd3f4dd7fde6cc78f9027c82442a49c335aa8b1f19c0799a414"
+    },
+    {
+      "kind": "type",
+      "name": "QuickPillKey",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 52,
+      "signatureSha256": "6dde066c1bf462c3639ba58c7ed7c4afe405bcaa560adf3d12d2822e6612321c"
+    },
+    {
+      "kind": "interface",
+      "name": "QuotaNick",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 91,
+      "signatureSha256": "52d56d76b076eb69d7dbb1a18315a9342aad84b153cb7878b929d8718094beaf"
+    },
+    {
+      "kind": "interface",
+      "name": "RbacUser",
+      "file": "frontend/src/stores/rbac.ts",
+      "line": 55,
+      "signatureSha256": "86274aa7ab72eb7b9429badcc6004fb18887b191b6888a6e0515498335d5f522"
+    },
+    {
+      "kind": "type",
+      "name": "RecipientStatus",
+      "file": "backend/src/modules/system-notifications/system-notify-service.ts",
+      "line": 150,
+      "signatureSha256": "3730c298f013575de3a0cbfe2de1cb12baa5b368c94c4651d503661cbbaf2815"
+    },
+    {
+      "kind": "interface",
+      "name": "RecordIngestionResult",
+      "file": "backend/src/modules/integrations/_shared/webhook-log.service.ts",
+      "line": 30,
+      "signatureSha256": "7b26e48fc2e9b8eb0e6ebb2338c16bddc21a331d270961f88da248ad1f5486bf"
+    },
+    {
+      "kind": "type",
+      "name": "RedisClient",
+      "file": "backend/src/shared/redis-client.ts",
+      "line": 8,
+      "signatureSha256": "12650b4359806ebbe189c3b64abd7b84c12e1f965cc81b58e2d5655b323b0c02"
+    },
+    {
+      "kind": "class",
+      "name": "RefreshInvalidError",
+      "file": "backend/src/modules/auth/refresh-token-service.ts",
+      "line": 43
+    },
+    {
+      "kind": "class",
+      "name": "RefreshReuseError",
+      "file": "backend/src/modules/auth/refresh-token-service.ts",
+      "line": 37
+    },
+    {
+      "kind": "interface",
+      "name": "RegisterAssetInput",
+      "file": "backend/src/modules/media/media-service.ts",
+      "line": 57,
+      "signatureSha256": "7c125f5ef976fe09d0f9caac9d3cdce67636c02f323341617967bb2b04fd9df2"
+    },
+    {
+      "kind": "interface",
+      "name": "RegisterAssetResult",
+      "file": "backend/src/modules/media/media-service.ts",
+      "line": 79,
+      "signatureSha256": "c34fec34663165eaeb4a6743f45c3c77ee9d9841f241e0a5a404cec29d4d3d98"
+    },
+    {
+      "kind": "interface",
+      "name": "ReminderAppt",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 36,
+      "signatureSha256": "94746164f52b75ee7adbaaf520ba84b25cdf68085cfea27880ae75fd2b34cd26"
+    },
+    {
+      "kind": "interface",
+      "name": "RemindersBlock",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 45,
+      "signatureSha256": "a9772591e564f29851dbc3a8c342f6c14b82b4e38986f5cc22befe984706272b"
+    },
+    {
+      "kind": "interface",
+      "name": "ReplyMessageRef",
+      "file": "frontend/src/composables/use-chat.ts",
+      "line": 53,
+      "signatureSha256": "cc5ce4210593fcf16f267831a8e29e033b3feae0fc94e351914c8ded1cdebb3d"
+    },
+    {
+      "kind": "interface",
+      "name": "ReportConfig",
+      "file": "backend/src/modules/analytics/reports/custom-report.ts",
+      "line": 14,
+      "signatureSha256": "dfa7975f14859425dc7a67af5233f88d044b4900c75c157c034296165863382e"
+    },
+    {
+      "kind": "interface",
+      "name": "ReportConfig",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 37,
+      "signatureSha256": "250c20da3a6714f07e50d40906c0624a1546fff2cf8580ff96eaab256d942717"
+    },
+    {
+      "kind": "interface",
+      "name": "RequestOtpResult",
+      "file": "backend/src/modules/privacy/otp-service.ts",
+      "line": 206,
+      "signatureSha256": "dbabaffea8ed0a38a2926d52aca357dec75540e196803a4a8be11d344948ae34"
+    },
+    {
+      "kind": "interface",
+      "name": "RequestOtpResult",
+      "file": "frontend/src/stores/privacy.ts",
+      "line": 38,
+      "signatureSha256": "8ab9dfd5afa55b519ba2c36040b3e8f2136a76f023c9888a73cfce22227c85c9"
+    },
+    {
+      "kind": "interface",
+      "name": "ResolveContactInput",
+      "file": "backend/src/modules/contacts/resolve-contact.ts",
+      "line": 36,
+      "signatureSha256": "dc40cb46851d44d85abf75d335f3eab5279218c7552c0ab691fcdbf385ce21dc"
+    },
+    {
+      "kind": "interface",
+      "name": "ResolveContactResult",
+      "file": "backend/src/modules/contacts/resolve-contact.ts",
+      "line": 61,
+      "signatureSha256": "74acbe013a2e364938337cf4f23778762741c81ca600610ad75b1c13ad5efaa0"
+    },
+    {
+      "kind": "interface",
+      "name": "ResolveConvArgs",
+      "file": "backend/src/modules/chat/conversation-resolver.ts",
+      "line": 22,
+      "signatureSha256": "d2cc050656d167f23f87efe04de048f45a8f6430b9fcd819e7b356f832ee748b"
+    },
+    {
+      "kind": "type",
+      "name": "ResolvedMessage",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 62,
+      "signatureSha256": "e1c0b7a071a0fec666c5462261b9a8779c74140282373d240eb2d79c3998d125"
+    },
+    {
+      "kind": "interface",
+      "name": "ResolveResult",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 71,
+      "signatureSha256": "37ab9e3fcadd641a6043b5b40b457dfebf04208e8710e64a3d2626b064f2f724"
+    },
+    {
+      "kind": "type",
+      "name": "Resource",
+      "file": "backend/src/modules/rbac/permission-types.ts",
+      "line": 46,
+      "signatureSha256": "4441345a53f9dd706f214732f244dcf5e62c8ed0090d3a781675dabc384c2c29"
+    },
+    {
+      "kind": "interface",
+      "name": "ResponseTimeData",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 31,
+      "signatureSha256": "5e832d22d92f7f8d6c629f9596d5c271156ec8896cc38831a23b47b1f3e41205"
+    },
+    {
+      "kind": "interface",
+      "name": "ResponseTimeResult",
+      "file": "backend/src/modules/analytics/reports/response-time.ts",
+      "line": 18,
+      "signatureSha256": "f36bee4f3d22a83765a21f7e59be61de630c23c1741db4ef14ceff3ad1466dda"
+    },
+    {
+      "kind": "interface",
+      "name": "RichPayload",
+      "file": "frontend/src/composables/use-message-templates.ts",
+      "line": 4,
+      "signatureSha256": "6d0e9dd1773e3bed928adb42fb2f2eec948fd38085be3e658cfc6139e22ef239"
+    },
+    {
+      "kind": "interface",
+      "name": "RoutingResult",
+      "file": "backend/src/modules/integrations/_shared/lead-routing.service.ts",
+      "line": 20,
+      "signatureSha256": "91468245c09c2885f2c6f1487da42023ad094bb95d15671a327ae6901cd435c1"
+    },
+    {
+      "kind": "type",
+      "name": "SaleAssigneeFilter",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 78,
+      "signatureSha256": "d65a5cb5e4ac426d768c3dd15b9f11ab108118050fa484cdcccd6f7792cfa41b"
+    },
+    {
+      "kind": "type",
+      "name": "SalesHandoffInput",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 447,
+      "signatureSha256": "b00f4f2e5e02523dcbd43357748e0ce0e9a0b1047f5ec49a42b9b678ff568314"
+    },
+    {
+      "kind": "type",
+      "name": "SalesHandoffResult",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 470,
+      "signatureSha256": "5add8fef1a3abfe3b64e82d29ae8b9833e1684d7accc6cabfef9f0529a97852f"
+    },
+    {
+      "kind": "interface",
+      "name": "SalesHandoffResult",
+      "file": "frontend/src/composables/use-contact-cockpit.ts",
+      "line": 89,
+      "signatureSha256": "6d6d601b34d9260101fb6afd83a15b008a267da83bd804836c6057beaf5dfa86"
+    },
+    {
+      "kind": "interface",
+      "name": "SavedFilterPreset",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 42,
+      "signatureSha256": "ce230b037101fe94927ffe1957c48226a348679f9316cf77c4cbb2100906b109"
+    },
+    {
+      "kind": "interface",
+      "name": "SavedReport",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 49,
+      "signatureSha256": "b1a63e7259cd22e6af9404090eee6edfec9dccbbb6308420b2b3728109c8c0e6"
+    },
+    {
+      "kind": "type",
+      "name": "ScanResult",
+      "file": "backend/src/shared/security/clamav-client.ts",
+      "line": 27,
+      "signatureSha256": "541cf269ac6343f7307d19e043affbba740abb759f1cab5d0656eaeba3640968"
+    },
+    {
+      "kind": "interface",
+      "name": "ScoreBreakdown",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 22,
+      "signatureSha256": "bb2ac29c8fa040bf152b5487e197e4466d686c9d6db7848427f8c30e578755e6"
+    },
+    {
+      "kind": "interface",
+      "name": "ScoreBreakdown",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 22,
+      "signatureSha256": "44d436d9d027bce4f78998abab575dca3f1fcebe95571136d7eda0c0d6858b59"
+    },
+    {
+      "kind": "type",
+      "name": "ScoreDimension",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 14,
+      "signatureSha256": "3bb90967322f3519e35e0f9d7acb9865ec6d9f771c982fb82d077cba604e515e"
+    },
+    {
+      "kind": "interface",
+      "name": "ScoresBlock",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 51,
+      "signatureSha256": "549d3625486cceb3d9fa8d8de0cccb606d04b599dbbf77e8d36fa3f04d4793c3"
+    },
+    {
+      "kind": "type",
+      "name": "ScoreTier",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 75,
+      "signatureSha256": "b0a4793a0c6c58aeabff365e30ea524d02beb8ac578a31d536ef39cbe84b46f9"
+    },
+    {
+      "kind": "interface",
+      "name": "ScoringConfig",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 71,
+      "signatureSha256": "c5a781af753c5ac7457870040b091ad8626de5cecfd409309f34e2ac40e49c82"
+    },
+    {
+      "kind": "interface",
+      "name": "ScoringConfigSnapshot",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 222,
+      "signatureSha256": "76cb362413b72021a3927bae30d6acbdc330a327ece6fa67d982f3f70a5c7325"
+    },
+    {
+      "kind": "type",
+      "name": "SecurityAction",
+      "file": "backend/src/modules/auth/security-audit.ts",
+      "line": 19,
+      "signatureSha256": "3bf37e7bd79f784de146d2150e5201a6b8a394473b5f3768f7f676d0a5f345a4"
+    },
+    {
+      "kind": "interface",
+      "name": "SecurityAuditInput",
+      "file": "backend/src/modules/auth/security-audit.ts",
+      "line": 28,
+      "signatureSha256": "d45b98d07e384babe18dcc116dd68b192cd82fb440418b02272482bdbb65e92b"
+    },
+    {
+      "kind": "interface",
+      "name": "SeedResult",
+      "file": "backend/src/modules/rbac/seed-default-groups.ts",
+      "line": 11,
+      "signatureSha256": "4fb605f1d79df5f2e692f75f8cf6db05f707f87e9dcae9d8ebc3973501a2a296"
+    },
+    {
+      "kind": "interface",
+      "name": "SeedResult",
+      "file": "backend/src/modules/scoring/seed-defaults.ts",
+      "line": 27,
+      "signatureSha256": "b6e3d7feb8e0aed680741ca16ef09d66389544a00a1f40e6fa7c6d234a09aa49"
+    },
+    {
+      "kind": "interface",
+      "name": "SendBlockResult",
+      "file": "frontend/src/_ee-stubs/automation/api/blocks.ts",
+      "line": 4,
+      "signatureSha256": "bffe62d8cbe80be6542c458c6832de2633af13cf406e311b05ee74cabe5595f0"
+    },
+    {
+      "kind": "type",
+      "name": "SendMediaField",
+      "file": "backend/src/modules/integrations/providers/telegram-bridge/telegram-api.ts",
+      "line": 136,
+      "signatureSha256": "a4d56d2922d752a42ab5f0baa860445bd376da7d457f08f9e1a2416681bebd1c"
+    },
+    {
+      "kind": "type",
+      "name": "SendMediaMethod",
+      "file": "backend/src/modules/integrations/providers/telegram-bridge/telegram-api.ts",
+      "line": 135,
+      "signatureSha256": "153b70ba9ef215776195633e60fba442a7758f50a15af00495728ec9ba90e1f9"
+    },
+    {
+      "kind": "interface",
+      "name": "SendNativeVideoParams",
+      "file": "backend/src/shared/video-processor.ts",
+      "line": 169,
+      "signatureSha256": "6f2a1819600d43e2520d8970b02328990b6676756fe84d91a51b75a8896cc689"
+    },
+    {
+      "kind": "type",
+      "name": "SessionDuration",
+      "file": "backend/src/modules/privacy/session-service.ts",
+      "line": 16,
+      "signatureSha256": "a49b70e7c2ea209eba1b062b38c9fe3abafc5f43fa01408e817d579457cd309e"
+    },
+    {
+      "kind": "interface",
+      "name": "SessionsSummary",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 30,
+      "signatureSha256": "9452e3333d91d408ea48af1ddaa3c7588ee199dc2f0d093d429bddb20687e7bd"
+    },
+    {
+      "kind": "interface",
+      "name": "SettingsGroup",
+      "file": "frontend/src/composables/use-settings-nav.ts",
+      "line": 38,
+      "signatureSha256": "59e47c268b4bf96cba9eec738cc7a15ea1cb8feb1b37455a2d5c2651598ac019"
+    },
+    {
+      "kind": "interface",
+      "name": "SettingsItem",
+      "file": "frontend/src/composables/use-settings-nav.ts",
+      "line": 21,
+      "signatureSha256": "ae8e3f406207529308a3fc2c19e18457957ea0c36b13fd739efbbfd57a70b2ce"
+    },
+    {
+      "kind": "type",
+      "name": "SettingsPermission",
+      "file": "frontend/src/composables/use-settings-nav.ts",
+      "line": 19,
+      "signatureSha256": "73d0beb845cb03f978b71d58a9073ecbd0ffabf0f042f3e172cf6cac7f80a19a"
+    },
+    {
+      "kind": "interface",
+      "name": "SignalApplied",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 34,
+      "signatureSha256": "a5fe46a8dd181a84004c69f9d7b6fc38331d75da0b0bd204525d9ca76fce5d78"
+    },
+    {
+      "kind": "interface",
+      "name": "SignalRule",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 90,
+      "signatureSha256": "590301322e5e8f634e254f0daef0640568ed14e933c0f634fc2a96e06ad393f7"
+    },
+    {
+      "kind": "interface",
+      "name": "SignalRuleSeed",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 56,
+      "signatureSha256": "0430801cfee764b967216168043eac7d4fb59da9f60e536877fa30faa01cbdb1"
+    },
+    {
+      "kind": "type",
+      "name": "SignalRuleType",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 53,
+      "signatureSha256": "75cb15e1eaf30117c46e7a3a9cb25b05ab569eca7129951b93253ccef6bfb980"
+    },
+    {
+      "kind": "interface",
+      "name": "SocketAuthCtx",
+      "file": "backend/src/shared/realtime/socket-auth.ts",
+      "line": 24,
+      "signatureSha256": "504b7b9ab9e260863dc60d077a5fd0fedb2817d39e3572d8eefa7f857dcc0481"
+    },
+    {
+      "kind": "type",
+      "name": "SocketStatus",
+      "file": "frontend/src/api/socket.ts",
+      "line": 32,
+      "signatureSha256": "b9880282964e2b618e651bb1f8affc4fdc77943dbd8713ea15833ac1a8091df6"
+    },
+    {
+      "kind": "type",
+      "name": "SortMode",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 60,
+      "signatureSha256": "bb87c3660195a6dbf92dfc891440cc5998c2e3fa2136bc1d6bd6ba4ec5a6c1e6"
+    },
+    {
+      "kind": "interface",
+      "name": "SourceBadge",
+      "file": "frontend/src/lib/source-badge.ts",
+      "line": 8,
+      "signatureSha256": "effe965aff8c8ed3f7981907a3be57f19815a2d717afccf778e5bf37b536b4e9"
+    },
+    {
+      "kind": "interface",
+      "name": "SourceItem",
+      "file": "frontend/src/composables/use-dashboard.ts",
+      "line": 24,
+      "signatureSha256": "0e0f764976c8c4cbeddf45d1c42cb1a69342a26e89d5ac1782d44c1619bd1506"
+    },
+    {
+      "kind": "interface",
+      "name": "SourceMeta",
+      "file": "backend/src/modules/integrations/_shared/normalized-lead.schema.ts",
+      "line": 28,
+      "signatureSha256": "8bf6f9f87e325d957f0a706ddf902447118979ce6d171d703e18a60d738cb447"
+    },
+    {
+      "kind": "class",
+      "name": "SsrfBlockedError",
+      "file": "backend/src/shared/utils/ssrf-guard.ts",
+      "line": 35
+    },
+    {
+      "kind": "interface",
+      "name": "StageCriteria",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 99,
+      "signatureSha256": "1540f82860a564028296de39aa6d8a0d1cdc0a754f2c5810e2e79368d8634009"
+    },
+    {
+      "kind": "type",
+      "name": "StageName",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 71,
+      "signatureSha256": "a21a712170dcdf74191c7646ff2cfcf7cc10d07d13e66b4c1b601306ba5c1aa7"
+    },
+    {
+      "kind": "interface",
+      "name": "StageTransitionSeed",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 111,
+      "signatureSha256": "77bb91ad93a63747e2a39ba00a18c555231f2ebe16525082e3fa5817360a366a"
+    },
+    {
+      "kind": "interface",
+      "name": "StatusMigrationResult",
+      "file": "backend/src/modules/contacts/status-migration.ts",
+      "line": 46,
+      "signatureSha256": "330d75307bedb563d191170684451d3e3917de70cfebc333b365559b3b4e016c"
+    },
+    {
+      "kind": "type",
+      "name": "StatusReason",
+      "file": "backend/src/modules/zalo/status-log-service.ts",
+      "line": 16,
+      "signatureSha256": "b176f98762009836b09ee7e28a2cd540c9c1432086233e7167570fc88d8e8aea"
+    },
+    {
+      "kind": "interface",
+      "name": "StorageDriver",
+      "file": "backend/src/shared/storage/types.ts",
+      "line": 20,
+      "signatureSha256": "b40c5a2ddc5674cb41e9133a504f7fa9dc55a0087e3b01863ead474b522060b9"
+    },
+    {
+      "kind": "interface",
+      "name": "StrangerFollowUpArgs",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 109,
+      "signatureSha256": "96ca7d720894344b6eb47cf8319de75ce64df429685eea7b02c4ef3354ec36a3"
+    },
+    {
+      "kind": "type",
+      "name": "StuckDuration",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 76,
+      "signatureSha256": "72dda8b8a5246b70a7f305f5b190cfe45ccfdf7eefcc14623d6eb758501ae0d0"
+    },
+    {
+      "kind": "interface",
+      "name": "StuckFriend",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 38,
+      "signatureSha256": "9b1c70c7ef62c228dcfea9ad58ee700480d34e48d24987b1b6d95415aeb6c390"
+    },
+    {
+      "kind": "interface",
+      "name": "StuckLeadsResponse",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 66,
+      "signatureSha256": "4e723c5fe6259eddf40f55d65c49e1224e17233e1e728f8941238119c1624f85"
+    },
+    {
+      "kind": "interface",
+      "name": "StuckScanResult",
+      "file": "backend/src/modules/scoring/stuck-detection.ts",
+      "line": 21,
+      "signatureSha256": "539a0ca986162a1d228ffd956d82393e69b4f86e771b561e91e31f8e71464bf1"
+    },
+    {
+      "kind": "interface",
+      "name": "StuckStageGroup",
+      "file": "frontend/src/composables/use-scoring.ts",
+      "line": 51,
+      "signatureSha256": "402212326ce181ce19b579d37389f8821f52f8ef408cf3c5be104a8e848cf765"
+    },
+    {
+      "kind": "interface",
+      "name": "StuckThresholdSeed",
+      "file": "backend/src/modules/scoring/types.ts",
+      "line": 120,
+      "signatureSha256": "7079b9e540acfac27b0404f05a57d09c184ee8e6d3c5a9ade54e975f6f0274c4"
+    },
+    {
+      "kind": "type",
+      "name": "Style",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 92,
+      "signatureSha256": "862f40acf88f2f176a8d4daaa3582394aa52611a98af95ba6e8a4ad176d432f2"
+    },
+    {
+      "kind": "interface",
+      "name": "StyleMark",
+      "file": "frontend/src/composables/use-rich-format.ts",
+      "line": 6,
+      "signatureSha256": "5227f69613b32d30924ee2846419422a2d4bfcd79828dc7f3fc1922e307b1973"
+    },
+    {
+      "kind": "interface",
+      "name": "SyncAccountFullyResult",
+      "file": "backend/src/modules/zalo/friend-sync-service.ts",
+      "line": 436,
+      "signatureSha256": "ea942b3246e16ed6450ebc0e3688fa23061d534a101015aff1a1142eaa4bdcb4"
+    },
+    {
+      "kind": "interface",
+      "name": "SyncFriendsOptions",
+      "file": "backend/src/modules/zalo/friend-sync-service.ts",
+      "line": 42,
+      "signatureSha256": "f50afe3ed8a6d86d29386efb8292127d9e053d62daa647a371eacdffb4d584ae"
+    },
+    {
+      "kind": "interface",
+      "name": "SyncFriendsResult",
+      "file": "backend/src/modules/zalo/friend-sync-service.ts",
+      "line": 48,
+      "signatureSha256": "7b79225d143bd63a6f309d08c7330d85e5ede3ccc30f0c0a9fc1325ec7185858"
+    },
+    {
+      "kind": "interface",
+      "name": "SyncResult",
+      "file": "backend/src/shared/ee-registry/integrations.ts",
+      "line": 13,
+      "signatureSha256": "173583c5749a6c31cf1dc4ba824e199a4c053b231fb6502906d00a862e95ecd6"
+    },
+    {
+      "kind": "type",
+      "name": "SyncTrigger",
+      "file": "backend/src/modules/zalo/friend-sync-service.ts",
+      "line": 40,
+      "signatureSha256": "a9a9edc14a43ac18e20deffd39e4cc94d20aff457e4f6ea83e6bdd7da307ebea"
+    },
+    {
+      "kind": "interface",
+      "name": "SystemMessage",
+      "file": "backend/src/modules/lists/list-system-messages.ts",
+      "line": 37,
+      "signatureSha256": "9059a1ba5b872925c26ffd29b6c392dd6f60c851802912457ffae29c6c8a305f"
+    },
+    {
+      "kind": "interface",
+      "name": "SystemMessage",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 65,
+      "signatureSha256": "59d7f867c77929f5288785df28040b8d9b3d6a60655ecc0ae4333d32b2fae2e7"
+    },
+    {
+      "kind": "type",
+      "name": "SystemMessageType",
+      "file": "backend/src/modules/lists/list-system-messages.ts",
+      "line": 18,
+      "signatureSha256": "e5ff2184422199f143d14663b75826d9a4387e66c1966183e3af436ad2d57b3b"
+    },
+    {
+      "kind": "type",
+      "name": "SystemMessageType",
+      "file": "frontend/src/composables/use-customer-lists.ts",
+      "line": 49,
+      "signatureSha256": "e188a186ed4c5aecdda6d3811479dccd0cb78f5688b97193c60397ad1e5a4561"
+    },
+    {
+      "kind": "interface",
+      "name": "SystemResponse",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 146,
+      "signatureSha256": "4cfc3e5e31ea31e77719cf7e69f63a20c22a37369e4221c07557ebc70a15bdfb"
+    },
+    {
+      "kind": "interface",
+      "name": "TagTaxonomyDef",
+      "file": "frontend/src/composables/use-tag-taxonomy.ts",
+      "line": 17,
+      "signatureSha256": "3e4570265dee78b6fddffbe082499575da00e44b85cf9ccf2675b97499224718"
+    },
+    {
+      "kind": "interface",
+      "name": "Team",
+      "file": "frontend/src/composables/use-teams.ts",
+      "line": 8,
+      "signatureSha256": "49ff43c9241cc80f6318b4427fec009ead4e355bffa1a161016915f225ab3237"
+    },
+    {
+      "kind": "interface",
+      "name": "Teammate",
+      "file": "frontend/src/composables/use-contact-cockpit.ts",
+      "line": 63,
+      "signatureSha256": "32f74832aa38a4411c2c17101100feefd9744df4a705114df07aaa80258733c1"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamMember",
+      "file": "backend/src/modules/analytics/reports/team-performance.ts",
+      "line": 7,
+      "signatureSha256": "cae7407d24bf183556a3e89f20216dd5462ba90bda503ba1e242458a55045918"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamMember",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 18,
+      "signatureSha256": "d5e96699429f9fd23fa57b932af163c345eb7971fc44899b7fe2c66ab99174bb"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamMember",
+      "file": "frontend/src/composables/use-teams.ts",
+      "line": 15,
+      "signatureSha256": "3f4a296672b0081b974594bb14b7a2d4bc9ea6cbef2c4e54e95622235b6be73a"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamPerformanceData",
+      "file": "frontend/src/composables/use-analytics.ts",
+      "line": 27,
+      "signatureSha256": "a26f5a03954c4b8a32429f7ca4d8acb6a8120a8c193dc7887c9924f2b783f7ec"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamPerformanceResult",
+      "file": "backend/src/modules/analytics/reports/team-performance.ts",
+      "line": 16,
+      "signatureSha256": "9b6e795875ea5c829161157c9c3958884fbfb4503806743b70cbbc1d42be4f6a"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamResponse",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 130,
+      "signatureSha256": "7cdeb71034bff98018c8371da09c39c035e7564e23391f735a2e5ec318a1c9e6"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamStats",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 59,
+      "signatureSha256": "9990848856c137c71161bdaf218d0f69907b858651965d13f86d1ee853dbf1b2"
+    },
+    {
+      "kind": "interface",
+      "name": "TeamUser",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 115,
+      "signatureSha256": "1001c58a15897ef696011e07725d5ea18604cfc53838e278ffe798aeffee24f3"
+    },
+    {
+      "kind": "interface",
+      "name": "TemplateListFilter",
+      "file": "frontend/src/composables/use-message-templates.ts",
+      "line": 34,
+      "signatureSha256": "230006c574779621b339031fbb0ca9be3b3e42ea0cc3032709d1eab333c1a0be"
+    },
+    {
+      "kind": "interface",
+      "name": "TemplateVariable",
+      "file": "frontend/src/constants/template-variables.ts",
+      "line": 18,
+      "signatureSha256": "9cfed69350fa3980eda208e1f0a78718a37e107de4d7f57b7df048d0fd126a74"
+    },
+    {
+      "kind": "interface",
+      "name": "TemplateVarValues",
+      "file": "backend/src/shared/ee-registry/automation.ts",
+      "line": 78,
+      "signatureSha256": "4cbcdcc4a1a9b8d76db217183d5abb4d95c2d1232a2211f594b8ce87c7f518fb"
+    },
+    {
+      "kind": "interface",
+      "name": "TenantContext",
+      "file": "backend/src/shared/tenant/tenant-context.ts",
+      "line": 26,
+      "signatureSha256": "799d8ab0e9e64b033a44a1a2096e81068a14a7327c6606bb257157196792772c"
+    },
+    {
+      "kind": "interface",
+      "name": "TextStyle",
+      "file": "backend/src/shared/text-formatter.ts",
+      "line": 12,
+      "signatureSha256": "f5d94d2b0640ba8c804ca3ed5324a33fd35f8df66345082b275087806b5ce701"
+    },
+    {
+      "kind": "interface",
+      "name": "TgMessageUpdate",
+      "file": "backend/src/modules/integrations/providers/telegram-bridge/telegram-api.ts",
+      "line": 64,
+      "signatureSha256": "185c0f13d91cff12a047cf00bd991013254ba12c5188c929a0e4a752356d4886"
+    },
+    {
+      "kind": "type",
+      "name": "TimeAxis",
+      "file": "frontend/src/composables/use-inbox-filters.ts",
+      "line": 61,
+      "signatureSha256": "645d85469d9e5fad226dd7e61758530611f08218ea44578f2bcfc4dd818da281"
+    },
+    {
+      "kind": "interface",
+      "name": "TimelineItem",
+      "file": "frontend/src/composables/use-timeline.ts",
+      "line": 25,
+      "signatureSha256": "0398477232a3b9d740eab0f6436b4736ffdef1f9de78e882376c15a5a9fc1ed8"
+    },
+    {
+      "kind": "interface",
+      "name": "ToastAction",
+      "file": "frontend/src/composables/use-toast.ts",
+      "line": 5,
+      "signatureSha256": "0ba437332c02005f737c1f0ca7b716943430caf93cb89ca45faeafef168cb4f3"
+    },
+    {
+      "kind": "interface",
+      "name": "ToastItem",
+      "file": "frontend/src/composables/use-toast.ts",
+      "line": 10,
+      "signatureSha256": "20bf01dc39acf30847fef220f5a2799bcc75d9e17e7d92b12e9d14be8b2d47d6"
+    },
+    {
+      "kind": "type",
+      "name": "ToastType",
+      "file": "frontend/src/composables/use-toast.ts",
+      "line": 3,
+      "signatureSha256": "3421acc1ac557dfe047aa2559e28b65c44b2ba1e642a419bc6bfc7f7217ca746"
+    },
+    {
+      "kind": "interface",
+      "name": "TopNavShortcut",
+      "file": "frontend/src/_ee-stubs/nav.ts",
+      "line": 9,
+      "signatureSha256": "688c51b997a4af4c798dbabea10db43f5aa213b94109f04c2bd92e2c24d1ffdd"
+    },
+    {
+      "kind": "interface",
+      "name": "TrashItem",
+      "file": "frontend/src/api/media.ts",
+      "line": 142,
+      "signatureSha256": "552868288cb1da245f1a1eb281a4d45dbe8fb46d6a6c5c4cc0661e2f876d6426"
+    },
+    {
+      "kind": "interface",
+      "name": "UidResolveOutcome",
+      "file": "backend/src/modules/system-notifications/system-notify-service.ts",
+      "line": 66,
+      "signatureSha256": "de78f686577f3948a2a5f4f9f3a6015e907037bd028abd2e658c6e7b1e279148"
+    },
+    {
+      "kind": "interface",
+      "name": "UpdateProfileParams",
+      "file": "backend/src/modules/zalo/profile-operations.ts",
+      "line": 11,
+      "signatureSha256": "6ac6af22c66009bb2dd14feb3e61a0cee1e8c510d4de80a5ac094f6d53e389aa"
+    },
+    {
+      "kind": "interface",
+      "name": "UploadResult",
+      "file": "backend/src/shared/storage/types.ts",
+      "line": 9,
+      "signatureSha256": "5daf8d3c095b39277c01741d18b492cac11abdf70925786b19389a2cc98c4a43"
+    },
+    {
+      "kind": "interface",
+      "name": "UptimeBucket",
+      "file": "frontend/src/composables/use-zalo-accounts-dashboard.ts",
+      "line": 99,
+      "signatureSha256": "50bc3c0f845c256abca402259be5dd661a9c292984c545ba8c449059d94993bc"
+    },
+    {
+      "kind": "interface",
+      "name": "UrgentItem",
+      "file": "frontend/src/composables/use-dashboard-action-hub.ts",
+      "line": 66,
+      "signatureSha256": "fadcb4f3a8fd55e6867c19ebf1470a96c72be72932fe6f83264de5ad0621273b"
+    },
+    {
+      "kind": "class",
+      "name": "UserCreateWithZaloError",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 79
+    },
+    {
+      "kind": "interface",
+      "name": "UserInfoCacheEntry",
+      "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
+      "line": 250,
+      "signatureSha256": "0b379c568405a33727c629628dc9dfbd3e5c92794d5f0b141ba5d23ccb75c71f"
+    },
+    {
+      "kind": "interface",
+      "name": "UserResponseTime",
+      "file": "backend/src/modules/analytics/reports/response-time.ts",
+      "line": 12,
+      "signatureSha256": "ace9926bbc2e1b1b7599de3b08a27fabc738867a1e1671d023747807c31d1b5b"
+    },
+    {
+      "kind": "interface",
+      "name": "VerifyOtpResult",
+      "file": "backend/src/modules/privacy/otp-service.ts",
+      "line": 317,
+      "signatureSha256": "cb654c1cdf8f386fc2169e7ee756025eb5cf9f8a5b020ea3c9baea00c9d1e7d2"
+    },
+    {
+      "kind": "interface",
+      "name": "VideoProbeMetadata",
+      "file": "backend/src/shared/video-processor.ts",
+      "line": 19,
+      "signatureSha256": "f8d7d5080f86a74ceec760d05514ef2ff57448690b89882e4feaad088cad9b6e"
+    },
+    {
+      "kind": "type",
+      "name": "VideoSendModePlan",
+      "file": "backend/src/shared/video-processor.ts",
+      "line": 15,
+      "signatureSha256": "7fb32b08d3c14cc4092c4a2045821c53bbea506e84214879e557f7bdd0cafbca"
+    },
+    {
+      "kind": "interface",
+      "name": "ViewerPreviewOverride",
+      "file": "backend/src/modules/contacts/contact-aggregate-display.ts",
+      "line": 127,
+      "signatureSha256": "a5c9e7a9457a62c5d61c90fcf5635d3f157473df57d604664c7d8ea9ebb28d9b"
+    },
+    {
+      "kind": "interface",
+      "name": "VoiceSendParams",
+      "file": "backend/src/shared/voice-sender.ts",
+      "line": 15,
+      "signatureSha256": "75d5629ccf5a4b4226a7a58af5cb0686a2c145af3a090480d49765918e85b30e"
+    },
+    {
+      "kind": "interface",
+      "name": "VoiceSendResult",
+      "file": "backend/src/shared/voice-sender.ts",
+      "line": 26,
+      "signatureSha256": "bed45f1677ae6a97002598e07728feb0cbdc4fa99ac472c87b3db29a89ade3d1"
+    },
+    {
+      "kind": "type",
+      "name": "WebhookLogStatus",
+      "file": "backend/src/modules/integrations/_shared/webhook-log.service.ts",
+      "line": 18,
+      "signatureSha256": "08d2c791f3ac2971356966fd15bd8f371d346cf6177b45ea976a918eb92847e2"
+    },
+    {
+      "kind": "interface",
+      "name": "WelcomeMessageInput",
+      "file": "backend/src/modules/system-notifications/welcome-message-builder.ts",
+      "line": 86,
+      "signatureSha256": "8f672a667bae0f04c4fcce5db223cb8478001d6e9cd1551f8c944c7152beba8c"
+    },
+    {
+      "kind": "interface",
+      "name": "WelcomeMessagePayload",
+      "file": "backend/src/modules/system-notifications/welcome-message-builder.ts",
+      "line": 99,
+      "signatureSha256": "40878060977af76b6c0d469293f8816f9ac5fe11e7046d3b75ebfbe395342858"
+    },
+    {
+      "kind": "type",
+      "name": "WelcomeVariant",
+      "file": "backend/src/modules/system-notifications/welcome-message-builder.ts",
+      "line": 24,
+      "signatureSha256": "8c18a579572f51fc73cdd821ba1b648f12ddf14b5e2d2a163424df4963174fb9"
+    },
+    {
+      "kind": "type",
+      "name": "ZaloAccessResult",
+      "file": "backend/src/modules/zalo/zalo-access-middleware.ts",
+      "line": 19,
+      "signatureSha256": "fb6cb6f5f776083b745e7da5f62728e290dde866f46768766c2ae74036ad77c9"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloAccount",
+      "file": "frontend/src/composables/use-zalo-accounts.ts",
+      "line": 11,
+      "signatureSha256": "319892086aa7c316fabb4b091db0f9e90e829547178c9231fb4b3a27e0afcd0b"
+    },
+    {
+      "kind": "class",
+      "name": "ZaloOpError",
+      "file": "backend/src/shared/zalo-operations.ts",
+      "line": 18
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloPreview",
+      "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
+      "line": 38,
+      "signatureSha256": "182e59f706691d5644843ada257b42e312c49043ab4f0f78131d857aab10247e"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloPreview",
+      "file": "frontend/src/composables/use-zalo-phone-check.ts",
+      "line": 12,
+      "signatureSha256": "182e59f706691d5644843ada257b42e312c49043ab4f0f78131d857aab10247e"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloProfile",
+      "file": "frontend/src/composables/use-profile.ts",
+      "line": 9,
+      "signatureSha256": "3c11121482257fbdf4b728012819dcd7f0d8f20ccdca3ab155671f74e0d65725"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloRichStyle",
+      "file": "backend/src/modules/ai/ai-service.ts",
+      "line": 343,
+      "signatureSha256": "b948b505d0a5bdf16e8c6ec49bd26b1fd9db62314348e43317f1b01400a82c10"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloScope",
+      "file": "backend/src/modules/zalo/zalo-scope.ts",
+      "line": 17,
+      "signatureSha256": "eb3c70f23918ee2bfb5c190e539a207d6148214130869fce53589e1f92bfe455"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloSendStyle",
+      "file": "backend/src/modules/system-notifications/welcome-message-builder.ts",
+      "line": 37,
+      "signatureSha256": "dba0f2d4cdc45cd4ae0bbecd7ac0398cd33c6ddc75527f2f45e075be5d7d1cae"
+    },
+    {
+      "kind": "type",
+      "name": "ZaloStatus",
+      "file": "backend/src/modules/zalo/status-log-service.ts",
+      "line": 15,
+      "signatureSha256": "319610c19b86058ece4f04a04141e6d3964d8f1ba62cb2eecb8811b1cd08bffc"
+    },
+    {
+      "kind": "interface",
+      "name": "ZaloTextStyle",
+      "file": "backend/src/modules/system-notifications/system-notify-service.ts",
+      "line": 144,
+      "signatureSha256": "23af3373a84e8872d20975caae550cf8abbc89247031919e851bc5a59fc8fc65"
+    }
+  ]
+}

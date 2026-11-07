@@ -17,6 +17,7 @@ node_modules
 .env.production.local
 .env.prod
 .env.dev
+.env.zalo-production.ready
 
 # Testing
 coverage
@@ -33,6 +34,17 @@ coverage
 out/
 build
 dist
+
+# Zalo Personal keeps its original nested npm layout and runtime data paths.
+apps/zalo-personal/**/.env
+apps/zalo-personal/**/.env.*
+!apps/zalo-personal/**/.env.example
+apps/zalo-personal/**/node_modules/
+apps/zalo-personal/**/dist/
+apps/zalo-personal/**/coverage/
+apps/zalo-personal/backend/.data/
+apps/zalo-personal/backups/
+apps/zalo-personal/uploads/
 
 
 # Debug

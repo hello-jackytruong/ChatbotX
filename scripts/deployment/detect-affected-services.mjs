@@ -9,26 +9,44 @@ export const SERVICE_DEFINITIONS = Object.freeze([
     label: "builder",
     package: "builder",
     image: "chatbotx-builder",
+    context: ".",
     dockerfile: "./apps/builder/docker/Dockerfile",
   },
   {
     label: "worker",
     package: "worker",
     image: "chatbotx-worker",
+    context: ".",
     dockerfile: "./apps/worker/docker/Dockerfile",
   },
   {
     label: "realtime",
     package: "realtime",
     image: "chatbotx-realtime",
+    context: ".",
     dockerfile: "./apps/realtime/docker/Dockerfile",
   },
   {
     label: "javascript-executor",
     package: "javascript-executor",
     image: "chatbotx-javascript-executor",
+    context: ".",
     dockerfile: "./apps/javascript-executor/docker/Dockerfile",
   },
+  {
+    label: "zalo-personal",
+    package: null,
+    image: "chatbotx-zalo-personal",
+    context: "./apps/zalo-personal",
+    dockerfile: "docker/Dockerfile",
+  },
+])
+
+const CHATBOTX_SERVICE_LABELS = new Set([
+  "builder",
+  "worker",
+  "realtime",
+  "javascript-executor",
 ])
 
 const FULL_DEPLOY_PATHS = new Set([
@@ -41,6 +59,7 @@ const FULL_DEPLOY_PATHS = new Set([
   "pnpm-workspace.yaml",
   "scripts/deployment/detect-affected-services.mjs",
   "scripts/deployment/production.sh",
+  "scripts/docker/production-full.sh",
   "tsconfig.base.json",
   "turbo.json",
 ])
@@ -51,6 +70,16 @@ const FULL_DEPLOY_PREFIXES = ["patches/", "packages/database/"]
 
 const EXTRA_SERVICE_PATHS = new Map([
   ["scripts/prune-sourcemaps.mjs", ["worker"]],
+])
+
+const ZALO_PATH_PREFIXES = [
+  "apps/zalo-personal/",
+  "scripts/docker/zalo-personal/",
+  "scripts/zalo-personal/",
+]
+const ZALO_PATHS = new Set([
+  "docker-compose.zalo-personal.yml",
+  "docker-compose.zalo-personal.production.yml",
 ])
 
 const GIT_SHA_PATTERN = /^[0-9a-f]{40}$/
@@ -157,13 +186,19 @@ export function selectAffectedServices({
   }
 
   const affected = new Set(affectedPackages)
-  const selected = SERVICE_DEFINITIONS.filter(({ package: packageName }) =>
-    affected.has(packageName),
+  const selected = SERVICE_DEFINITIONS.filter(
+    ({ package: packageName }) => packageName && affected.has(packageName),
   ).map(({ label }) => label)
 
   for (const path of changedFiles) {
     for (const service of EXTRA_SERVICE_PATHS.get(path) ?? []) {
       selected.push(service)
+    }
+    if (
+      ZALO_PATHS.has(path) ||
+      ZALO_PATH_PREFIXES.some((prefix) => path.startsWith(prefix))
+    ) {
+      selected.push("zalo-personal")
     }
   }
 
@@ -194,6 +229,7 @@ export function buildServiceMatrix(services) {
             {
               label: "none",
               image: "none",
+              context: ".",
               dockerfile: "none",
             },
           ],
@@ -209,6 +245,7 @@ const parseArguments = (argv) => {
     githubOutput: "",
     repository: "",
     resolveProductionBaseline: false,
+    scope: "all",
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -231,6 +268,9 @@ const parseArguments = (argv) => {
       index += 1
     } else if (argument === "--environment") {
       args.environment = argv[index + 1] ?? ""
+      index += 1
+    } else if (argument === "--scope") {
+      args.scope = argv[index + 1] ?? ""
       index += 1
     } else {
       throw new Error(`Unknown argument: ${argument}`)
@@ -268,11 +308,16 @@ const readAffectedPackages = (base, head) => {
 }
 
 const writeGithubOutput = (path, result) => {
+  const chatbotxServices = result.services.filter((service) =>
+    CHATBOTX_SERVICE_LABELS.has(service),
+  )
   appendFileSync(
     path,
     [
       `has_services=${result.services.length > 0}`,
       `services=${result.services.join(",")}`,
+      `chatbotx_services=${chatbotxServices.join(",")}`,
+      `deploy_zalo=${result.services.includes("zalo-personal")}`,
       `matrix=${JSON.stringify(buildServiceMatrix(result.services))}`,
       `full_deploy=${result.fullDeploy}`,
       `reason=${result.reason}`,
@@ -319,6 +364,18 @@ async function main() {
     forceFull: args.forceFull,
     detectionFailed,
   })
+  if (!new Set(["all", "chatbotx", "zalo"]).has(args.scope)) {
+    throw new Error(`Invalid deployment scope: ${args.scope}`)
+  }
+  if (args.scope === "chatbotx") {
+    result.services = result.services.filter((service) =>
+      CHATBOTX_SERVICE_LABELS.has(service),
+    )
+  } else if (args.scope === "zalo") {
+    result.services = result.services.filter(
+      (service) => service === "zalo-personal",
+    )
+  }
   const output = {
     ...result,
     changedFiles,

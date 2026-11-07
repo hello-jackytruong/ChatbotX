@@ -1,0 +1,24 @@
+{
+  "account": {
+    "id": "account-synthetic-1",
+    "status": "connected",
+    "displayName": "Synthetic Account"
+  },
+  "contact": {
+    "id": "contact-synthetic-1",
+    "fullName": "Synthetic Contact",
+    "phone": null,
+    "avatarUrl": null
+  },
+  "message": {
+    "id": "message-synthetic-1",
+    "content": "synthetic-content",
+    "contentType": "text",
+    "senderType": "contact",
+    "sentAt": "2000-01-01T00:00:00.000Z"
+  },
+  "error": {
+    "error": "synthetic-error",
+    "code": "SYNTHETIC_ERROR"
+  }
+}

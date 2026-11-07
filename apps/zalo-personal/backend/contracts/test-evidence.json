@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "file": "backend/src/modules/zalo/zalo-route-helpers.ts",
+      "symbol": "resolveAccount",
+      "tests": ["backend/tests/unit/zalo-route-helpers.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-route-helpers.ts",
+      "symbol": "checkAccess",
+      "tests": ["backend/tests/unit/zalo-route-helpers.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-route-helpers.ts",
+      "symbol": "getAccessibleZaloAccountIds",
+      "tests": ["backend/tests/unit/zalo-route-helpers.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-route-helpers.ts",
+      "symbol": "handleError",
+      "tests": ["backend/tests/unit/zalo-route-helpers.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-access-middleware.ts",
+      "symbol": "checkZaloAccess",
+      "tests": ["backend/tests/unit/zalo-access-middleware.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-access-middleware.ts",
+      "symbol": "hasZaloAccess",
+      "tests": ["backend/tests/unit/zalo-access-middleware.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-access-middleware.ts",
+      "symbol": "requireZaloAccess",
+      "tests": ["backend/tests/unit/zalo-access-middleware.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-health-check.ts",
+      "symbol": "startZaloHealthCheck",
+      "tests": ["backend/tests/unit/zalo-health-check.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-message-sync.ts",
+      "symbol": "startMessageSync",
+      "tests": ["backend/tests/unit/zalo-message-sync.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-message-sync.ts",
+      "symbol": "stopMessageSync",
+      "tests": ["backend/tests/unit/zalo-message-sync.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-socket.ts",
+      "symbol": "registerZaloSocketHandlers",
+      "tests": ["backend/tests/integration/socket/socket-wire-contract.test.ts"]
+    },
+    {
+      "file": "backend/src/shared/realtime/socket-auth.ts",
+      "symbol": "getSocketAuth",
+      "tests": ["backend/tests/security/socket-auth.test.ts"]
+    },
+    {
+      "file": "backend/src/shared/realtime/socket-auth.ts",
+      "symbol": "registerSocketAuth",
+      "tests": ["backend/tests/security/socket-auth.test.ts", "backend/tests/integration/socket/socket-wire-contract.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/chat/chat-operations-routes.ts",
+      "symbol": "registerChatSocketHandlers",
+      "tests": ["backend/tests/contracts/runtime-socket-inventory.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.checkLimits",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.recordSend",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.recordOperation",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.getOperationCount",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.getDailyCount",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.getAllDailyCounts",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-rate-limiter.ts",
+      "symbol": "ZaloRateLimiter.getLimitsConfig",
+      "tests": ["backend/tests/unit/zalo-rate-limiter.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.setIO",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.getIO",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.emitAccountEventToOrg",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.teardownExisting",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.disconnect",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.getStatus",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.getAllStatuses",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.getApi",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    },
+    {
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "symbol": "ZaloAccountPool.getInstance",
+      "tests": ["backend/tests/unit/zalo-pool-state.test.ts"]
+    }
+  ]
+}
