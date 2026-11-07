@@ -23,6 +23,11 @@ const TSDOWN_ROOTS = [
 const SERVER_ROOTS = ["apps/", "packages/", "integrations/"]
 const RELATIONS_INDEX = "packages/database/src/relations/index.ts"
 
+// Zalo Personal is an isolated MIT application with its own Prisma schema,
+// contract locks, and test suite. Applying ChatbotX implementation invariants
+// to that imported module would require changing its preserved runtime logic.
+const INVARIANT_EXCLUDED_ROOTS = ["apps/zalo-personal/"]
+
 // Legacy runtime dynamic imports kept on purpose; never add to this list.
 const DYNAMIC_IMPORT_ALLOWLIST = new Set([
   // Loads AsyncLocalStorage lazily so the module still imports on the Edge Runtime.
@@ -50,7 +55,12 @@ const listTrackedSources = () =>
     maxBuffer: 64 * 1024 * 1024,
   })
     .split("\0")
-    .filter((file) => SOURCE_FILE.test(file) && !TEST_PATH.test(file))
+    .filter(
+      (file) =>
+        SOURCE_FILE.test(file) &&
+        !TEST_PATH.test(file) &&
+        !INVARIANT_EXCLUDED_ROOTS.some((prefix) => file.startsWith(prefix)),
+    )
 
 const startsWithAny = (file, prefixes) =>
   prefixes.some((prefix) => file.startsWith(prefix))
