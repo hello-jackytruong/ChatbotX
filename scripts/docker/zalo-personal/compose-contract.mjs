@@ -14,8 +14,7 @@ const ZALO_DATA_SERVICE_PATTERN = /"zalo-postgres"|"zalo-redis"/
 const DEV_DOWN_ACTION_PATTERN = /"dev-down": \[[\s\S]*?\],/
 const SHARED_STOP_PATTERN = /"postgres"|"redis"|"filesystem"/
 const WORKFLOW_CONTEXT_PATTERN = /context: \$\{\{ matrix\.context \}\}/
-const WORKFLOW_ACTIVATION_ENVIRONMENT_PATTERN =
-  /environment: production/
+const WORKFLOW_ACTIVATION_ENVIRONMENT_PATTERN = /environment: production/
 const WORKFLOW_BASELINE_ENVIRONMENT_PATTERN =
   /environment: \$\{\{ matrix\.environment \}\}/
 const WORKFLOW_DISPATCH_PATTERN = /production-full\.sh pull-deploy/

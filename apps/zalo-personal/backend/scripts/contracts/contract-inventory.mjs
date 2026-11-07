@@ -303,10 +303,8 @@ function baselineMetadata(database) {
     .filter(fs.existsSync)
     .map((file) => ({ file: relativeToRepo(file), sha256: sha256(fs.readFileSync(file)) }));
   return {
-    version: 1,
+    version: 2,
     sourceCommit: process.env.ZALOCRM_BASELINE_COMMIT || 'c03c03245a1010d1e279d0548edc5b1f568f3a9e',
-    node: process.version,
-    packageManager: `npm/${process.env.npm_config_user_agent?.match(/npm\/(\S+)/)?.[1] ?? 'unknown'}`,
     schemaSha256: database.schemaSha256,
     packageLocks,
   };
