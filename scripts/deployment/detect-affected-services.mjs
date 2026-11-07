@@ -38,7 +38,7 @@ export const SERVICE_DEFINITIONS = Object.freeze([
     package: null,
     image: "chatbotx-zalo-personal",
     context: "./apps/zalo-personal",
-    dockerfile: "docker/Dockerfile",
+    dockerfile: "./apps/zalo-personal/docker/Dockerfile",
   },
 ])
 

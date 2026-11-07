@@ -222,7 +222,7 @@ test("uses the application-local Zalo build context", () => {
         label: "zalo-personal",
         image: "chatbotx-zalo-personal",
         context: "./apps/zalo-personal",
-        dockerfile: "docker/Dockerfile",
+        dockerfile: "./apps/zalo-personal/docker/Dockerfile",
       },
     ],
   })
