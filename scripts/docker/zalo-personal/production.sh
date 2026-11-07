@@ -260,7 +260,7 @@ create_backup() {
   fi
   state_set latest-backup "$dump_path"
   prune_local_backups
-  log "Verified custom-format backup: $dump_path"
+  log "Verified custom-format database backup."
 }
 
 backup_object_bytes() {
@@ -295,7 +295,7 @@ backup_object_bytes() {
   chmod -R go-rwx "$target"
   [[ -f "$target/SHA256SUMS" ]] || fail "RustFS byte backup manifest was not created."
   prune_object_backups "$(dirname "$target")"
-  log "Verified RustFS object-byte backup: $target"
+  log "Verified RustFS object-byte backup."
 }
 
 guard_migration_compatibility() {

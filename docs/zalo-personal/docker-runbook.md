@@ -147,6 +147,17 @@ dispatcher restores both scopes to their previous application images and keeps
 their successful GitHub baselines unchanged. SQL migrations remain applied and
 must therefore pass the expand/contract compatibility guard.
 
+### CI log privacy
+
+GitHub Actions receives only the deployment outcome and exit code. Detailed
+checkout, backup, Docker and readiness output stays on the production host in a
+mode `0600` log under `/var/log/chatbotx-production/`; the containing directory
+is mode `0700`, and deployment logs older than 30 days are removed automatically.
+The workflow deliberately does not publish `docker compose ps`, backup paths,
+container identities, image inventory or host disk information after a failure.
+An operator with production access can inspect the restricted host log when a
+deployment needs diagnosis.
+
 ## Backup, rollback and recovery
 
 ```bash

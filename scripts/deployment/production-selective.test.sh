@@ -186,5 +186,21 @@ assert_not_contains \
   "$production_source" \
   'docker compose down' \
   'Production automation never tears down the stack'
+# The literal shell source is the contract under test.
+# shellcheck disable=SC2016
+assert_not_contains \
+  "$production_source" \
+  'Backup verified: $backup_file' \
+  'Production logs must not disclose database backup paths'
+# shellcheck disable=SC2016
+assert_not_contains \
+  "$production_source" \
+  'file limit: $backup_file' \
+  'Production retention logs must not disclose deleted backup paths'
+# shellcheck disable=SC2016
+assert_not_contains \
+  "$production_source" \
+  'days: $backup_file' \
+  'Production retention logs must not disclose expired backup paths'
 
 printf 'Selective production deployment tests passed.\n'
