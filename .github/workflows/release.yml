@@ -279,6 +279,9 @@ jobs:
         run: |
           VERSION="${{ needs.prepare-metadata.outputs.version }}"
           REGISTRY="${{ env.DOCKER_REGISTRY }}/${{ needs.prepare-metadata.outputs.image_namespace }}"
+          # actionlint substitutes expression metadata before ShellCheck;
+          # both branches remain reachable across push and manual events.
+          # shellcheck disable=SC2193
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             printf '%s\n' \
               "Builder image (main): ${REGISTRY}/chatbotx-builder:main" \

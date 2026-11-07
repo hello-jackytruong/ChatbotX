@@ -138,11 +138,20 @@ check_build_capacity() {
 }
 
 acquire_lock() {
+  if [[ "${CHATBOTX_DEPLOY_LOCK_FD:-}" == "9" && -e /proc/$$/fd/9 ]]; then
+    flock -n 9 || fail "Inherited production lock FD is not held."
+    return
+  fi
   exec 9>"$LOCK_FILE"
   flock -n 9 || fail "Another production operation is already running."
+  export CHATBOTX_DEPLOY_LOCK_FD=9
 }
 
 acquire_backup_lock() {
+  if [[ "${CHATBOTX_DEPLOY_LOCK_FD:-}" == "9" && -e /proc/$$/fd/9 ]]; then
+    flock -n 9 || fail "Inherited production lock FD is not held."
+    return
+  fi
   exec 9>"$LOCK_FILE"
   flock -w "$BACKUP_LOCK_WAIT_SECONDS" 9 || fail "Timed out waiting for the active deployment to finish."
 }
@@ -420,10 +429,33 @@ release_matches_expected_git_sha() {
 start_datastores() {
   log "Starting PostgreSQL, Redis and local RustFS."
   "${COMPOSE[@]}" up \
-    -d --no-build --wait --wait-timeout 180 \
+    -d --no-build --no-recreate --wait --wait-timeout 180 \
     postgres redis filesystem
   "${COMPOSE[@]}" up -d --no-build --force-recreate filesystem-init
   "${COMPOSE[@]}" wait filesystem-init
+}
+
+datastore_fingerprint() {
+  local service="$1" container_id
+  container_id="$("${COMPOSE[@]}" ps -q "$service")"
+  [[ -n "$container_id" ]] || fail "Shared datastore is not running: $service"
+  docker inspect --format \
+    '{{.Id}}|{{.State.StartedAt}}|{{.RestartCount}}|{{.State.Health.Status}}' \
+    "$container_id"
+}
+
+snapshot_datastores() {
+  local service
+  for service in postgres redis filesystem; do
+    printf '%s=%s\n' "$service" "$(datastore_fingerprint "$service")"
+  done
+}
+
+assert_datastores_unchanged() {
+  local expected="$1" actual
+  actual="$(snapshot_datastores)"
+  [[ "$actual" == "$expected" ]] || fail \
+    "Shared PostgreSQL, Redis, or RustFS identity changed during application deployment."
 }
 
 prune_database_backups() {
@@ -559,6 +591,28 @@ run_migrations() {
   "${COMPOSE[@]}" run --rm --no-deps builder migrate
 }
 
+guard_migration_compatibility() {
+  local previous_sha destructive current_builder_tag
+  previous_sha="$(state_get deployed-git-sha)"
+  if [[ -z "$previous_sha" ]]; then
+    current_builder_tag="$(current_tag_for_service builder)"
+    [[ "$current_builder_tag" =~ ^sha-([0-9a-f]{40})$ ]] &&
+      previous_sha="${BASH_REMATCH[1]}"
+  fi
+  [[ -n "$previous_sha" ]] || {
+    log "No previous immutable deployment SHA is available; treating this as the guarded first automated migration."
+    return 0
+  }
+  git -C "$REPO_ROOT" cat-file -e "$previous_sha^{commit}" 2>/dev/null ||
+    fail "Previous production SHA is unavailable for migration compatibility review."
+  destructive="$(git -C "$REPO_ROOT" diff --unified=0 "$previous_sha" HEAD -- \
+    packages/database/drizzle | \
+    grep -Ei '^\+.*(TRUNCATE|DELETE[[:space:]]+FROM|DROP[[:space:]]+(TABLE|COLUMN|TYPE|CONSTRAINT)|ALTER[[:space:]].*RENAME|ALTER[[:space:]].*(TYPE|SET[[:space:]]+NOT[[:space:]]+NULL))' || true)"
+  if [[ -n "$destructive" && "${CHATBOTX_DESTRUCTIVE_MIGRATION_APPROVED:-0}" != "1" ]]; then
+    fail "Pending ChatbotX migration is not backward-compatible; use an explicit maintenance deployment."
+  fi
+}
+
 service_is_selected() {
   local wanted="$1" service
   shift
@@ -623,7 +677,7 @@ rollback_services_to_map() {
 }
 
 activate_built_release() {
-  local service deploy_tag
+  local service deploy_tag shared_before previous_deployed_sha
   local -a services=("$@")
   declare -A previous_tags=()
 
@@ -636,6 +690,9 @@ activate_built_release() {
     set_service_tag "$service" "$deploy_tag"
   done
 
+  shared_before="$(snapshot_datastores)"
+  previous_deployed_sha="$(state_get deployed-git-sha || true)"
+  guard_migration_compatibility
   start_datastores
   backup_database
   run_migrations
@@ -644,6 +701,7 @@ activate_built_release() {
   if ! start_selected_apps "${services[@]}"; then
     log "New release failed health checks; starting service-scoped rollback."
     rollback_services_to_map previous_tags "${services[@]}" || true
+    assert_datastores_unchanged "$shared_before"
     fail "Activation failed; previous images were restored when available. Database migrations were not reversed."
   fi
 
@@ -658,12 +716,20 @@ activate_built_release() {
     state_set current-tag "$(current_compose_tag builder)"
     state_unset force-full-next-deploy
   fi
+  if [[ -n "$previous_deployed_sha" ]]; then
+    state_set previous-deployed-git-sha "$previous_deployed_sha"
+  else
+    state_unset previous-deployed-git-sha
+  fi
+  state_set deployed-git-sha "$(git -C "$REPO_ROOT" rev-parse HEAD)"
+  assert_datastores_unchanged "$shared_before"
+  clean_old_releases
   log "Production is healthy after activating: $(join_services "${services[@]}")."
   "${COMPOSE[@]}" ps
 }
 
 rollback_release() {
-  local service current_tag previous_tag
+  local service current_tag previous_tag previous_deployed_sha
   local -a services=("$@")
   declare -A current_tags=()
   declare -A previous_tags=()
@@ -677,9 +743,16 @@ rollback_release() {
     previous_tags["$service"]="$previous_tag"
   done
 
-  # Set this before touching containers. A partially failed manual rollback is
-  # still a production-baseline change and must force reconciliation.
-  state_set force-full-next-deploy 1
+  # A user-triggered rollback intentionally diverges from GitHub's successful
+  # baseline and therefore forces a full reconciliation. The combined release
+  # wrapper sets CHATBOTX_AUTOMATIC_ROLLBACK=1 when a later scope fails; in that
+  # case GitHub never advances the baseline, so restoring the prior SHA keeps
+  # the host and baseline aligned.
+  if [[ "${CHATBOTX_AUTOMATIC_ROLLBACK:-0}" == "1" ]]; then
+    previous_deployed_sha="$(state_get previous-deployed-git-sha || true)"
+  else
+    state_set force-full-next-deploy 1
+  fi
   rollback_services_to_map previous_tags "${services[@]}" || fail "Rollback failed."
   for service in "${services[@]}"; do
     state_set "current-tag-$service" "${previous_tags[$service]}"
@@ -687,6 +760,14 @@ rollback_release() {
       state_set "previous-tag-$service" "${current_tags[$service]}"
   done
   state_set last-deployed-services "$(join_services "${services[@]}")"
+  if [[ "${CHATBOTX_AUTOMATIC_ROLLBACK:-0}" == "1" ]]; then
+    if [[ -n "$previous_deployed_sha" ]]; then
+      state_set deployed-git-sha "$previous_deployed_sha"
+    else
+      state_unset deployed-git-sha
+    fi
+    state_unset force-full-next-deploy
+  fi
   log "Rollback completed for: $(join_services "${services[@]}")."
 }
 
