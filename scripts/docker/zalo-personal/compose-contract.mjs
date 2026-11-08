@@ -132,6 +132,9 @@ function verifySharedTopology(config, { production }) {
   assert.equal(new URL(app.environment.DATABASE_URL).hostname, "postgres")
   assert.equal(new URL(app.environment.DATABASE_URL).pathname, "/zalo_personal")
   assert.equal(app.environment.ZALO_BRIDGE_SECRET_KEY, "c".repeat(64))
+  assert.equal(app.environment.ZALO_PERSONAL_PROVIDER_MODE, "in_process")
+  assert.equal(app.environment.ZALO_GATEWAY_CLAIMS_ENABLED, "false")
+  assert.equal(app.environment.ZALO_GATEWAY_ACCOUNT_ALLOWLIST, "")
 
   const gateway = services["zalo-personal-gateway"]
   assert.ok(gateway, "Zalo Personal gateway service is missing")
