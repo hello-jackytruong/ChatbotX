@@ -5,7 +5,7 @@
   "packageLocks": [
     {
       "file": "backend/package-lock.json",
-      "sha256": "052961b2763055b6403f8d76c53abca51b801e4e5b59ca9efcd42f11f4233c88"
+      "sha256": "e847b5ce95e059ecff70c8262ce9050be9561d6cf670e9b192afc5eef5c416da"
     },
     {
       "file": "frontend/package-lock.json",
