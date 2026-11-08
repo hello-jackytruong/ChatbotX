@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "objectCount": 368,
+  "objectCount": 422,
   "objects": [
     {
       "kind": "interface",
@@ -15,6 +15,26 @@
       "file": "frontend/src/composables/use-inbox-filters.ts",
       "line": 25,
       "signatureSha256": "169d39fbf39e02bb9ec93482504eda1b5a4e8d055ecf326d6f318b7597024ec2"
+    },
+    {
+      "kind": "type",
+      "name": "AccountLease",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 1,
+      "signatureSha256": "8d628c3b5019ea8e894d94d058ca9484ec9e494be98fc571f071624688117d38"
+    },
+    {
+      "kind": "class",
+      "name": "AccountLeaseService",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 92
+    },
+    {
+      "kind": "interface",
+      "name": "AccountLeaseStore",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 11,
+      "signatureSha256": "d85390cc6d889bf452aaa9e7340ed675722bde2d495a3d06c0e77e4cb1ee7198"
     },
     {
       "kind": "type",
@@ -140,6 +160,30 @@
       "file": "backend/src/modules/zalo/zalo-message-helpers.ts",
       "line": 121,
       "signatureSha256": "ce7f0524f7ac771cfbad1f98abc01083feaea439c9a60f4a40c56c377fb52ecb"
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@102",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 102
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@112",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 112
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@133",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 133
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@90",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 90
     },
     {
       "kind": "interface",
@@ -278,7 +322,7 @@
       "kind": "interface",
       "name": "BackfillResult",
       "file": "backend/src/modules/contacts/backfill-global-id.ts",
-      "line": 75,
+      "line": 73,
       "signatureSha256": "6294dd71bc23425b64a866cdb4654edd315dd7bec5fe6dde3eec7b0cc220d819"
     },
     {
@@ -301,6 +345,39 @@
       "file": "frontend/src/_ee-stubs/automation/api/types.ts",
       "line": 2,
       "signatureSha256": "92b4720e5b47b94e1320d50afdc44d32d176b6e5a6968405bbee4fcf3ab18937"
+    },
+    {
+      "kind": "class",
+      "name": "BridgeAuthenticator",
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 94
+    },
+    {
+      "kind": "class",
+      "name": "BridgeAuthError",
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 26
+    },
+    {
+      "kind": "type",
+      "name": "BridgeKey",
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 3,
+      "signatureSha256": "0161ceaeec4af1a247fbdbfe6c58f170b802da2c02238fef9d659ee8b46d9388"
+    },
+    {
+      "kind": "type",
+      "name": "BridgeRouteDependencies",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 40,
+      "signatureSha256": "54ed9594183c429db271ffbaaf5542a70b8342e24e537ce108432e89de2d3e40"
+    },
+    {
+      "kind": "type",
+      "name": "BridgeSignedRequest",
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 11,
+      "signatureSha256": "b7a0f21f4bb25b660365f7935416b3f97a7148e8bfce42a128d56b79176c8b11"
     },
     {
       "kind": "interface",
@@ -483,6 +560,13 @@
       "file": "backend/src/modules/system-notifications/user-create-with-zalo-service.ts",
       "line": 339,
       "signatureSha256": "9cdf9ab56f16287bff5e12e4ac8c0ec5e317df62288ee12b6ca61b149c500352"
+    },
+    {
+      "kind": "interface",
+      "name": "CredentialRepository",
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 11,
+      "signatureSha256": "1a80247ff5037ba113c8b9ff892c0f92f5048b20dde690571277da98b6432b9b"
     },
     {
       "kind": "interface",
@@ -674,6 +758,20 @@
       "signatureSha256": "941cf8480b0a47f230acd2d32a77ae67ba0e8fc6901fe0b76686111c70ee8280"
     },
     {
+      "kind": "type",
+      "name": "EventEmitter",
+      "file": "backend/src/modules/gateway/facade-event-consumer.ts",
+      "line": 4,
+      "signatureSha256": "cd38f1c0a6158eb6ad4f83ee989c1dcc24ee4b6367f858c44092906a271992ca"
+    },
+    {
+      "kind": "type",
+      "name": "EventProjection",
+      "file": "backend/src/modules/gateway/facade-event-consumer.ts",
+      "line": 3,
+      "signatureSha256": "746061ae9c3c1d4adf4e04fd21f83c1c5bf10a7cc3709151af281f169bbab093"
+    },
+    {
       "kind": "interface",
       "name": "ExtractedEntities",
       "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
@@ -686,6 +784,12 @@
       "file": "backend/src/modules/ai/schemas/extracted-entities.ts",
       "line": 15,
       "signatureSha256": "0b048beb42e11b43759413da470e821e4dd335cfbcb3b3a0116a92a310167a44"
+    },
+    {
+      "kind": "class",
+      "name": "FacadeEventConsumer",
+      "file": "backend/src/modules/gateway/facade-event-consumer.ts",
+      "line": 6
     },
     {
       "kind": "type",
@@ -719,14 +823,14 @@
       "kind": "interface",
       "name": "FriendBackfillResult",
       "file": "backend/src/modules/contacts/backfill-global-id.ts",
-      "line": 205,
+      "line": 203,
       "signatureSha256": "605b8b97d85634aa0e759d346fbcb3d688516f297884fd5af48ec3398b77246f"
     },
     {
       "kind": "interface",
       "name": "FriendDisplayNameResult",
       "file": "backend/src/modules/contacts/backfill-friend-display-name.ts",
-      "line": 44,
+      "line": 42,
       "signatureSha256": "9edb6a1164a19a6cd56da1974f73eefbb671d7d5382aa1782b8a03ff3d2e4b3d"
     },
     {
@@ -805,6 +909,96 @@
       "file": "frontend/src/composables/use-analytics.ts",
       "line": 6,
       "signatureSha256": "36f738c08300e2574c7863b7468068ae9ebb362ba114ee22b46d1c3ec3e2c086"
+    },
+    {
+      "kind": "type",
+      "name": "GatewayCommandInput",
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 12,
+      "signatureSha256": "754e066ee7f49b6afc3298e00963f68c1e431b32e239f98f7673bd91f60b7cd2"
+    },
+    {
+      "kind": "type",
+      "name": "GatewayCommandRecord",
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 21,
+      "signatureSha256": "437cf3b951627a1ed94432df0ac1f1260d9dfd343f3bc63190d7f0b8534c5d39"
+    },
+    {
+      "kind": "class",
+      "name": "GatewayCommandRepository",
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 50
+    },
+    {
+      "kind": "class",
+      "name": "GatewayCommandRunner",
+      "file": "backend/src/modules/gateway/command-runner.ts",
+      "line": 43
+    },
+    {
+      "kind": "type",
+      "name": "GatewayCommandStatus",
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 4,
+      "signatureSha256": "5867b6556ade312fdbcbc968197a5eb9f6a93e7796a3461265e71a890b88e455"
+    },
+    {
+      "kind": "class",
+      "name": "GatewayCredentialStore",
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 30
+    },
+    {
+      "kind": "type",
+      "name": "GatewayEventAppend",
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 4,
+      "signatureSha256": "85eb0f860c89532911a669be96f7b392060443b5e115d170993e7704da84f140"
+    },
+    {
+      "kind": "class",
+      "name": "GatewayEventOutbox",
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 20
+    },
+    {
+      "kind": "type",
+      "name": "GatewayEventRecord",
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 15,
+      "signatureSha256": "31ac785c7a05e965267b6d99f6be3c6f8231799557fb8c34d9f6edd8fbde47bc"
+    },
+    {
+      "kind": "class",
+      "name": "GatewayFacadeSocketConsumer",
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 91
+    },
+    {
+      "kind": "class",
+      "name": "GatewayOperationError",
+      "file": "backend/src/modules/zalo-provider/remote-operation.ts",
+      "line": 12
+    },
+    {
+      "kind": "class",
+      "name": "GatewayProviderClient",
+      "file": "backend/src/modules/zalo-provider/gateway-provider-client.ts",
+      "line": 19
+    },
+    {
+      "kind": "type",
+      "name": "GatewayRolloutConfig",
+      "file": "backend/src/modules/gateway/rollout.ts",
+      "line": 1,
+      "signatureSha256": "8c54cc79b1f0f752ce9f71c192dbe4f81501791f99f3b43a46e42a3f8225d9e1"
+    },
+    {
+      "kind": "class",
+      "name": "GatewaySocketOutbox",
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 28
     },
     {
       "kind": "type",
@@ -940,6 +1134,24 @@
       "signatureSha256": "ffa5f8a24a99919054908f0fea7af122adfdd2fa10acd9b1d36e763d53e5ac3c"
     },
     {
+      "kind": "class",
+      "name": "InMemoryAccountLeaseStore",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 19
+    },
+    {
+      "kind": "class",
+      "name": "InMemoryBridgeNonceStore",
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 83
+    },
+    {
+      "kind": "class",
+      "name": "InProcessZcaAdapter",
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 38
+    },
+    {
       "kind": "interface",
       "name": "InteractionInput",
       "file": "backend/src/modules/contacts/contact-aggregate.ts",
@@ -1004,6 +1216,13 @@
     },
     {
       "kind": "type",
+      "name": "LeaseAcquireResult",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 9,
+      "signatureSha256": "051c24fe0b073095da7d51d16afda95f8ff9c560ab2380c52bf9c8bfbe31304e"
+    },
+    {
+      "kind": "type",
       "name": "Lifecycle",
       "file": "frontend/src/composables/use-customer-lists.ts",
       "line": 72,
@@ -1014,7 +1233,7 @@
       "name": "ListenerContext",
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
       "line": 377,
-      "signatureSha256": "e4c27635d81100898359645d1f0adc79afcd90531daafa49a96bb45cc8079f14"
+      "signatureSha256": "676ff95b162a0e219a8869a3615910244b48559db3e19124b8b10b13cf0e3c87"
     },
     {
       "kind": "interface",
@@ -1334,7 +1553,7 @@
       "kind": "type",
       "name": "OpCategory",
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 30,
+      "line": 36,
       "signatureSha256": "0c7fbf2eb26a0279c9da3a6d18e1cb66c0b9f49bad9a793030518265b2b1bb1f"
     },
     {
@@ -1464,6 +1683,13 @@
       "signatureSha256": "5e5509c74a48d1b1337d968293cce7724c4df98b2d7b7150a6485a679453d583"
     },
     {
+      "kind": "type",
+      "name": "PreparedGatewayOperation",
+      "file": "backend/src/modules/zalo-provider/gateway-operation-payload.ts",
+      "line": 57,
+      "signatureSha256": "16fb41c408bede9227180d806b6ae373c4e825d35885809708c382c3f21cfd88"
+    },
+    {
       "kind": "interface",
       "name": "PresenceEntry",
       "file": "backend/src/modules/zalo/presence-service.ts",
@@ -1476,6 +1702,42 @@
       "file": "backend/src/modules/engagement/priority-service.ts",
       "line": 22,
       "signatureSha256": "77b77c5e13c05add6084fcefdde3d51a689a07a2420a10eda5945732a823e30a"
+    },
+    {
+      "kind": "class",
+      "name": "PrismaAccountLeaseStore",
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 141
+    },
+    {
+      "kind": "class",
+      "name": "PrismaBridgeKeyResolver",
+      "file": "backend/src/modules/bridge/prisma-auth.ts",
+      "line": 6
+    },
+    {
+      "kind": "class",
+      "name": "PrismaBridgeNonceStore",
+      "file": "backend/src/modules/bridge/prisma-auth.ts",
+      "line": 42
+    },
+    {
+      "kind": "class",
+      "name": "PrismaFacadeEventRepository",
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 29
+    },
+    {
+      "kind": "class",
+      "name": "PrismaGatewayCommandRepository",
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 197
+    },
+    {
+      "kind": "class",
+      "name": "PrismaGatewayEventOutbox",
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 77
     },
     {
       "kind": "interface",
@@ -1534,10 +1796,64 @@
     },
     {
       "kind": "type",
+      "name": "ProviderAccountStatus",
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 11,
+      "signatureSha256": "c686780945f113dbf43acb36a360e3cc16fd941032c5e7b224d3fe7e68c077bd"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderAccountStatusV1",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 143,
+      "signatureSha256": "ac7030e4e9059351bde977c1566c055ae80b99fcb53250c19a0cff855bec1d17"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderCapability",
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 36,
+      "signatureSha256": "a1bb8f489dc031bad4b1ab9922dcd3e2053efae1c46774d4dfbec7336e55cc2a"
+    },
+    {
+      "kind": "class",
+      "name": "ProviderCommandConflictError",
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 98
+    },
+    {
+      "kind": "type",
+      "name": "ProviderCommandV1",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 140,
+      "signatureSha256": "5ea2e12c941773044e4a1b19237a6a02b39a33eee0999655906467bb4b6bd9bc"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderCredentials",
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 13,
+      "signatureSha256": "e2d0345232f48f49a0c188f389467a5ddae1babf2e8c6cefb24728d0713485c1"
+    },
+    {
+      "kind": "type",
       "name": "ProviderDef",
       "file": "backend/src/modules/ai/provider-registry.ts",
       "line": 18,
       "signatureSha256": "a76499a11ede176dd4a4ae4c65567c19a2872c5a2d14d2b6dbc49c0afd977d4c"
+    },
+    {
+      "kind": "class",
+      "name": "ProviderEventProjector",
+      "file": "backend/src/modules/zalo-provider/event-projector.ts",
+      "line": 5
+    },
+    {
+      "kind": "type",
+      "name": "ProviderEventV1",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 142,
+      "signatureSha256": "d0ffa77f0c43b0a9e61a2c4d339aaa9cfd32a0a0157f916c92a2305246fc49b0"
     },
     {
       "kind": "type",
@@ -1566,6 +1882,20 @@
       "file": "backend/src/modules/ai/providers/list-models.ts",
       "line": 9,
       "signatureSha256": "ca1c594334d9eda401edd5c6289bc3805a53cf0834e5047b892ac24d018f5df6"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderOperationName",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 144,
+      "signatureSha256": "8c871960b25327431c29a5d749a9ab88881d051df2be15b4edb3f5108bf06ee4"
+    },
+    {
+      "kind": "type",
+      "name": "ProviderResultV1",
+      "file": "backend/src/modules/zalo-provider/contracts.ts",
+      "line": 141,
+      "signatureSha256": "bbf49503ed81b162c68d7236c8355c7c644872204ac7b0f06f3d4d3b80cf44e0"
     },
     {
       "kind": "interface",
@@ -2512,7 +2842,7 @@
       "kind": "class",
       "name": "ZaloOpError",
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 18
+      "line": 24
     },
     {
       "kind": "interface",
@@ -2534,6 +2864,12 @@
       "file": "frontend/src/composables/use-profile.ts",
       "line": 9,
       "signatureSha256": "3c11121482257fbdf4b728012819dcd7f0d8f20ccdca3ab155671f74e0d65725"
+    },
+    {
+      "kind": "class",
+      "name": "ZaloProviderClient",
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 105
     },
     {
       "kind": "interface",
@@ -2569,6 +2905,20 @@
       "file": "backend/src/modules/system-notifications/system-notify-service.ts",
       "line": 144,
       "signatureSha256": "23af3373a84e8872d20975caae550cf8abbc89247031919e851bc5a59fc8fc65"
+    },
+    {
+      "kind": "type",
+      "name": "ZcaSession",
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 5,
+      "signatureSha256": "f43897ec9e655eaebaab4923d7337f133b1f076849c6b9942370207925c2554f"
+    },
+    {
+      "kind": "type",
+      "name": "ZcaSessionFactory",
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 20,
+      "signatureSha256": "ee30819fb81b01274face9f2eba969f8f2234c22b0ac5f8f2530d290873ed4a3"
     }
   ]
 }

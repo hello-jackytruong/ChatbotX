@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "commandId": "command-synthetic-1",
+  "idempotencyKey": "message-synthetic-1",
+  "accountId": "account-synthetic-1",
+  "kind": "sendMessage",
+  "payload": { "args": [] },
+  "requestedAt": "2026-11-08T00:00:00.000Z",
+  "deadlineAt": "2026-11-08T00:00:30.000Z",
+  "traceId": "trace-synthetic-1"
+}

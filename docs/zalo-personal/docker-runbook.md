@@ -14,6 +14,17 @@ Pub/Sub is instance-wide and a privileged client can select another DB. A live
 Redis snapshot is therefore restored only as coordinated recovery for both
 applications, never as a Zalo-only rollback.
 
+Zalo Personal provider sessions run in the internal
+`zalo-personal-gateway` service when `ZALO_PERSONAL_PROVIDER_MODE=gateway`.
+The gateway has no host port and shares only the Zalo database, Redis DB 1 and
+Zalo file volume. ChatbotX never receives those credentials. It communicates
+with the façade through `/internal/bridge/v1/*`, authenticated by scoped,
+replay-protected HMAC keys. Set `ZALO_BRIDGE_SECRET_KEY` to an independent
+32-byte hex key used only to decrypt stored bridge client secrets.
+Set `ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS` to the exact trusted bridge origin
+(normally `http://zalo-personal:3000` in Docker). A workspace bridge URL that
+does not match this deployment allowlist is rejected before any network call.
+
 ## Development
 
 Install dependencies once:
@@ -29,6 +40,10 @@ First setup, or after a committed migration, requires an explicit prepare:
 pnpm docker:dev prepare zalo   # bootstrap DB/bucket, then Prisma migrate
 pnpm docker:dev:zalo           # steady-state container start
 ```
+
+Gateway and bridge migrations are expand-only but are not applied by code
+generation or tests. Review both the Zalo Prisma SQL and ChatbotX Drizzle SQL,
+then obtain explicit operator approval before either migration command runs.
 
 To run both products:
 
@@ -125,12 +140,73 @@ pnpm docker:prod:status
 The deploy order is fixed: preflight → snapshot shared identities → database
 and RustFS bootstrap → verified custom-format backup + globals → byte-level
 backup of both RustFS buckets → Prisma migration → `up --no-deps
-zalo-personal` → PostgreSQL/Redis/RustFS readiness → identity recheck. It never
+zalo-personal zalo-personal-gateway` → PostgreSQL/Redis/RustFS readiness →
+identity recheck. It never
 starts, restarts or recreates PostgreSQL, Redis, RustFS or a ChatbotX
 application.
 If activation or dependency readiness fails, the script restores the recorded
 previous immutable Zalo image automatically; on a first-ever deployment it
 stops the failed Zalo container. Database migrations are never reversed.
+
+The bridge can be disabled without deleting its command, event, checkpoint,
+mapping or dead-letter rows. Rollback stops bridge polling/outbound dispatch,
+drains or expires gateway leases, restores `in_process` ownership and keeps the
+additive schema for later reconciliation. Never copy bridge traffic through a
+shared Redis channel or query the other product's database directly.
+
+### One-account gateway and bridge canary
+
+All rollout variables default to disabled. Use the same exact account ID in
+both allowlists. Gateway routing is evaluated per account: accounts outside the
+allowlist continue on the in-process provider even while the canary account is
+gateway-owned.
+
+After separately approved Prisma and Drizzle migrations are applied, deploy the
+new images with all flags still off. Before enabling the bridge, provision its
+scoped client once from an administrator-only shell inside the Zalo container:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.zalo-personal.production.yml exec \
+  -e ZALO_BRIDGE_KID=chatbotx-canary \
+  -e ZALO_BRIDGE_ACCOUNT_ID=<account-id> \
+  -e CHATBOTX_WORKSPACE_ID=<workspace-id> \
+  -e CHATBOTX_INBOX_ID=<inbox-id> \
+  zalo-personal npm run bridge:provision
+```
+
+The command prints the new `kid` and secret exactly once. Store the secret in
+the ChatbotX connection immediately; do not paste it into CI logs, shell history
+or a tracked file. Re-running the command with an existing KID or mapping fails
+closed instead of rotating credentials implicitly. Then enable one account in
+this order:
+
+1. Set `ZALO_PERSONAL_PROVIDER_MODE=gateway`,
+   `ZALO_GATEWAY_ACCOUNT_ALLOWLIST=<account-id>` and
+   `ZALO_GATEWAY_CLAIMS_ENABLED=true`. Keep command claims and both ChatbotX
+   bridge switches off until the lease count is exactly one and the façade
+   reports the gateway status for only that account.
+2. Set `ZALO_GATEWAY_COMMAND_CLAIMS_ENABLED=true`; exercise read/status and one
+   synthetic lifecycle request. A non-allowlisted account must still report its
+   in-process status.
+3. Set `ZALO_PERSONAL_BRIDGE_ENABLED=true`,
+   `ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST=<account-id>` and
+   `ZALO_PERSONAL_BRIDGE_POLL_ENABLED=true`. Verify ordered checkpoint advance,
+   zero unexplained gaps and one logical ChatbotX message per provider ID.
+4. Enable `ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED=true` last. Verify one stable
+   ChatbotX message ID maps to one bridge command and one provider message ID,
+   including a response-loss/reconciliation drill.
+
+`shadow` remains non-authoritative and never starts a second mutating provider
+path; the supported canary cutover above relies on exact account routing and
+durable contract tests rather than duplicating a live send.
+
+Rollback is the reverse and does not reverse SQL: disable ChatbotX outbound,
+disable polling, disable gateway command claims, clear both allowlists, disable
+gateway claims, wait for/release the canary lease, set
+`ZALO_PERSONAL_PROVIDER_MODE=in_process`, then restart only
+`zalo-personal` and `zalo-personal-gateway`. Confirm the legacy listener is the
+single owner before restoring traffic. PostgreSQL, Redis and RustFS are not
+restarted.
 
 CI activates every affected ChatbotX/Zalo service in one operation through the
 existing `production` environment. Only after that operation succeeds does

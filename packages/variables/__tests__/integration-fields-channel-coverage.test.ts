@@ -93,7 +93,10 @@ type RelationsPart = Record<string, { relations: Record<string, unknown> }>
 
 const toChannel = (relation: string): string => {
   const suffix = relation.slice("integration".length)
-  return `${suffix.charAt(0).toLowerCase()}${suffix.slice(1)}`
+  return `${suffix.charAt(0).toLowerCase()}${suffix.slice(1)}`.replace(
+    /[A-Z]/g,
+    (character) => `_${character.toLowerCase()}`,
+  )
 }
 
 const channelsWithInboxIntegration = Object.keys(

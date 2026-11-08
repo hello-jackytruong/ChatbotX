@@ -16,7 +16,6 @@
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { randomUUID } from 'node:crypto';
-import { zaloPool } from './zalo-pool.js';
 import { resolveOrCreateContact } from '../contacts/resolve-contact.js';
 import { logEvent } from '../../shared/ee-registry/automation.js';
 import { isListeningState } from '../../shared/ee-registry/automation.js';

@@ -91,6 +91,9 @@ type RelationsPart = Record<string, { relations: Record<string, unknown> }>
 
 const toChannel = (relation: string): string => {
   const suffix = relation.slice("integration".length)
+  if (suffix === "ZaloPersonal") {
+    return "zalo_personal"
+  }
   return `${suffix.charAt(0).toLowerCase()}${suffix.slice(1)}`
 }
 

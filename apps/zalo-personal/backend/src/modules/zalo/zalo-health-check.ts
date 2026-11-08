@@ -5,7 +5,7 @@
  */
 import cron from 'node-cron';
 import { Prisma } from '@prisma/client';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { runSystemQuery } from '../../shared/tenant/tenant-context.js';
@@ -31,12 +31,12 @@ export function startZaloHealthCheck(): void {
       );
 
       for (const acc of accounts) {
-        const status = zaloPool.getStatus(acc.id);
+        const status = zaloProviderClient.getStatus(acc.id);
         if (status !== 'connected' && status !== 'connecting' && status !== 'qr_pending') {
           const session = acc.sessionData as any;
           if (session?.imei) {
             logger.info(`[health-check] Reconnecting ${acc.displayName || acc.id}...`);
-            zaloPool.reconnect(acc.id, session).catch((err) => {
+            zaloProviderClient.reconnect(acc.id, session).catch((err) => {
               logger.warn(`[health-check] Reconnect failed for ${acc.id}:`, err);
             });
           }
@@ -69,9 +69,9 @@ export function startZaloHealthCheck(): void {
         const session = acc.sessionData as any;
         if (session?.imei) {
           // Disconnect then reconnect to force cookie refresh
-          zaloPool.disconnect(acc.id);
+          await zaloProviderClient.disconnect(acc.id);
           await new Promise((r) => setTimeout(r, 5000));
-          zaloPool.reconnect(acc.id, session).catch((err) => {
+          zaloProviderClient.reconnect(acc.id, session).catch((err) => {
             logger.warn(`[health-check] Daily refresh failed for ${acc.id}:`, err);
           });
         }
@@ -89,7 +89,7 @@ export function startZaloHealthCheck(): void {
   // Logic + điều kiện an toàn nằm trong zaloPool.cleanupStaleGhosts.
   cron.schedule('0 * * * *', async () => {
     try {
-      const n = await zaloPool.cleanupStaleGhosts(24 * 60);
+      const n = await zaloProviderClient.cleanupStaleGhosts(24 * 60);
       if (n > 0) logger.info(`[health-check] dọn ${n} thẻ ma qr_pending cũ`);
     } catch (err) {
       logger.error('[health-check] Error during stale-ghost cleanup:', err);

@@ -15,7 +15,7 @@
  */
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logActivity } from '../activity/activity-logger.js';
 
 const PAGE_SIZE = 200;
@@ -23,8 +23,7 @@ const MAX_PAGES = 20;
 
 /** Pull tất cả aliases từ Zalo SDK, return Map<uidInNick, alias>. */
 export async function pullAliasMap(accountId: string): Promise<Map<string, string>> {
-  const api = zaloPool.getApi(accountId);
-  if (!api || typeof api.getAliasList !== 'function') {
+  if (!zaloProviderClient.supports(accountId, 'alias_list')) {
     logger.warn(`[alias-sync] Account ${accountId} chưa kết nối hoặc SDK không hỗ trợ getAliasList`);
     return new Map();
   }
@@ -32,7 +31,7 @@ export async function pullAliasMap(accountId: string): Promise<Map<string, strin
   for (let page = 1; page <= MAX_PAGES; page++) {
     let items: Array<{ userId: string; alias: string }> = [];
     try {
-      const res = await api.getAliasList(PAGE_SIZE, page);
+      const res = await zaloProviderClient.getAliasListDirect(accountId, PAGE_SIZE, page);
       items = (res?.items || []) as Array<{ userId: string; alias: string }>;
     } catch (err) {
       logger.warn(`[alias-sync] getAliasList page=${page} failed:`, err);

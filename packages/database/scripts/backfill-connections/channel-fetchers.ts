@@ -13,6 +13,7 @@ import {
   integrationWebchatModel,
   integrationWhatsappModel,
   integrationZaloModel,
+  integrationZaloPersonalModel,
 } from "../../src/schema"
 import { metadataString, parseOauth2Auth, toChannelCandidate } from "./status"
 import type { BatchFetcher } from "./types"
@@ -239,6 +240,16 @@ const fetchZaloBatch = makeChannelFetcher({
   label: "Zalo OA",
 })
 
+const fetchZaloPersonalBatch = makeChannelFetcher({
+  channel: "zalo_personal",
+  provider: "zalo_personal",
+  satellite: integrationZaloPersonalModel,
+  sourceIdCol: integrationZaloPersonalModel.accountId,
+  nameCol: integrationZaloPersonalModel.name,
+  tokenErrCol: NO_COLUMN,
+  label: "Zalo Personal",
+})
+
 const fetchThreadsBatch = makeChannelFetcher({
   channel: "threads",
   provider: "threads",
@@ -292,6 +303,7 @@ export const CHANNEL_FETCHERS: Partial<Record<IntegrationType, BatchFetcher>> =
     telegram: fetchTelegramBatch,
     tiktok: fetchTiktokBatch,
     zalo: fetchZaloBatch,
+    zalo_personal: fetchZaloPersonalBatch,
     threads: fetchThreadsBatch,
     api: fetchApiBatch,
     smtp: fetchSmtpBatch,
@@ -306,6 +318,7 @@ export const PROVIDER_CHANNEL: Partial<Record<IntegrationType, ChannelType>> = {
   telegram: "telegram",
   tiktok: "tiktok",
   zalo: "zalo",
+  zalo_personal: "zalo_personal",
   threads: "threads",
   api: "api",
   smtp: "smtp",
@@ -330,6 +343,7 @@ export const CHANNEL_SATELLITE_TABLE: Partial<
   telegram: integrationTelegramModel,
   tiktok: integrationTiktokModel,
   zalo: integrationZaloModel,
+  zalo_personal: integrationZaloPersonalModel,
   threads: integrationThreadsModel,
   api: integrationApiModel,
   smtp: integrationSmtpModel,

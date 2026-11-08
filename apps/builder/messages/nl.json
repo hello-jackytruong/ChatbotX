@@ -906,6 +906,24 @@
     }
   },
   "fields": {
+    "zalo_personal": {
+      "label": "Zalo Personal",
+      "title": "Zalo Personal",
+      "connect": "Connect Zalo Personal",
+      "connected": "Zalo Personal connected",
+      "name": "Display name",
+      "accountId": "Account ID",
+      "bridgeUrl": "Bridge URL",
+      "keyId": "Key ID",
+      "secret": "Service secret",
+      "status": {
+        "connected": "Connected",
+        "degraded": "Degraded",
+        "needs_reauth": "Needs reconnect",
+        "paused": "Paused",
+        "disconnected": "Disconnected"
+      }
+    },
     "optionalHint": "(optioneel)",
     "marketingMessagesConfigId": {
       "label": "Configuratie-ID voor marketingberichten",

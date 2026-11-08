@@ -5,6 +5,7 @@ import {
   integrationThreadsService,
   workspaceService,
 } from "@chatbotx.io/business"
+import { integrationZaloPersonalService } from "@chatbotx.io/business/integration-zalo-personal"
 import { findOrFail } from "@chatbotx.io/database/client"
 import type { IntegrationType } from "@chatbotx.io/database/partials"
 import { integrationLookupRepository } from "@chatbotx.io/database/repositories"
@@ -38,6 +39,7 @@ import { integration as integrationTiktok } from "@chatbotx.io/integration-tikto
 import { integration as integrationWebchat } from "@chatbotx.io/integration-webchat"
 import { integration as integrationWhatsapp } from "@chatbotx.io/integration-whatsapp"
 import { integration as integrationZalo } from "@chatbotx.io/integration-zalo"
+import { integration as integrationZaloPersonal } from "@chatbotx.io/integration-zalo-personal"
 import {
   type AuthValue,
   type BaseConfig,
@@ -76,6 +78,7 @@ export const integrations = {
   webchat: integrationWebchat,
   whatsapp: integrationWhatsapp,
   zalo: integrationZalo,
+  zalo_personal: integrationZaloPersonal,
 } as const
 
 export type IntegrationKey = keyof typeof integrations
@@ -121,6 +124,33 @@ export const integrationService = {
     inbox: InboxModel
     integrationRow: IntegrationRow
   }> => {
+    if (integrationType === "zalo_personal") {
+      const integrationRow =
+        await integrationZaloPersonalService.loadRuntimeByAccountIdentifier(
+          integrationIdentifier,
+        )
+      if (!integrationRow) {
+        throw new IntegrationNotFoundError(
+          integrationType,
+          integrationIdentifier,
+        )
+      }
+      const [workspace, inbox] = await Promise.all([
+        workspaceService.findById({ id: integrationRow.workspaceId }),
+        inboxService.find({ where: { id: integrationRow.inboxId } }),
+      ])
+      if (!inbox) {
+        throw new IntegrationNotFoundError(
+          integrationType,
+          integrationIdentifier,
+        )
+      }
+      return {
+        integrationRow: integrationRow as IntegrationRow,
+        workspace,
+        inbox,
+      }
+    }
     if (integrationType === "threads") {
       const integrationRow =
         await integrationThreadsService.findByThreadsUserId(
@@ -231,6 +261,20 @@ export const integrationService = {
   getIntegrationFromContactInbox: async (
     contactInbox: ContactInboxRoute,
   ): Promise<IntegrationRow> => {
+    if (contactInbox.channel === "zalo_personal") {
+      const integrationRow =
+        await integrationZaloPersonalService.loadRuntimeRowByInbox({
+          inboxId: contactInbox.inboxId,
+        })
+      if (!integrationRow) {
+        throw new ChannelError(
+          `Unable to find integration auth for channel: ${contactInbox.channel}`,
+          ChannelErrorCategory.AUTH_FAILED,
+          { code: "integration_auth_missing" },
+        )
+      }
+      return integrationRow as IntegrationRow
+    }
     if (contactInbox.channel === "threads") {
       const integrationRow = await integrationThreadsService.findByInboxId(
         contactInbox.inboxId,

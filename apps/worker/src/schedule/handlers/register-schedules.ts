@@ -76,6 +76,18 @@ export const registerSchedules = async () => {
   }
 
   await scheduleQueue.upsertJobScheduler(
+    ScheduleJobData.pollZaloPersonalBridge,
+    { every: 5000 },
+    {
+      name: ScheduleJobData.pollZaloPersonalBridge,
+      data: {
+        type: ScheduleJobData.pollZaloPersonalBridge,
+        data: {},
+      },
+    },
+  )
+
+  await scheduleQueue.upsertJobScheduler(
     ScheduleJobData.scanAbandonedCarts,
     {
       pattern: everyMinuteAtOffset(ScheduleJobData.scanAbandonedCarts),

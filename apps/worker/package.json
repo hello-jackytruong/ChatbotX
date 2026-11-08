@@ -74,6 +74,7 @@
     "@chatbotx.io/integration-webchat": "workspace:*",
     "@chatbotx.io/integration-whatsapp": "workspace:*",
     "@chatbotx.io/integration-zalo": "workspace:*",
+    "@chatbotx.io/integration-zalo-personal": "workspace:*",
     "@chatbotx.io/logger": "workspace:*",
     "@chatbotx.io/mail": "workspace:*",
     "@chatbotx.io/realtime-protocol": "workspace:*",

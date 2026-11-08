@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "backend/prisma/schema.prisma",
-  "schemaSha256": "981409634d42a77478eea9611b21240a2f2c1c4174dcfda98d0739e125d157e2",
-  "modelCount": 108,
+  "schemaSha256": "e4e53b6851372e062bba0fefe5d92cd31d9bd8d55cf55222c8344ebe77fdcbc9",
+  "modelCount": 116,
   "models": [
     {
       "name": "AccountFolder",
@@ -3626,6 +3626,519 @@
         "@@index([orgId, ownerUserId])",
         "@@index([parentId])",
         "@@map(\"block_folders\")"
+      ]
+    },
+    {
+      "name": "BridgeAccountMapping",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": "uuid()",
+          "relation": null,
+          "attributes": "@id @default(uuid())"
+        },
+        {
+          "name": "clientId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"client_id\")"
+        },
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_id\")"
+        },
+        {
+          "name": "chatbotxWorkspaceId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"chatbotx_workspace_id\")"
+        },
+        {
+          "name": "chatbotxInboxId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"chatbotx_inbox_id\")"
+        },
+        {
+          "name": "active",
+          "type": "Boolean",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "true",
+          "relation": null,
+          "attributes": "@default(true)"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "client",
+          "type": "BridgeClient",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [clientId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [clientId], references: [id], onDelete: Cascade)"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@unique([clientId, accountId])",
+        "@@unique([chatbotxWorkspaceId, chatbotxInboxId])",
+        "@@index([accountId])",
+        "@@map(\"bridge_account_mappings\")"
+      ]
+    },
+    {
+      "name": "BridgeAuthNonce",
+      "fields": [
+        {
+          "name": "kid",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "nonce",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"expires_at\")"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "client",
+          "type": "BridgeClient",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [kid], references: [kid], onDelete: Cascade",
+          "attributes": "@relation(fields: [kid], references: [kid], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@id([kid, nonce])",
+        "@@index([expiresAt])",
+        "@@map(\"bridge_auth_nonces\")"
+      ]
+    },
+    {
+      "name": "BridgeClient",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": "uuid()",
+          "relation": null,
+          "attributes": "@id @default(uuid())"
+        },
+        {
+          "name": "kid",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": true,
+          "default": null,
+          "relation": null,
+          "attributes": "@unique"
+        },
+        {
+          "name": "secretCiphertext",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"secret_ciphertext\")"
+        },
+        {
+          "name": "previousSecretCiphertext",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"previous_secret_ciphertext\")"
+        },
+        {
+          "name": "previousSecretExpiresAt",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"previous_secret_expires_at\")"
+        },
+        {
+          "name": "active",
+          "type": "Boolean",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "true",
+          "relation": null,
+          "attributes": "@default(true)"
+        },
+        {
+          "name": "rotatedAt",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"rotated_at\")"
+        },
+        {
+          "name": "revokedAt",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"revoked_at\")"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "accountMappings",
+          "type": "BridgeAccountMapping",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "authNonces",
+          "type": "BridgeAuthNonce",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "deadLetters",
+          "type": "BridgeDeadLetter",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        }
+      ],
+      "attributes": [
+        "@@index([active, revokedAt])",
+        "@@map(\"bridge_clients\")"
+      ]
+    },
+    {
+      "name": "BridgeDeadLetter",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": "uuid()",
+          "relation": null,
+          "attributes": "@id @default(uuid())"
+        },
+        {
+          "name": "clientId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"client_id\")"
+        },
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_id\")"
+        },
+        {
+          "name": "direction",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "eventId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"event_id\")"
+        },
+        {
+          "name": "commandId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"command_id\")"
+        },
+        {
+          "name": "errorCode",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"error_code\")"
+        },
+        {
+          "name": "payloadDigest",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"payload_digest\")"
+        },
+        {
+          "name": "attempts",
+          "type": "Int",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "0",
+          "relation": null,
+          "attributes": "@default(0)"
+        },
+        {
+          "name": "nextAttemptAt",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"next_attempt_at\")"
+        },
+        {
+          "name": "resolvedAt",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"resolved_at\")"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "client",
+          "type": "BridgeClient",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [clientId], references: [id], onDelete: SetNull",
+          "attributes": "@relation(fields: [clientId], references: [id], onDelete: SetNull)"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@index([clientId])",
+        "@@index([accountId, resolvedAt, nextAttemptAt])",
+        "@@map(\"bridge_dead_letters\")"
       ]
     },
     {
@@ -9898,6 +10411,497 @@
       ]
     },
     {
+      "name": "GatewayAccountLease",
+      "fields": [
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@id @map(\"account_id\")"
+        },
+        {
+          "name": "ownerId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"owner_id\")"
+        },
+        {
+          "name": "fenceToken",
+          "type": "BigInt",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "1) @map(\"fence_token\"",
+          "relation": null,
+          "attributes": "@default(1) @map(\"fence_token\")"
+        },
+        {
+          "name": "leaseUntil",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"lease_until\")"
+        },
+        {
+          "name": "heartbeatAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"heartbeat_at\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@index([leaseUntil])",
+        "@@map(\"gateway_account_leases\")"
+      ]
+    },
+    {
+      "name": "GatewayCommand",
+      "fields": [
+        {
+          "name": "commandId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@id @map(\"command_id\")"
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"idempotency_key\")"
+        },
+        {
+          "name": "payloadHash",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"payload_hash\")"
+        },
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_id\")"
+        },
+        {
+          "name": "kind",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "version",
+          "type": "Int",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "1",
+          "relation": null,
+          "attributes": "@default(1)"
+        },
+        {
+          "name": "payload",
+          "type": "Json",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "\"pending\"",
+          "relation": null,
+          "attributes": "@default(\"pending\")"
+        },
+        {
+          "name": "result",
+          "type": "Json",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "error",
+          "type": "Json",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "attempts",
+          "type": "Int",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "0",
+          "relation": null,
+          "attributes": "@default(0)"
+        },
+        {
+          "name": "availableAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"available_at\")"
+        },
+        {
+          "name": "leaseOwner",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"lease_owner\")"
+        },
+        {
+          "name": "leaseUntil",
+          "type": "DateTime",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"lease_until\")"
+        },
+        {
+          "name": "fenceToken",
+          "type": "BigInt",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"fence_token\")"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@unique([accountId, idempotencyKey])",
+        "@@index([status, availableAt, createdAt])",
+        "@@index([leaseUntil])",
+        "@@map(\"gateway_commands\")"
+      ]
+    },
+    {
+      "name": "GatewayConsumerCheckpoint",
+      "fields": [
+        {
+          "name": "consumerName",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"consumer_name\")"
+        },
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_id\")"
+        },
+        {
+          "name": "lastSequence",
+          "type": "BigInt",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "0) @map(\"last_sequence\"",
+          "relation": null,
+          "attributes": "@default(0) @map(\"last_sequence\")"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@updatedAt @map(\"updated_at\")"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@id([consumerName, accountId])",
+        "@@map(\"gateway_consumer_checkpoints\")"
+      ]
+    },
+    {
+      "name": "GatewayEventOutbox",
+      "fields": [
+        {
+          "name": "eventId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": true,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@id @map(\"event_id\")"
+        },
+        {
+          "name": "accountId",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_id\")"
+        },
+        {
+          "name": "accountSequence",
+          "type": "BigInt",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"account_sequence\")"
+        },
+        {
+          "name": "fenceToken",
+          "type": "BigInt",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"fence_token\")"
+        },
+        {
+          "name": "kind",
+          "type": "String",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "version",
+          "type": "Int",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "1",
+          "relation": null,
+          "attributes": "@default(1)"
+        },
+        {
+          "name": "providerEventId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"provider_event_id\")"
+        },
+        {
+          "name": "payload",
+          "type": "Json",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "occurredAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"occurred_at\")"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": "now()",
+          "relation": null,
+          "attributes": "@default(now()) @map(\"created_at\")"
+        },
+        {
+          "name": "account",
+          "type": "ZaloAccount",
+          "nullable": false,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": "fields: [accountId], references: [id], onDelete: Cascade",
+          "attributes": "@relation(fields: [accountId], references: [id], onDelete: Cascade)"
+        }
+      ],
+      "attributes": [
+        "@@unique([accountId, accountSequence])",
+        "@@unique([accountId, providerEventId])",
+        "@@index([accountId, createdAt])",
+        "@@map(\"gateway_event_outbox\")"
+      ]
+    },
+    {
       "name": "GroupMember",
       "fields": [
         {
@@ -14754,9 +15758,9 @@
           "list": false,
           "id": false,
           "unique": false,
-          "default": "15)    @map(\"appointment_action_delay_minutes\"",
+          "default": "15) @map(\"appointment_action_delay_minutes\"",
           "relation": null,
-          "attributes": "@default(15)    @map(\"appointment_action_delay_minutes\")"
+          "attributes": "@default(15) @map(\"appointment_action_delay_minutes\")"
         },
         {
           "name": "appointmentReminderOffsetsHours",
@@ -20312,6 +21316,28 @@
           "attributes": "@map(\"session_data\")"
         },
         {
+          "name": "sessionCiphertext",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"session_ciphertext\")"
+        },
+        {
+          "name": "proxyCiphertext",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"proxy_ciphertext\")"
+        },
+        {
           "name": "lastConnectedAt",
           "type": "DateTime",
           "nullable": true,
@@ -20721,6 +21747,72 @@
         {
           "name": "groupScans",
           "type": "GroupScan",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "gatewayLease",
+          "type": "GatewayAccountLease",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "gatewayCommands",
+          "type": "GatewayCommand",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "gatewayEvents",
+          "type": "GatewayEventOutbox",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "gatewayConsumerCheckpoints",
+          "type": "GatewayConsumerCheckpoint",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "bridgeAccountMappings",
+          "type": "BridgeAccountMapping",
+          "nullable": false,
+          "list": true,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": null
+        },
+        {
+          "name": "bridgeDeadLetters",
+          "type": "BridgeDeadLetter",
           "nullable": false,
           "list": true,
           "id": false,

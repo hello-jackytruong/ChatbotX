@@ -124,13 +124,13 @@ model Organization {
 
   // Lịch hẹn → Nhắc hẹn Zalo (2026-06-16): bật đẩy Nhắc hẹn Zalo cho sale qua nick hệ thống
   // + delay (phút) gửi tin "link đánh dấu hoàn thành/huỷ" SAU giờ hẹn (admin chỉnh trong Cài đặt lịch hẹn).
-  appointmentZaloReminderEnabled Boolean @default(false) @map("appointment_zalo_reminder_enabled")
-  appointmentActionDelayMinutes  Int     @default(15)    @map("appointment_action_delay_minutes")
+  appointmentZaloReminderEnabled  Boolean @default(false) @map("appointment_zalo_reminder_enabled")
+  appointmentActionDelayMinutes   Int     @default(15) @map("appointment_action_delay_minutes")
   // 2026-06-18 "Nhắc 3 lần": mảng KHOẢNG CÁCH (interval) giữa các lần nhắc, đơn vị GIỜ.
   // [1,3,6] = nhắc lần 1 ở +1h, lần 2 ở +4h, lần 3 ở +10h (cộng dồn) sau giờ hẹn. Validate 3 phần tử, 0<v≤168.
-  appointmentReminderOffsetsHours Json @default("[1, 3, 6]") @map("appointment_reminder_offsets_hours")
+  appointmentReminderOffsetsHours Json    @default("[1, 3, 6]") @map("appointment_reminder_offsets_hours")
   // Digest trưởng phòng dừng sau N ngày kể từ lần digest đầu (Luật D2). 0 = không bao giờ dừng.
-  appointmentDigestStopDays      Int  @default(7) @map("appointment_digest_stop_days")
+  appointmentDigestStopDays       Int     @default(7) @map("appointment_digest_stop_days")
 
   // Wave 2 Welcome Probe 2026-05-29 — config send welcome msg sau friend accept
   welcomeDelayAfterFriendReqSec Int     @default(60) @map("welcome_delay_after_friend_req_sec")
@@ -349,17 +349,20 @@ model RefreshToken {
 
 // Zalo account linked to a user (one user may own multiple Zalo accounts)
 model ZaloAccount {
-  id              String    @id @default(uuid())
-  orgId           String    @map("org_id")
-  ownerUserId     String    @map("owner_user_id")
-  zaloUid         String?   @unique @map("zalo_uid")
-  displayName     String?   @map("display_name")
-  avatarUrl       String?   @map("avatar_url")
-  phone           String?
-  status          String    @default("disconnected") // connected, disconnected, qr_pending
-  proxyUrl        String?   @map("proxy_url") // per-account proxy (PR#11)
-  sessionData     Json?     @map("session_data")
-  lastConnectedAt DateTime? @map("last_connected_at")
+  id                String    @id @default(uuid())
+  orgId             String    @map("org_id")
+  ownerUserId       String    @map("owner_user_id")
+  zaloUid           String?   @unique @map("zalo_uid")
+  displayName       String?   @map("display_name")
+  avatarUrl         String?   @map("avatar_url")
+  phone             String?
+  status            String    @default("disconnected") // connected, disconnected, qr_pending
+  proxyUrl          String?   @map("proxy_url") // per-account proxy (PR#11)
+  sessionData       Json?     @map("session_data")
+  // Gateway release 1 dual-read/write fields. Plain legacy fields remain for rollback.
+  sessionCiphertext String?   @map("session_ciphertext")
+  proxyCiphertext   String?   @map("proxy_ciphertext")
+  lastConnectedAt   DateTime? @map("last_connected_at")
   // 2026-06-16 (Anh chốt): phân biệt NGẮT THỦ CÔNG vs MẤT KẾT NỐI THỤ ĐỘNG.
   //   disconnectedAt    = thời điểm nick rời trạng thái connected (mốc để FE đếm/hiển thị).
   //   disconnectReason  = 'manual' (sale bấm Ngắt → KHÔNG tự reconnect, hiện "Đã ngắt lúc {giờ}")
@@ -370,15 +373,15 @@ model ZaloAccount {
   // Phase Riêng Tư 2026-05-22: sale gắn nick là 'main' → blur content cho user khác,
   // chỉ owner unlock PIN xem được. Default 'sub' (org public). Xem design doc:
   // ~/.gstack/projects/zalocrm/thanh-private-mode-design-20260521.md
-  privacyMode     String    @default("sub") @map("privacy_mode")
+  privacyMode       String    @default("sub") @map("privacy_mode")
   // 2026-06-09 (Anh chốt): xóa MỀM — sale/admin xóa nick khỏi danh sách nhưng GIỮ
   // dữ liệu (hội thoại/tin/bạn bè) trong DB. archivedAt != null = đã ẩn khỏi danh sách.
   // Listener + health-check BỎ QUA nick đã archive (không reconnect).
-  archivedAt      DateTime? @map("archived_at")
+  archivedAt        DateTime? @map("archived_at")
   // T13 (2026-06-21): user.id người bấm XÓA nick (null = hệ thống tự dọn thẻ ma / xóa trước khi
   // có field này). Tab "Nick đã xóa" resolve tên qua User. KHÔNG FK (giữ nhẹ, xóa user ko cascade).
-  archivedById    String?   @map("archived_by_id")
-  createdAt       DateTime  @default(now()) @map("created_at")
+  archivedById      String?   @map("archived_by_id")
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   org                Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   owner              User                  @relation(fields: [ownerUserId], references: [id])
@@ -413,23 +416,177 @@ model ZaloAccount {
   // Phase metrics layer 2026-05-22 — phone search log per nick
   phoneSearchEvents                PhoneSearchEvent[]
   // Phase Privacy v2 2026-05-23 — reverse relations
-  internalContactForUsers          User[]                  @relation("UserInternalContact")
-  systemNotifyForOrgs              Organization[]          @relation("OrgSystemNotify")
-  systemNotifyRecipientsAsSender   SystemNotifyRecipient[] @relation("SystemNotifySender")
-  systemNotifyRecipientsAsInternal SystemNotifyRecipient[] @relation("SystemNotifyInternalContact")
-  systemNotificationsAsSender      SystemNotification[]    @relation("SystemNotificationSender")
-  systemNotificationsAsInternal    SystemNotification[]    @relation("SystemNotificationInternalContact")
+  internalContactForUsers          User[]                      @relation("UserInternalContact")
+  systemNotifyForOrgs              Organization[]              @relation("OrgSystemNotify")
+  systemNotifyRecipientsAsSender   SystemNotifyRecipient[]     @relation("SystemNotifySender")
+  systemNotifyRecipientsAsInternal SystemNotifyRecipient[]     @relation("SystemNotifyInternalContact")
+  systemNotificationsAsSender      SystemNotification[]        @relation("SystemNotificationSender")
+  systemNotificationsAsInternal    SystemNotification[]        @relation("SystemNotificationInternalContact")
   // 2026-06-06 (Anh chốt) — trần SDK ghi đè riêng per-nick (NULL = theo org default).
   sdkLimits                        SdkLimit[]
   // 2026-06-15 — ảnh kho lưu từ chat của nick này (để hiện "ảnh từ nick nào").
-  mediaAssetsAsSource              MediaAsset[]            @relation("MediaAssetSourceNick")
+  mediaAssetsAsSource              MediaAsset[]                @relation("MediaAssetSourceNick")
   // 2026-06-18 — Cầu Zalo↔Telegram: cấu hình cầu per-nick (1 nick = 1 supergroup).
   telegramBridge                   TelegramBridgeConfig?
   // 2026-06-21 (E1 quét group) — roster member quét ra + lịch sử lần quét per-nick.
   groupMembers                     GroupMember[]
   groupScans                       GroupScan[]
+  gatewayLease                     GatewayAccountLease?
+  gatewayCommands                  GatewayCommand[]
+  gatewayEvents                    GatewayEventOutbox[]
+  gatewayConsumerCheckpoints       GatewayConsumerCheckpoint[]
+  bridgeAccountMappings            BridgeAccountMapping[]
+  bridgeDeadLetters                BridgeDeadLetter[]
 
   @@map("zalo_accounts")
+}
+
+model GatewayAccountLease {
+  accountId   String   @id @map("account_id")
+  ownerId     String   @map("owner_id")
+  fenceToken  BigInt   @default(1) @map("fence_token")
+  leaseUntil  DateTime @map("lease_until")
+  heartbeatAt DateTime @map("heartbeat_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  account ZaloAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([leaseUntil])
+  @@map("gateway_account_leases")
+}
+
+model GatewayCommand {
+  commandId      String    @id @map("command_id")
+  idempotencyKey String    @map("idempotency_key")
+  payloadHash    String    @map("payload_hash")
+  accountId      String    @map("account_id")
+  kind           String
+  version        Int       @default(1)
+  payload        Json
+  status         String    @default("pending")
+  result         Json?
+  error          Json?
+  attempts       Int       @default(0)
+  availableAt    DateTime  @default(now()) @map("available_at")
+  leaseOwner     String?   @map("lease_owner")
+  leaseUntil     DateTime? @map("lease_until")
+  fenceToken     BigInt?   @map("fence_token")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  account ZaloAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, idempotencyKey])
+  @@index([status, availableAt, createdAt])
+  @@index([leaseUntil])
+  @@map("gateway_commands")
+}
+
+model GatewayEventOutbox {
+  eventId         String   @id @map("event_id")
+  accountId       String   @map("account_id")
+  accountSequence BigInt   @map("account_sequence")
+  fenceToken      BigInt   @map("fence_token")
+  kind            String
+  version         Int      @default(1)
+  providerEventId String?  @map("provider_event_id")
+  payload         Json
+  occurredAt      DateTime @map("occurred_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  account ZaloAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, accountSequence])
+  @@unique([accountId, providerEventId])
+  @@index([accountId, createdAt])
+  @@map("gateway_event_outbox")
+}
+
+model GatewayConsumerCheckpoint {
+  consumerName String   @map("consumer_name")
+  accountId    String   @map("account_id")
+  lastSequence BigInt   @default(0) @map("last_sequence")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  account ZaloAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([consumerName, accountId])
+  @@map("gateway_consumer_checkpoints")
+}
+
+model BridgeClient {
+  id               String    @id @default(uuid())
+  kid              String    @unique
+  secretCiphertext String    @map("secret_ciphertext")
+  previousSecretCiphertext String?   @map("previous_secret_ciphertext")
+  previousSecretExpiresAt  DateTime? @map("previous_secret_expires_at")
+  active           Boolean   @default(true)
+  rotatedAt        DateTime? @map("rotated_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  accountMappings BridgeAccountMapping[]
+  authNonces      BridgeAuthNonce[]
+  deadLetters     BridgeDeadLetter[]
+
+  @@index([active, revokedAt])
+  @@map("bridge_clients")
+}
+
+model BridgeAuthNonce {
+  kid       String
+  nonce     String
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  client BridgeClient @relation(fields: [kid], references: [kid], onDelete: Cascade)
+
+  @@id([kid, nonce])
+  @@index([expiresAt])
+  @@map("bridge_auth_nonces")
+}
+
+model BridgeAccountMapping {
+  id                    String   @id @default(uuid())
+  clientId              String   @map("client_id")
+  accountId             String   @map("account_id")
+  chatbotxWorkspaceId   String   @map("chatbotx_workspace_id")
+  chatbotxInboxId       String   @map("chatbotx_inbox_id")
+  active                Boolean  @default(true)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  client  BridgeClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  account ZaloAccount  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, accountId])
+  @@unique([chatbotxWorkspaceId, chatbotxInboxId])
+  @@index([accountId])
+  @@map("bridge_account_mappings")
+}
+
+model BridgeDeadLetter {
+  id            String    @id @default(uuid())
+  clientId      String?   @map("client_id")
+  accountId     String    @map("account_id")
+  direction     String
+  eventId       String?   @map("event_id")
+  commandId     String?   @map("command_id")
+  errorCode     String    @map("error_code")
+  payloadDigest String    @map("payload_digest")
+  attempts      Int       @default(0)
+  nextAttemptAt DateTime? @map("next_attempt_at")
+  resolvedAt    DateTime? @map("resolved_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  client  BridgeClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  account ZaloAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([accountId, resolvedAt, nextAttemptAt])
+  @@map("bridge_dead_letters")
 }
 
 // 2026-06-06 (Anh chốt) — Trần an toàn SDK Zalo, cấu hình được (thay CATEGORY_LIMITS hardcode).
@@ -511,60 +668,60 @@ model ZaloAccountAccess {
 
 // CRM contact record — generic pipeline with status field
 model Contact {
-  id               String    @id @default(uuid())
-  orgId            String    @map("org_id")
-  zaloUid          String?   @map("zalo_uid")
+  id                String    @id @default(uuid())
+  orgId             String    @map("org_id")
+  zaloUid           String?   @map("zalo_uid")
   // Zalo identifiers toàn cục — KHÔNG đổi giữa các account viewer (khác với zaloUid per-account).
   // Dùng làm khóa dedup chính: cùng person từ 2 account CRM khác nhau có cùng zaloGlobalId.
-  zaloGlobalId     String?   @map("zalo_global_id")
-  zaloUsername     String?   @map("zalo_username")
+  zaloGlobalId      String?   @map("zalo_global_id")
+  zaloUsername      String?   @map("zalo_username")
   // Đợt 2b 2026-06-22 — hồ sơ Zalo mở rộng từ getUserInfo (verify raw runtime, KHÔNG đoán):
   // status=trạng thái/bio, cover=ảnh bìa, isExtensionAccount=cờ KH doanh nghiệp, lastActionTime
   // =hoạt động cuối. Fill chủ yếu qua message-handler (KH nhắn → getUserInfo). lastActive dùng GREATEST.
-  zaloStatus       String?   @map("zalo_status")
-  zaloCoverUrl     String?   @map("zalo_cover_url")
-  isBusinessAccount Boolean? @map("is_business_account")
-  zaloLastActiveAt DateTime? @map("zalo_last_active_at")
-  phone            String?
+  zaloStatus        String?   @map("zalo_status")
+  zaloCoverUrl      String?   @map("zalo_cover_url")
+  isBusinessAccount Boolean?  @map("is_business_account")
+  zaloLastActiveAt  DateTime? @map("zalo_last_active_at")
+  phone             String?
   // Canonical SĐT (84xxx no +/space) — auto-derive từ `phone` qua normalizePhone()
   // trên mọi write path. Index để search exact O(log n), dedup chính xác cross-format
   // (0xxx ↔ 84xxx ↔ +84xxx cùng map về 84xxx). Hiện chỉ index phone chính; phone2/3
   // vẫn search via contains variants vì ít dùng.
-  phoneNormalized  String?   @map("phone_normalized")
-  email            String?   @map("email")
-  fullName         String?   @map("full_name")
-  crmName          String?   @map("crm_name")
-  avatarUrl        String?   @map("avatar_url")
-  source           String? // FB, TT, GT, CN, phone_import, etc.
-  sourceDate       DateTime? @map("source_date")
-  firstContactDate DateTime? @map("first_contact_date")
-  status           String?   @default("new") // LEGACY: new/contacted/interested/converted/lost — giữ 1 release, sau drop. Field mới: statusId FK -> Status table
-  statusId         String?   @map("status_id")
+  phoneNormalized   String?   @map("phone_normalized")
+  email             String?   @map("email")
+  fullName          String?   @map("full_name")
+  crmName           String?   @map("crm_name")
+  avatarUrl         String?   @map("avatar_url")
+  source            String? // FB, TT, GT, CN, phone_import, etc.
+  sourceDate        DateTime? @map("source_date")
+  firstContactDate  DateTime? @map("first_contact_date")
+  status            String?   @default("new") // LEGACY: new/contacted/interested/converted/lost — giữ 1 release, sau drop. Field mới: statusId FK -> Status table
+  statusId          String?   @map("status_id")
   // ── Parent-Child (KH cha gom nhiều KH con — cross-Zalo-identity human-level link) ───
   // Khác mergedInto (hard-merge same Zalo identity, secondary hidden): parentContactId
   // soft-link, child visible, aggregate status/score/hasZalo từ children. Canonical son
   // làm cha → parentContactId=NULL cho cha, các con khác trỏ về.
-  parentContactId  String?   @map("parent_contact_id")
-  nextAppointment  DateTime? @map("next_appointment")
-  assignedUserId   String?   @map("assigned_user_id")
-  notes            String?
-  tags             Json      @default("[]") // CRM tags do sale gắn ("vip","quan_tam_3pn",...). Auto tag prefix "auto:"
-  metadata         Json      @default("{}")
-  leadScore        Int       @default(0) @map("lead_score")
-  lastActivity     DateTime? @map("last_activity")
-  mergedInto       String?   @map("merged_into")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  parentContactId   String?   @map("parent_contact_id")
+  nextAppointment   DateTime? @map("next_appointment")
+  assignedUserId    String?   @map("assigned_user_id")
+  notes             String?
+  tags              Json      @default("[]") // CRM tags do sale gắn ("vip","quan_tam_3pn",...). Auto tag prefix "auto:"
+  metadata          Json      @default("{}")
+  leadScore         Int       @default(0) @map("lead_score")
+  lastActivity      DateTime? @map("last_activity")
+  mergedInto        String?   @map("merged_into")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   // ── Discovery via friend-request attempt ─────────────────────────────────
-  hasZalo            Boolean?  @map("has_zalo") // null=unknown, true=verified yes, false=verified no
-  zaloLookupAt       DateTime? @map("zalo_lookup_at")
-  zaloLookupAttempts Int       @default(0) @map("zalo_lookup_attempts")
+  hasZalo                Boolean?  @map("has_zalo") // null=unknown, true=verified yes, false=verified no
+  zaloLookupAt           DateTime? @map("zalo_lookup_at")
+  zaloLookupAttempts     Int       @default(0) @map("zalo_lookup_attempts")
   // #3 (2026-06-20): đếm số lần ĐÃ GỬI kết bạn cho SĐT này (mức Cha) — để sau lọc/loại SĐT bị
   // nhiều chiến dịch gửi kết bạn. Chỉ +1 khi GỬI MỚI thành công (không tính "đã là bạn").
   friendInviteSentCount  Int       @default(0) @map("friend_invite_sent_count")
   friendInviteLastSentAt DateTime? @map("friend_invite_last_sent_at")
-  importBatchId      String?   @map("import_batch_id") // soft FK -> phone_list_imports.id (model later)
+  importBatchId          String?   @map("import_batch_id") // soft FK -> phone_list_imports.id (model later)
 
   // ── Compliance ─────────────────────────────────────────────────────────────
   consentStatus    String    @default("implicit") @map("consent_status") // implicit/granted/revoked
@@ -616,13 +773,13 @@ model Contact {
   totalOutbound     Int @default(0) @map("total_outbound")
   totalAppointments Int @default(0) @map("total_appointments")
 
-  org               Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  assignedUser      User?               @relation("AssignedContacts", fields: [assignedUserId], references: [id])
-  mergedIntoContact Contact?            @relation("ContactMerge", fields: [mergedInto], references: [id])
-  mergedFrom        Contact[]           @relation("ContactMerge")
-  parent            Contact?            @relation("ContactFather", fields: [parentContactId], references: [id], onDelete: SetNull)
-  children          Contact[]           @relation("ContactFather")
-  statusRef         Status?             @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  org               Organization           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  assignedUser      User?                  @relation("AssignedContacts", fields: [assignedUserId], references: [id])
+  mergedIntoContact Contact?               @relation("ContactMerge", fields: [mergedInto], references: [id])
+  mergedFrom        Contact[]              @relation("ContactMerge")
+  parent            Contact?               @relation("ContactFather", fields: [parentContactId], references: [id], onDelete: SetNull)
+  children          Contact[]              @relation("ContactFather")
+  statusRef         Status?                @relation(fields: [statusId], references: [id], onDelete: SetNull)
   conversations     Conversation[]
   appointments      Appointment[]
   attempts          FriendshipAttempt[]
@@ -641,9 +798,9 @@ model Contact {
   // lastPooledAt = NULL nghĩa CHƯA từng chia qua pool → ưu tiên đầu vòng tuyệt đối.
   // pooledCount = số lần đã chia (đếm vòng). ORDER BY (pooledCount ASC, lastPooledAt
   // ASC NULLS FIRST, created_at, id) cho FIFO: lead mới đầu vòng, đã chia/trả xuống cuối.
-  lastPooledAt        DateTime?               @map("last_pooled_at")
-  pooledCount         Int                     @default(0) @map("pooled_count")
-  leadDistributions   LeadPoolDistribution[]
+  lastPooledAt      DateTime?              @map("last_pooled_at")
+  pooledCount       Int                    @default(0) @map("pooled_count")
+  leadDistributions LeadPoolDistribution[]
 
   // Per-Contact counters (cache from Friend rows; updated by friend-aggregate hooks)
   acceptedNicksCount Int @default(0) @map("accepted_nicks_count")
@@ -1011,7 +1168,7 @@ model Device {
   userId     String   @map("user_id")
   orgId      String   @map("org_id")
   fcmToken   String   @unique @map("fcm_token") // token Google FCM / Apple APNs
-  platform   String   // 'ios' | 'android'
+  platform   String // 'ios' | 'android'
   deviceId   String   @map("device_id") // định danh máy (ổn định)
   lastSeenAt DateTime @default(now()) @map("last_seen_at")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -1057,27 +1214,27 @@ model SystemNotification {
 // externalRef = Zalo reminderId (unique per org để dedup khi reminder edit/fire lại).
 // zaloMessageId = FK mềm tới Message.id của reminder card → deep-link conversation.
 model Appointment {
-  id              String   @id @default(uuid())
-  orgId           String   @map("org_id")
-  contactId       String   @map("contact_id")
-  assignedUserId  String?  @map("assigned_user_id")
-  appointmentDate DateTime @map("appointment_date")
-  appointmentTime String?  @map("appointment_time")
+  id                   String    @id @default(uuid())
+  orgId                String    @map("org_id")
+  contactId            String    @map("contact_id")
+  assignedUserId       String?   @map("assigned_user_id")
+  appointmentDate      DateTime  @map("appointment_date")
+  appointmentTime      String?   @map("appointment_time")
   // 2026-05-21 "Nhắc hẹn" refactor — anh chốt 1 modal cho create+edit:
   //   title       — tiêu đề (default = "Gọi nhắc KH X")
   //   durationMin — dự kiến dành thời gian (phút), endAt tính ngầm = startAt + duration
   //   location    — địa điểm (5 preset chips + smart suggest từ title)
   //   type        — 4 values: call | message | meeting | follow_up
-  title           String?
-  durationMin     Int      @default(15) @map("duration_min")
-  location        String?
-  type            String?
-  status          String   @default("scheduled") // scheduled, completed, cancelled, no_show
-  notes           String?
-  reminderSent    Boolean  @default(false) @map("reminder_sent")
+  title                String?
+  durationMin          Int       @default(15) @map("duration_min")
+  location             String?
+  type                 String?
+  status               String    @default("scheduled") // scheduled, completed, cancelled, no_show
+  notes                String?
+  reminderSent         Boolean   @default(false) @map("reminder_sent")
   // 2026-06-16: đã gửi tin "link đánh dấu hoàn thành/huỷ" (sau giờ hẹn) chưa — LEGACY (cron cũ set true 1 lần).
   // 2026-06-18 đổi sang đếm: giữ cột này để migration cũ không vỡ, logic mới đọc actionPromptCount.
-  actionPromptSent Boolean @default(false) @map("action_prompt_sent")
+  actionPromptSent     Boolean   @default(false) @map("action_prompt_sent")
   // 2026-06-18 "Nhắc 3 lần + digest trưởng phòng":
   //   actionPromptCount    — đã gửi nhắc mấy lần (0..3); cron tăng SAU khi gửi OK (Luật D4).
   //   lastActionPromptAt   — mốc gửi nhắc gần nhất.
@@ -1087,7 +1244,7 @@ model Appointment {
   lastActionPromptAt   DateTime? @map("last_action_prompt_at")
   managerDigestedAt    DateTime? @map("manager_digested_at")
   managerDigestFirstAt DateTime? @map("manager_digest_first_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
 
   // Nguồn + link Zalo
   source        String  @default("manual") // "manual" | "zalo"
@@ -1100,10 +1257,10 @@ model Appointment {
   statusChangedAt       DateTime? @map("status_changed_at")
   statusChangedBy       User?     @relation("AppointmentStatusChanger", fields: [statusChangedByUserId], references: [id])
 
-  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  contact      Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  assignedUser User?        @relation(fields: [assignedUserId], references: [id])
-  fromNotes    Note[]       @relation("NoteAppointment")
+  org          Organization            @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact      Contact                 @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  assignedUser User?                   @relation(fields: [assignedUserId], references: [id])
+  fromNotes    Note[]                  @relation("NoteAppointment")
   actionLinks  AppointmentActionLink[]
 
   @@unique([orgId, externalRef])
@@ -3129,13 +3286,13 @@ model CareSession {
   // pausedAtStepIdx: bước đang dở khi KH reply (pause). Resume worker đọc cột này để
   // re-enqueue ĐÚNG bước của ĐÚNG luồng (per-CareSession theo sourceSequenceId). NULL =
   // không đang pause-giữa-chừng. Clear sau khi resume re-enqueue xong.
-  pausedAtStepIdx Int? @map("paused_at_step_idx")
+  pausedAtStepIdx Int?  @map("paused_at_step_idx")
   // pauseEpoch: tăng mỗi lần KH reply (pause). Resume chỉ re-enqueue nếu epoch khớp lúc
   // pause → chống "close cũ hồi sinh send sau reply mới" (Codex #2). NULL/0 = chưa pause.
-  pauseEpoch      Int? @map("pause_epoch")
+  pauseEpoch      Int?  @map("pause_epoch")
   // enrollEpoch (2026-06-15): SỐ LẦN gắn luồng này cho KH — gắn lại tăng epoch → jobId mới
   // (không đụng job cũ đã completed). Resume/cancel dùng đúng epoch của lần gắn này. NULL=1.
-  enrollEpoch     Int? @map("enroll_epoch")
+  enrollEpoch     Int?  @map("enroll_epoch")
   // rulesSnapshot: chụp runtimeRules (giờ/sendGap/cooldown) lúc enroll → đổi cấu hình
   // KHÔNG ảnh hưởng KH đang chạy (Codex #10). NULL = dùng rules live của sequence (fallback).
   rulesSnapshot   Json? @map("rules_snapshot")
@@ -3914,8 +4071,8 @@ model MediaBlob {
   durationSec Int?     @map("duration_sec") // video
   createdAt   DateTime @default(now()) @map("created_at")
 
-  org        Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  asset      MediaAsset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  asset MediaAsset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   // Dedup key: cùng org + cùng bytes = 1 blob. statObject + upsert chống trùng.
   @@unique([orgId, contentHash])
@@ -3962,16 +4119,16 @@ model MediaAsset {
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
-  org        Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  owner      User?            @relation("MediaAssetOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
-  createdBy  User?            @relation("MediaAssetCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  folder     MediaAlbum?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  org               Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  owner             User?             @relation("MediaAssetOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  createdBy         User?             @relation("MediaAssetCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  folder            MediaAlbum?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
   // 2026-06-15: relation tới nick nguồn để Prisma `include` join displayName 1 query (chống
   // N+1 khi list 60-200 ảnh hiện "nick nào"). SetNull: nick xóa → vẫn giữ ảnh, mất tên nick.
-  sourceZaloAccount ZaloAccount? @relation("MediaAssetSourceNick", fields: [sourceZaloAccountId], references: [id], onDelete: SetNull)
-  blobs      MediaBlob[]
-  albumItems MediaAlbumItem[]
-  usageEvents MediaUsageEvent[]
+  sourceZaloAccount ZaloAccount?      @relation("MediaAssetSourceNick", fields: [sourceZaloAccountId], references: [id], onDelete: SetNull)
+  blobs             MediaBlob[]
+  albumItems        MediaAlbumItem[]
+  usageEvents       MediaUsageEvent[]
 
   @@index([orgId, kind])
   @@index([orgId, visibility])
@@ -4030,15 +4187,15 @@ model MediaAlbumItem {
 // Codex/observability S8 + usageCount-tách-event: usageCount giữ tổng (đếm nhanh),
 // event này lưu chi tiết loại (sent_chat / sent_album / broadcast / saved_public).
 model MediaUsageEvent {
-  id           String   @id @default(uuid())
-  orgId        String   @map("org_id")
-  mediaAssetId String   @map("media_asset_id")
+  id             String   @id @default(uuid())
+  orgId          String   @map("org_id")
+  mediaAssetId   String   @map("media_asset_id")
   // eventType: 'sent_chat' | 'sent_album' | 'broadcast' | 'saved_from_chat' | 'made_public'
-  eventType    String   @map("event_type")
-  userId       String?  @map("user_id") // ai thực hiện (audit privacy)
-  conversationId String? @map("conversation_id")
-  meta         Json?    // dữ liệu phụ (vd albumCount, deduped, fromPrivateNick)
-  createdAt    DateTime @default(now()) @map("created_at")
+  eventType      String   @map("event_type")
+  userId         String?  @map("user_id") // ai thực hiện (audit privacy)
+  conversationId String?  @map("conversation_id")
+  meta           Json? // dữ liệu phụ (vd albumCount, deduped, fromPrivateNick)
+  createdAt      DateTime @default(now()) @map("created_at")
 
   org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
   asset MediaAsset   @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)

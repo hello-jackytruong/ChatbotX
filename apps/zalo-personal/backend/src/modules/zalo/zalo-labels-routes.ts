@@ -17,7 +17,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logActivity } from '../activity/activity-logger.js';
 import { getZaloScope, requireAccountManagement, requireAccountVisible } from './zalo-scope.js';
 
@@ -59,9 +59,10 @@ export async function syncLabelsForAccount(
   version: number;
 }> {
   const isDelta = Array.isArray(opts?.affectedUidsOnly);
-  const api = zaloPool.getApi(accountId);
-  if (!api) throw new Error('Zalo account chưa kết nối — không thể đồng bộ label');
-  if (typeof api.getLabels !== 'function') throw new Error('SDK không hỗ trợ getLabels()');
+  if (!zaloProviderClient.isConnected(accountId)) {
+    throw new Error('Zalo account chưa kết nối — không thể đồng bộ label');
+  }
+  if (!zaloProviderClient.supports(accountId, 'labels')) throw new Error('SDK không hỗ trợ getLabels()');
 
   // Seed: dùng labelData từ updateLabels response (authoritative, không lag).
   // Nếu không có seed → fall back getLabels (có thể stale do Zalo eventual consistency).
@@ -73,7 +74,7 @@ export async function syncLabelsForAccount(
     logger.info(`[zalo-labels] Using SEED labelData (${labelData.length} labels, v=${version}) — skip re-pull, avoid eventual-consistency race`);
   } else {
     logger.info(`[zalo-labels] Pulling from Zalo SDK for account ${accountId}...`);
-    const res = await api.getLabels();
+    const res = await zaloProviderClient.getLabelsDirect(accountId);
     labelData = res?.labelData || res?.data?.labelData || [];
     version = res?.version || res?.data?.version || 0;
     logger.info(`[zalo-labels] Got ${labelData.length} labels from Zalo (version=${version}) for account ${accountId}`);
@@ -613,7 +614,7 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
           // 2026-06-11: trả status SỐNG từ pool (như GET /zalo-accounts.liveStatus) thay vì
           // DB status — DB hay kẹt 'qr_pending' sau re-QR dù pool đang connected → FE hiện
           // "đang quét" + DISABLE nút Đồng bộ (acc.status!=='connected') dù sync chạy được.
-          status: zaloPool.getStatus(a.id),
+          status: zaloProviderClient.getStatus(a.id),
           labels: a.zaloLabelsList.map(l => ({
             id: l.zaloLabelId,
             text: l.text,
@@ -682,12 +683,11 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
       const newLabelId = request.body?.labelId ?? null;
       if (!threadId) return reply.status(400).send({ error: 'threadId is required' });
 
-      const api = zaloPool.getApi(account.id);
-      if (!api || typeof api.updateLabels !== 'function') {
+      if (!zaloProviderClient.supports(account.id, 'labels')) {
         return reply.status(503).send({ error: 'Zalo account chưa kết nối — không thể gán tag' });
       }
 
-      const current = await api.getLabels();
+      const current = await zaloProviderClient.getLabelsDirect(account.id);
       const labelData: LabelDataFromSdk[] = (current?.labelData || []).map((l: LabelDataFromSdk) => ({
         ...l,
         conversations: Array.isArray(l.conversations) ? [...l.conversations] : [],
@@ -710,7 +710,7 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
       logger.info(`[zalo-labels] Pushing labelData (${labelData.length} labels, v=${version}) → Zalo for thread ${threadId}, newLabelId=${newLabelId}`);
       let writeRes: { labelData?: LabelDataFromSdk[]; version?: number } | undefined;
       try {
-        writeRes = await api.updateLabels({ labelData, version });
+        writeRes = await zaloProviderClient.updateLabelsDirect(account.id, { labelData, version });
         logger.info(`[zalo-labels] Zalo updateLabels success → new version=${writeRes?.version}`);
       } catch (sdkErr: unknown) {
         const msg = sdkErr instanceof Error ? sdkErr.message : String(sdkErr);
@@ -759,13 +759,12 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
       if (!friend) return reply.status(404).send({ error: 'Friend not found' });
 
       const newLabelId = request.body?.labelId ?? null;
-      const api = zaloPool.getApi(friend.zaloAccountId);
-      if (!api || typeof api.updateLabels !== 'function') {
+      if (!zaloProviderClient.supports(friend.zaloAccountId, 'labels')) {
         return reply.status(503).send({ error: 'Zalo account chưa kết nối — không thể gán tag' });
       }
 
       // Pull current label data from Zalo (authoritative source)
-      const current = await api.getLabels();
+      const current = await zaloProviderClient.getLabelsDirect(friend.zaloAccountId);
       const labelData: LabelDataFromSdk[] = (current?.labelData || []).map((l: LabelDataFromSdk) => ({
         ...l,
         conversations: Array.isArray(l.conversations) ? [...l.conversations] : [],
@@ -789,7 +788,10 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Push back to Zalo
-      const writeRes = await api.updateLabels({ labelData, version }) as { labelData?: LabelDataFromSdk[]; version?: number } | undefined;
+      const writeRes = await zaloProviderClient.updateLabelsDirect(
+        friend.zaloAccountId,
+        { labelData, version },
+      ) as { labelData?: LabelDataFromSdk[]; version?: number } | undefined;
 
       // Re-sync DB dùng seed từ updateLabels response (authoritative, no eventual-consistency lag).
       // Delta mode: chỉ rebuild friend này (cùng lý do với assign-thread).
@@ -824,13 +826,12 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
       });
       if (!label) return reply.status(404).send({ error: 'Label not found' });
 
-      const api = zaloPool.getApi(account.id);
-      if (!api || typeof api.updateLabels !== 'function') {
+      if (!zaloProviderClient.supports(account.id, 'labels')) {
         return reply.status(503).send({ error: 'Zalo account chưa kết nối — không thể cập nhật' });
       }
 
       // Fetch full current labelData, mutate the target, then push back via SDK
-      const current = await api.getLabels();
+      const current = await zaloProviderClient.getLabelsDirect(account.id);
       const labelData = (current?.labelData || []).map((l: LabelDataFromSdk) => {
         if (Number(l.id) !== labelId) return l;
         return {
@@ -840,7 +841,10 @@ export async function zaloLabelsRoutes(app: FastifyInstance): Promise<void> {
           emoji: request.body.emoji ?? l.emoji,
         };
       });
-      await api.updateLabels({ labelData, version: current?.version || 0 });
+      await zaloProviderClient.updateLabelsDirect(account.id, {
+        labelData,
+        version: current?.version || 0,
+      });
 
       // Re-sync to capture the new server state
       const result = await syncLabelsForAccount(account.id, account.orgId);

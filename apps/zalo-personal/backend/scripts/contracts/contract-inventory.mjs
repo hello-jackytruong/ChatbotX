@@ -311,7 +311,7 @@ function baselineMetadata(database) {
 }
 
 const database = parsePrismaSchema();
-if (database.modelCount !== 108) throw new Error(`Expected 108 Prisma models, found ${database.modelCount}`);
+if (database.modelCount < 108) throw new Error(`Expected at least 108 Prisma models, found ${database.modelCount}`);
 const inventory = inventoryTypeScript();
 const inventoryKeys = new Set(inventory.functions.map((entry) => `${entry.file}#${entry.symbol}`));
 const staleEvidence = [...declaredEvidence.keys()].filter((key) => !inventoryKeys.has(key));

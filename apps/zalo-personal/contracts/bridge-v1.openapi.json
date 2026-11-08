@@ -1,0 +1,95 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Zalo Personal Bridge",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "http://zalo-personal:3001" }],
+  "components": {
+    "securitySchemes": {
+      "bridgeHmac": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-bridge-signature",
+        "description": "HMAC-SHA-256 over kid, method, canonical path/query, timestamp, nonce and canonical body hash. Companion headers: x-bridge-kid, x-bridge-timestamp, x-bridge-nonce."
+      }
+    },
+    "schemas": {
+      "ProviderCommandV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "commandId", "idempotencyKey", "accountId", "kind", "payload", "requestedAt", "deadlineAt", "traceId"],
+        "properties": {
+          "version": { "const": 1 },
+          "commandId": { "type": "string", "minLength": 1 },
+          "idempotencyKey": { "type": "string", "minLength": 1 },
+          "accountId": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 },
+          "payload": { "type": "object" },
+          "requestedAt": { "type": "string", "format": "date-time" },
+          "deadlineAt": { "type": "string", "format": "date-time" },
+          "traceId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "CommandStatusV1": {
+        "type": "object",
+        "required": ["version", "commandId", "accountId", "status", "attempts"],
+        "properties": {
+          "version": { "const": 1 },
+          "commandId": { "type": "string" },
+          "accountId": { "type": "string" },
+          "status": { "enum": ["pending", "processing", "succeeded", "rejected", "failed", "unknown_outcome"] },
+          "result": {},
+          "error": {},
+          "attempts": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  },
+  "security": [{ "bridgeHmac": [] }],
+  "paths": {
+    "/internal/bridge/v1/commands": {
+      "post": {
+        "operationId": "acceptBridgeCommand",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProviderCommandV1" } } }
+        },
+        "responses": {
+          "202": { "description": "Accepted", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CommandStatusV1" } } } },
+          "409": { "description": "Replay or idempotency conflict" }
+        }
+      }
+    },
+    "/internal/bridge/v1/commands/{commandId}": {
+      "get": {
+        "operationId": "getBridgeCommand",
+        "parameters": [{ "name": "commandId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Command status" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/internal/bridge/v1/accounts/{accountId}/events": {
+      "get": {
+        "operationId": "listBridgeEvents",
+        "parameters": [
+          { "name": "accountId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "after", "in": "query", "schema": { "type": "string", "pattern": "^[0-9]+$" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 500 } }
+        ],
+        "responses": { "200": { "description": "Ordered immutable event page" } }
+      }
+    },
+    "/internal/bridge/v1/reconcile": {
+      "post": {
+        "operationId": "reconcileBridgeCommand",
+        "responses": { "200": { "description": "Confirmed or unresolved; never resends" } }
+      }
+    },
+    "/internal/bridge/v1/health": {
+      "get": {
+        "operationId": "getBridgeHealth",
+        "responses": { "200": { "description": "Version and readiness without account content" } }
+      }
+    }
+  }
+}

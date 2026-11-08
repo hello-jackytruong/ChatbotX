@@ -1,4 +1,11 @@
 export const HEAVY_WORKSPACE_TABLES = [
+  "ZaloPersonalBridgeDeadLetter",
+  "IntegrationZaloPersonal",
+  "ZaloPersonalCommandOutbox",
+  "ZaloPersonalMessageMapping",
+  "ZaloPersonalThreadMapping",
+  "ZaloPersonalContactMapping",
+  "ZaloPersonalBridgeCheckpoint",
   "ErrorLog",
   "AuditLog",
   "InboundWebhookRequest",

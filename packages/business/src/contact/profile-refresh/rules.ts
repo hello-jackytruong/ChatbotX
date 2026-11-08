@@ -40,6 +40,7 @@ export const contactProfileNameCapabilities = {
   messenger: { inbound: "channelApi", onDemand: true },
   instagram: { inbound: "channelApi", onDemand: true }, // direct and via-Facebook; registry dispatch is the app's concern
   zalo: { inbound: "channelApi", onDemand: true },
+  zalo_personal: { inbound: "payload", onDemand: false },
   telegram: { inbound: "channelApi", onDemand: true }, // getChat keyed by the contact's chat id — identity-safe (payload names a clicking user, not the chat)
   whatsapp: { inbound: "payload", onDemand: false }, // contacts[0].profile.name; no user-profile API
   tiktok: { inbound: null, onDemand: false }, // webhook carries ids only, no profile API

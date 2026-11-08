@@ -1,7 +1,7 @@
 {
   "version": 2,
   "sourceCommit": "c03c03245a1010d1e279d0548edc5b1f568f3a9e",
-  "schemaSha256": "981409634d42a77478eea9611b21240a2f2c1c4174dcfda98d0739e125d157e2",
+  "schemaSha256": "e4e53b6851372e062bba0fefe5d92cd31d9bd8d55cf55222c8344ebe77fdcbc9",
   "packageLocks": [
     {
       "file": "backend/package-lock.json",

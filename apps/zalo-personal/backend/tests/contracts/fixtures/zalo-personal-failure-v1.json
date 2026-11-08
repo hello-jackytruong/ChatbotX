@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "notConnected": {
+    "name": "ZaloOpError",
+    "message": "Zalo account not connected (status: disconnected)",
+    "code": "NOT_CONNECTED",
+    "statusCode": 400
+  },
+  "rateLimited": {
+    "name": "ZaloOpError",
+    "message": "Synthetic rate limit",
+    "code": "RATE_LIMITED",
+    "statusCode": 429
+  },
+  "unknownProviderResult": {
+    "status": "unknown_outcome",
+    "retryAutomatically": false
+  }
+}

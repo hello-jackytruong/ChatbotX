@@ -378,6 +378,7 @@ export interface ListenerContext {
   accountId: string;
   api: any;
   io: Server | null;
+  isActive?: () => boolean | Promise<boolean>;
   userInfoCache: Map<string, UserInfoCacheEntry>;
   onDisconnected: (accountId: string) => void;
 }
@@ -387,8 +388,25 @@ export interface ListenerContext {
  * Calls listener.start() with retryOnClose at the end.
  */
 export function attachZaloListener(ctx: ListenerContext): void {
-  const { accountId, api, io, userInfoCache, onDisconnected } = ctx;
-  const listener = api.listener;
+  const { accountId, api, io, isActive, userInfoCache, onDisconnected } = ctx;
+  const rawListener = api.listener;
+  const listener = isActive
+    ? new Proxy(rawListener, {
+      get(target, property) {
+        if (property === 'on') {
+          return (event: string, handler: (...args: any[]) => unknown) => target.on(
+            event,
+            async (...args: any[]) => {
+              if (!await isActive()) return;
+              return handler(...args);
+            },
+          );
+        }
+        const value = Reflect.get(target, property);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    })
+    : rawListener;
 
   // PRIVACY 2026-06-11: orgId của nick (cache 1 lần) để scope MỌI socket event theo
   // room org → chặn rò cross-tenant. Account thuộc đúng 1 org nên cache an toàn.

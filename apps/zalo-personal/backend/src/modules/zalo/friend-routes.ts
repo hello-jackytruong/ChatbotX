@@ -14,7 +14,7 @@ import { prisma } from '../../shared/database/prisma-client.js';
 import { normalizePhone } from '../../shared/utils/phone.js';
 import { FRIEND_INCLUDE_WITH_CONTACT, toFriendDto } from '../../shared/friend-serializer.js';
 import { syncAccountFully } from './friend-sync-service.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { createHash } from 'node:crypto';
 
@@ -212,7 +212,7 @@ export async function friendRoutes(app: FastifyInstance) {
       const account = await resolveAccount(accountId, user.orgId);
       const result = await syncAccountFully(accountId, user.orgId, {
         trigger: 'manual',
-        io: zaloPool.getIO(),
+        io: zaloProviderClient.getIO(),
       });
       if (result.friends?.skipped === 'cooldown') {
         return reply.status(429).send({

@@ -48,6 +48,7 @@
     "./integration-api/schema": "./src/integration-api/schema.ts",
     "./integration-webchat/connect-config": "./src/integration-webchat/connect-config.ts",
     "./integration-webchat/schema": "./src/integration-webchat/schema.ts",
+    "./integration-zalo-personal": "./src/integration-zalo-personal/index.ts",
     "./integration-whatsapp/auth-schema": "./src/integration-whatsapp/auth-schema.ts",
     "./license-startup": "./src/enterprise/license/startup.ts",
     "./javascript-execution": "./src/javascript-execution/index.ts",
@@ -71,7 +72,8 @@
     "./workspace-api-token/credentials": "./src/workspace-api-token/credentials.ts",
     "./workspace-lifecycle/predicates": "./src/workspace-lifecycle/predicates.ts",
     "./workspace-member/predicates": "./src/workspace-member/predicates.ts",
-    "./workspace-member/permissions": "./src/workspace-member/permissions.ts"
+    "./workspace-member/permissions": "./src/workspace-member/permissions.ts",
+    "./zalo-personal-bridge": "./src/zalo-personal-bridge/index.ts"
   },
   "dependencies": {
     "@chatbotx.io/analytics": "workspace:*",

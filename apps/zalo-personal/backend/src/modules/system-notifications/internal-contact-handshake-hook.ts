@@ -17,7 +17,7 @@
 import { createHash, randomInt } from 'node:crypto';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 
 const VERIFY_CODE_TTL_MS = 30 * 60 * 1000;
 
@@ -59,13 +59,17 @@ export async function onFriendAcceptedForInternalContact(args: {
 
   // Generate + send verify code
   const code = generateVerifyCode();
-  const api = zaloPool.getApi(args.zaloAccountId);
-  if (!api) {
+  if (!zaloProviderClient.isConnected(args.zaloAccountId)) {
     logger.warn(`[internal-contact-hook] sender ${args.zaloAccountId} not in pool, skipping verify send`);
     return;
   }
   try {
-    await api.sendMessage({ msg: buildVerifyMessage(code) }, args.zaloUidInNick, 0);
+    await zaloProviderClient.sendMessageDirect(
+      args.zaloAccountId,
+      { msg: buildVerifyMessage(code) },
+      args.zaloUidInNick,
+      0,
+    );
   } catch (err: any) {
     logger.warn(`[internal-contact-hook] sendVerifyCode failed: ${err?.message || err}`);
     return;

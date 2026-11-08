@@ -12,6 +12,7 @@ import { SimpleCreateWebchat } from "@/features/integration-webchat/simple-creat
 import WhatsappCreate from "@/features/integration-whatsapp/components/whatsapp-create"
 import { WHATSAPP_OAUTH_CALLBACK_PATH } from "@/features/integration-whatsapp/libs/embedded-signup"
 import { generateZaloRedirectUri } from "@/features/integration-zalo/libs/zalo"
+import { ZaloPersonalManage } from "@/features/integration-zalo-personal/components/zalo-personal-manage"
 import { requireWorkspacePermission } from "@/lib/auth/require-workspace-permission"
 import { getCurrentUserId } from "@/lib/auth/utils"
 import { resolvePlatformOwnerId } from "@/lib/platform-credential-owner"
@@ -78,6 +79,19 @@ export default async function CreateChannelPage(props: CreateChannelPageProps) {
 
   if (selectedChannel === "api" && isVisible("api")) {
     return <CreateApiForm autoOpen={true} workspaceId={workspaceId} />
+  }
+
+  if (selectedChannel === "zalo_personal" && isVisible("zalo_personal")) {
+    if (!workspaceId) {
+      return notFound()
+    }
+    return (
+      <ZaloPersonalManage
+        canCreate={true}
+        integrations={[]}
+        workspaceId={workspaceId}
+      />
+    )
   }
 
   const [

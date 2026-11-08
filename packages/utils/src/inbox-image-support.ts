@@ -37,6 +37,7 @@ export const INBOX_IMAGE_SUPPORT: Record<
   whatsapp: { message: 10, comment: 0, privateReply: 0 },
   telegram: { message: 10, comment: 0, privateReply: 0 },
   zalo: { message: 10, comment: 0, privateReply: 0 },
+  zalo_personal: { message: 10, comment: 0, privateReply: 0 },
   webchat: { message: 10, comment: 0, privateReply: 0 },
   api: { message: 10, comment: 0, privateReply: 0 },
   omnichannel: { message: 10, comment: 0, privateReply: 0 },

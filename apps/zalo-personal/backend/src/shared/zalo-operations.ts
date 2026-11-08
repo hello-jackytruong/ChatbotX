@@ -13,6 +13,12 @@ import { zaloPool } from '../modules/zalo/zalo-pool.js';
 import { zaloRateLimiter } from '../modules/zalo/zalo-rate-limiter.js';
 import { logger } from './utils/logger.js';
 import { prisma } from './database/prisma-client.js';
+import { createProviderOperationFacade } from '../modules/zalo-provider/operation-facade.js';
+import type { ProviderOperationName } from '../modules/zalo-provider/contracts.js';
+import {
+  executeGatewayOperation,
+  usesRemoteGateway,
+} from '../modules/zalo-provider/remote-operation.js';
 
 // ── Error types ─────────────────────────────────────────────────────────────
 export class ZaloOpError extends Error {
@@ -740,10 +746,7 @@ async function getLastOnline(accountId: string, userId: string) {
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
-export const zaloOps = {
-  // Core
-  exec,
-
+const inProcessOperations = {
   // Messaging
   sendMessage,
   sendImage,
@@ -831,4 +834,43 @@ export const zaloOps = {
   changeAccountAvatar,
   setOnlineStatus,
   getLastOnline,
+};
+
+async function executeRemoteOperation(
+  kind: ProviderOperationName,
+  accountId: string,
+  args: unknown[],
+): Promise<unknown> {
+  try {
+    const result = await executeGatewayOperation(kind, accountId, args);
+    if (kind === 'sendMessage') {
+      const io = args[3] as Server | null | undefined;
+      io?.emit('chat:message', { accountId, operation: 'sendMessage', result });
+    }
+    return result;
+  } catch (error) {
+    const gatewayError = error as { code?: string; message?: string; statusCode?: number };
+    const code: ZaloOpError['code'] = gatewayError.code === 'NOT_CONNECTED'
+      || gatewayError.code === 'RATE_LIMITED'
+      || gatewayError.code === 'SESSION_EXPIRED'
+      || gatewayError.code === 'INVALID_PARAMS'
+      ? gatewayError.code
+    : 'API_ERROR';
+    throw new ZaloOpError(
+      gatewayError.message || 'Gateway provider operation failed',
+      code,
+      gatewayError.statusCode ?? 500,
+    );
+  }
+}
+
+const providerOperations = createProviderOperationFacade(
+  inProcessOperations,
+  executeRemoteOperation,
+  usesRemoteGateway,
+);
+
+export const zaloOps = {
+  exec,
+  ...providerOperations,
 };

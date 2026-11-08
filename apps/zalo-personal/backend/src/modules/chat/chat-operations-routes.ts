@@ -9,10 +9,9 @@ import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireZaloAccess } from '../zalo/zalo-access-middleware.js';
 import { zaloOps, ZaloOpError } from '../../shared/zalo-operations.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { eventBuffer } from '../../shared/event-buffer.js';
 import { logger } from '../../shared/utils/logger.js';
-import { sendNativeVideo } from '../../shared/video-processor.js';
 import { applyContactAggregateFromMessage, applyContactInteraction, applyFriendAggregate } from '../contacts/contact-aggregate.js';
 import { markExpected as markReactionEchoExpected } from './reaction-echo-cache.js';
 import { getUserFullName } from './chat-helpers.js';
@@ -490,15 +489,13 @@ export async function chatOperationsRoutes(app: FastifyInstance) {
             const threadType = target.threadType === 'group' ? 1 : 0;
             const threadId = target.externalThreadId!;
             const targetAccountId = target.zaloAccountId;
-            const instance = refs.contentType === 'video' ? zaloPool.getInstance(targetAccountId) : null;
             let sendResult: unknown;
             try {
               if (refs.contentType === 'image') {
                 sendResult = await zaloOps.sendFile(targetAccountId, threadId, threadType, [downloaded.path], io);
-              } else if (refs.contentType === 'video' && instance?.api) {
+              } else if (refs.contentType === 'video' && zaloProviderClient.isConnected(targetAccountId)) {
                 try {
-                  sendResult = await sendNativeVideo({
-                    api: instance.api as any,
+                  sendResult = await zaloProviderClient.sendNativeVideoDirect(targetAccountId, {
                     threadId,
                     threadType,
                     videoPath: downloaded.path,

@@ -50,6 +50,13 @@ const MEDIA_SUPPORT_BY_CHANNEL = {
     "unsupported",
   ],
   zalo: ["full", "unsupported", "unsupported", "noButtons", "full"],
+  zalo_personal: [
+    "noButtons",
+    "noButtons",
+    "noButtons",
+    "noButtons",
+    "unsupported",
+  ],
 } as const
 
 const MEDIA_STEP_TYPES = [
@@ -72,6 +79,7 @@ const TEXT_LIMITS = {
   webchat: 6000,
   whatsapp: 4096,
   zalo: 2000,
+  zalo_personal: 2000,
 } as const
 
 const collectIssues = (node: SendMessageNodeSchema) => {

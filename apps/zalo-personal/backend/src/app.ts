@@ -64,7 +64,10 @@ import { orgRoutes } from './modules/auth/org-routes.js';
 import { zaloAccessRoutes } from './modules/zalo/zalo-access-routes.js';
 import { zaloSyncRoutes } from './modules/zalo/zalo-sync-routes.js';
 import { zaloDashboardRoutes } from './modules/zalo/zalo-dashboard-routes.js';
-import { zaloPool } from './modules/zalo/zalo-pool.js';
+import { zaloProviderClient } from './modules/zalo-provider/client.js';
+import { startGatewayStatusCache } from './modules/zalo-provider/gateway-status-cache.js';
+import { startGatewayFacadeSocketConsumer } from './modules/gateway/gateway-facade-socket-consumer.js';
+import { bridgeRoutes } from './modules/bridge/index.js';
 import { registerZaloSocketHandlers } from './modules/zalo/zalo-socket.js';
 import { registerSocketAuth } from './shared/realtime/socket-auth.js';
 import { registerPrivacyLeakGuard } from './modules/privacy/privacy-leak-guard.js';
@@ -72,6 +75,7 @@ import { registerSecurityHeaders } from './shared/security/security-headers.js';
 import { notificationRoutes } from './modules/notifications/notification-routes.js';
 import { searchRoutes } from './modules/search/search-routes.js';
 import { startZaloHealthCheck } from './modules/zalo/zalo-health-check.js';
+import { usesRemoteGateway } from './modules/zalo-provider/remote-operation.js';
 import { publicApiRoutes } from './modules/api/public-api-routes.js';
 import { webhookSettingsRoutes } from './modules/api/webhook-settings-routes.js';
 import { startContactIntelligence } from './modules/contacts/contact-intelligence.js';
@@ -223,7 +227,7 @@ async function bootstrap() {
   app.decorate('io', io);
 
   // Pass io to zalo pool for real-time event emission
-  zaloPool.setIO(io);
+  zaloProviderClient.setIO(io);
 
   // Phase 1b 2026-06-07 — Socket.IO auth PHẢI đăng ký TRƯỚC mọi handler:
   // io.use() verify JWT + auto-join org room từ token (vá P0 IDOR cross-tenant WS).
@@ -312,6 +316,7 @@ async function bootstrap() {
   // Lead Pool + Facebook Lead Ads routes → registered by extension bundle.
   await app.register(searchRoutes);
   await app.register(publicApiRoutes);
+  await app.register(bridgeRoutes);
   await app.register(webhookSettingsRoutes);
   await app.register(analyticsRoutes);
   await app.register(savedReportRoutes);
@@ -370,6 +375,10 @@ async function bootstrap() {
   // ── Start ─────────────────────────────────────────────────────────────────
 
   try {
+    if (process.env.ZALO_PERSONAL_PROVIDER_MODE === 'gateway') {
+      await startGatewayStatusCache();
+      startGatewayFacadeSocketConsumer(io);
+    }
     await app.listen({ port: config.port, host: config.host });
     logger.info(`Zalo CRM running on http://${config.host}:${config.port}`);
     logger.info(`Environment: ${config.nodeEnv}`);
@@ -491,13 +500,14 @@ async function bootstrap() {
     });
     logger.info(`Attempting reconnect for ${accounts.length} Zalo account(s)`);
     for (const account of accounts) {
+      if (usesRemoteGateway(account.id)) continue;
       const session = account.sessionData as {
         cookie: any;
         imei: string;
         userAgent: string;
       } | null;
       if (session?.imei) {
-        zaloPool.reconnect(account.id, session).catch((err) => {
+        zaloProviderClient.reconnect(account.id, session).catch((err) => {
           logger.warn(`Auto-reconnect failed for account ${account.id}:`, err);
         });
       }

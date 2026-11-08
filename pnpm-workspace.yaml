@@ -55,3 +55,8 @@ catalog:
   universal-error-normalizer: "^1.0.0"
   vitest: "^5.1.0"
   zod: "^4.3.6"
+
+packageExtensions:
+  "unzipper@0.12.5":
+    dependencies:
+      "@aws-sdk/client-s3": "^3.1039.0"

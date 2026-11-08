@@ -5,7 +5,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { getZaloScope } from '../zalo/zalo-scope.js';
 import { getContactScope } from '../contacts/contact-scope.js';
 
@@ -110,7 +110,7 @@ export async function notificationRoutes(app: FastifyInstance) {
       select: { id: true, displayName: true },
     });
     for (const acc of accounts) {
-      const status = zaloPool.getStatus(acc.id);
+      const status = zaloProviderClient.getStatus(acc.id);
       if (status !== 'connected') {
         notifications.push({
           id: `zalo-${acc.id}`,

@@ -12,6 +12,7 @@ import { tiktokFlowPolicy } from "./tiktok"
 import { webchatFlowPolicy } from "./webchat"
 import { whatsappFlowPolicy } from "./whatsapp"
 import { zaloFlowPolicy } from "./zalo"
+import { zaloPersonalFlowPolicy } from "./zalo-personal"
 
 export const CHANNEL_FLOW_POLICIES: ChannelFlowPolicyMap = {
   [channelTypes.enum.api]: apiFlowPolicy,
@@ -25,6 +26,7 @@ export const CHANNEL_FLOW_POLICIES: ChannelFlowPolicyMap = {
   [channelTypes.enum.webchat]: webchatFlowPolicy,
   [channelTypes.enum.whatsapp]: whatsappFlowPolicy,
   [channelTypes.enum.zalo]: zaloFlowPolicy,
+  [channelTypes.enum.zalo_personal]: zaloPersonalFlowPolicy,
 }
 
 export const getChannelFlowPolicy = (

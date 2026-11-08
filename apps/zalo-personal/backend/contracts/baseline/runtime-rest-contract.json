@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "routeCount": 618,
+  "routeCount": 626,
   "routes": [
     {
       "method": "GET",
@@ -3091,6 +3091,46 @@
       "method": "GET",
       "path": "/health",
       "owner": "backend/src/app.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/accounts/:accountId/events",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/internal/bridge/v1/accounts/:accountId/events",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/commands",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/commands/:commandId",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/internal/bridge/v1/commands/:commandId",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/health",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/internal/bridge/v1/health",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/reconcile",
+      "owner": "backend/src/modules/bridge/index.ts"
     }
   ],
   "failures": []

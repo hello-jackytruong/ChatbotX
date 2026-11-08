@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "eventUseCount": 124,
+  "eventUseCount": 127,
   "events": [
     {
       "event": "appointment:reminder",
@@ -53,7 +53,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 322,
+      "line": 321,
       "payloadExpression": "{ conversationId: id, messageId: refs.messageId, zaloMsgId: refs.zaloMsgId }"
     },
     {
@@ -62,7 +62,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 357,
+      "line": 356,
       "payloadExpression": "{ conversationId: id, messageId: refs.messageId, zaloMsgId: refs.zaloMsgId }"
     },
     {
@@ -80,7 +80,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 587,
+      "line": 584,
       "payloadExpression": "{ conversationId: id, messageId: refs.messageId, succeeded, failed }"
     },
     {
@@ -107,7 +107,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 403,
+      "line": 402,
       "payloadExpression": "{\n        conversationId: id,\n        messageId: refs.messageId,\n        zaloMsgId: refs.zaloMsgId,\n        content: updated.content,\n        originalContent: updated.originalContent,\n        editedAt: updated.editedAt,\n      }"
     },
     {
@@ -134,7 +134,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 545,
+      "line": 542,
       "payloadExpression": "{\n                accountId: target.zaloAccountId,\n                message: { ...created, zaloMsgIdNum: created.zaloMsgIdNum?.toString() ?? null },\n                conversationId: target.id,\n                _privacyMeta: {\n                 "
     },
     {
@@ -166,6 +166,15 @@
     },
     {
       "event": "chat:message",
+      "operation": "emit",
+      "direction": "server-to-client",
+      "room": null,
+      "file": "backend/src/shared/zalo-operations.ts",
+      "line": 848,
+      "payloadExpression": "{ accountId, operation: 'sendMessage', result }"
+    },
+    {
+      "event": "chat:message",
       "operation": "on",
       "direction": "server-to-client",
       "room": null,
@@ -179,7 +188,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 609,
+      "line": 606,
       "payloadExpression": "{ conversationId: id, isPinned: true }"
     },
     {
@@ -197,7 +206,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 238,
+      "line": 237,
       "payloadExpression": "{\n        conversationId: id,\n        messageId: refs.messageId,\n        msgId: refs.messageId,\n        reactions: [{ userId: user.id, userName: ownNick?.displayName || user.email, avatar: ownNick?.avatarUrl || null, reaction: displayEmoji,"
     },
     {
@@ -206,7 +215,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 276,
+      "line": 275,
       "payloadExpression": "{\n      conversationId: id,\n      messageId: refs.messageId,\n      msgId: refs.messageId,\n      reactions: [{ userId: user.id, userName: user.email, reaction: displayEmoji, action: 'remove', totalCount: newCount }],\n    }"
     },
     {
@@ -251,7 +260,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 810,
+      "line": 807,
       "payloadExpression": "(data: { conversationId: string; userId: string; userName: string }) => {\n      try {\n        eventBuffer.recordTyping(data.conversationId, data.userId, data.userName);\n      } catch (err) {\n        logger.error('[socket] chat:typing error:"
     },
     {
@@ -287,7 +296,7 @@
       "direction": "server-to-client",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 629,
+      "line": 626,
       "payloadExpression": "{ conversationId: id, isPinned: false }"
     },
     {
@@ -314,7 +323,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 986,
+      "line": 1004,
       "payloadExpression": "(code: number, reason: string) => {\n    logger.warn(`[zalo:${accountId}] Listener closed: ${code} ${reason}`);\n    onDisconnected(accountId);\n    void emitOrg('zalo:disconnected', { accountId, code, reason });\n  }"
     },
     {
@@ -395,7 +404,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 413,
+      "line": 431,
       "payloadExpression": "() => {\n    logger.info(`[zalo:${accountId}] Listener connected`);\n  }"
     },
     {
@@ -404,7 +413,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 232,
+      "line": 236,
       "payloadExpression": "(socket) => {\n    logger.info(`Socket connected: ${socket.id}`);\n    socket.on('disconnect', () => {\n      logger.debug(`Socket disconnected: ${socket.id}`);\n    });\n  }"
     },
     {
@@ -413,7 +422,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 809,
+      "line": 806,
       "payloadExpression": "(socket) => {\n    socket.on('chat:typing', (data: { conversationId: string; userId: string; userName: string }) => {\n      try {\n        eventBuffer.recordTyping(data.conversationId, data.userId, data.userName);\n      } catch (err) {\n      "
     },
     {
@@ -458,7 +467,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 522,
+      "line": 540,
       "payloadExpression": "async (messages: any[]) => {\n    try {\n      // DEBUG 2026-05-22: log raw payload\n      logger.info(`[zalo:${accountId}] 🟡 DELIVERED_MESSAGES event:`, JSON.stringify(\n        (messages || []).slice(0, 3).map(m => ({ threadId: m?.threadId, "
     },
     {
@@ -467,7 +476,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 234,
+      "line": 238,
       "payloadExpression": "() => {\n      logger.debug(`Socket disconnected: ${socket.id}`);\n    }"
     },
     {
@@ -494,7 +503,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 611,
+      "line": 629,
       "payloadExpression": "(code: number, reason: string) => {\n    logger.warn(`[zalo:${accountId}] Listener disconnected (early): ${code} ${reason}`);\n    void emitOrg('zalo:disconnected', { accountId, code, reason, phase: 'early' });\n  }"
     },
     {
@@ -539,7 +548,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 992,
+      "line": 1010,
       "payloadExpression": "(err: any) => {\n    logger.error(`[zalo:${accountId}] Listener error:`, err);\n  }"
     },
     {
@@ -584,7 +593,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 812,
+      "line": 830,
       "payloadExpression": "async (event: any) => {\n    try {\n      await handleFriendEvent(accountId, event);\n      // Coarse event (giữ backward-compat — không ai mới subscribe nhưng cũ có thể vẫn dùng)\n      // PRIVACY 2026-06-11: scope org (chặn cross-tenant).\n   "
     },
     {
@@ -647,7 +656,7 @@
       "direction": "server-to-client",
       "room": "`org:${orgId}`",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 412,
+      "line": 413,
       "payloadExpression": "{\n            friendId: f.id,\n            contactId: f.contactId,\n            zaloAccountId: accountId,\n            zaloUidInNick: f.zaloUidInNick,\n            patch: { zaloLabels: newLabels },\n          }"
     },
     {
@@ -656,7 +665,7 @@
       "direction": "server-to-client",
       "room": "`org:${friend.orgId}`",
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 836,
+      "line": 854,
       "payloadExpression": "{\n            friendId: friend.id,\n            contactId: friend.contactId,\n            zaloAccountId: friend.zaloAccountId,\n            zaloUidInNick: friend.zaloUidInNick, // FE filter: phân biệt Friend rows cùng nick (per-account UID)\n  "
     },
     {
@@ -674,7 +683,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 961,
+      "line": 979,
       "payloadExpression": "(event: any) => {\n    const eventType = event?.type ?? 'unknown';\n    logger.info(`[zalo:${accountId}] Group event: type=${eventType}`, {\n      groupId: event?.groupId,\n      actorId: event?.actorId,\n      members: event?.members,\n    });\n "
     },
     {
@@ -683,7 +692,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 616,
+      "line": 634,
       "payloadExpression": "async (message: any) => {\n    try {\n      // ThreadType in zca-js: 0 = User, 1 = Group\n      const isGroup = message.type === 1;\n      const senderUid = String(message.data?.uidFrom || '');\n\n      // Resolve display name — prefer zaloName f"
     },
     {
@@ -719,7 +728,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 858,
+      "line": 876,
       "payloadExpression": "async (messages: any[], type: number) => {\n    const threadType = type === 1 ? 'group' : 'user';\n    logger.info(`[zalo:${accountId}] Received ${messages.length} old ${threadType} messages`);\n\n    for (const message of messages) {\n      try"
     },
     {
@@ -728,7 +737,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 804,
+      "line": 822,
       "payloadExpression": "async (reactions: any[]) => {\n    if (!Array.isArray(reactions)) return;\n    logger.info(`[zalo:${accountId}] Backfill ${reactions.length} old reactions`);\n    for (const r of reactions) {\n      await handleZaloReaction(accountId, io, r);\n "
     },
     {
@@ -818,7 +827,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 799,
+      "line": 817,
       "payloadExpression": "async (reaction: any) => {\n    await handleZaloReaction(accountId, io, reaction);\n  }"
     },
     {
@@ -827,7 +836,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 460,
+      "line": 478,
       "payloadExpression": "async (messages: any[]) => {\n    try {\n      logger.info(`[zalo:${accountId}] 🟢 SEEN_MESSAGES event:`, JSON.stringify(\n        (messages || []).slice(0, 3).map(m => ({ threadId: m?.threadId, type: m?.type, data: m?.data })),\n      ));\n    "
     },
     {
@@ -836,7 +845,16 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 477,
+      "line": 486,
+      "payloadExpression": "() => void shutdown('SIGINT')"
+    },
+    {
+      "event": "SIGINT",
+      "operation": "once",
+      "direction": "client-to-server",
+      "room": null,
+      "file": "backend/src/gateway.ts",
+      "line": 135,
       "payloadExpression": "() => void shutdown('SIGINT')"
     },
     {
@@ -845,7 +863,16 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 476,
+      "line": 485,
+      "payloadExpression": "() => void shutdown('SIGTERM')"
+    },
+    {
+      "event": "SIGTERM",
+      "operation": "once",
+      "direction": "client-to-server",
+      "room": null,
+      "file": "backend/src/gateway.ts",
+      "line": 134,
       "payloadExpression": "() => void shutdown('SIGTERM')"
     },
     {
@@ -863,7 +890,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 437,
+      "line": 455,
       "payloadExpression": "async (typing: any) => {\n    try {\n      // DEBUG 2026-05-22: log raw payload để verify SDK fire event đúng shape.\n      // Anh đã test 2026-05-22 không thấy typing dots — cần xác minh event arrival.\n      logger.info(`[zalo:${accountId}] \ud83d"
     },
     {
@@ -872,7 +899,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 511,
+      "line": 521,
       "payloadExpression": "(err) => {\n  logger.error('Uncaught Exception:', err);\n}"
     },
     {
@@ -881,7 +908,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 770,
+      "line": 788,
       "payloadExpression": "async (data: any) => {\n    const undoContent = data?.data?.content || {};\n    const globalMsgId = undoContent.globalMsgId;\n    const cliMsgIdNum = undoContent.cliMsgId;\n    if (!globalMsgId && !cliMsgIdNum) {\n      logger.warn(`[zalo:${acco"
     },
     {
@@ -890,7 +917,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/app.ts",
-      "line": 514,
+      "line": 524,
       "payloadExpression": "(reason) => {\n  logger.error('Unhandled Rejection:', reason);\n}"
     },
     {
@@ -935,7 +962,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 284,
+      "line": 270,
       "payloadExpression": "{\n            accountId,\n            zaloUid: ownId,\n            existingAccountId: dup?.accountId ?? null,\n            owner: ownerName,\n            message: ownerName\n              ? `Nick này đang do ${ownerName} quản lý. Liên hệ chủ tổ "
     },
     {
@@ -980,7 +1007,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 223,
+      "line": 209,
       "payloadExpression": "{ accountId }"
     },
     {
@@ -998,7 +1025,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 218,
+      "line": 204,
       "payloadExpression": "{ accountId }"
     },
     {
@@ -1016,7 +1043,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 211,
+      "line": 197,
       "payloadExpression": "{ accountId, qrImage: event.data.image }"
     },
     {
@@ -1043,7 +1070,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 227,
+      "line": 213,
       "payloadExpression": "{\n              accountId,\n              displayName: event.data.display_name,\n              avatar: event.data.avatar,\n            }"
     },
     {

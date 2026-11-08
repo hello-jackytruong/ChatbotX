@@ -9,7 +9,7 @@ import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireGrant } from '../rbac/rbac-middleware.js';
 import { requireZaloAccess } from '../zalo/zalo-access-middleware.js';
 import { DISPLAYABLE_NICK_WHERE } from '../zalo/zalo-scope.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import { logger } from '../../shared/utils/logger.js';
 import { randomUUID } from 'node:crypto';
@@ -25,7 +25,6 @@ import { attachContactCollaboratorByUser } from '../contacts/contact-scope.js';
 import { getUserFullName } from './chat-helpers.js';
 // 2026-06-07 — Gửi Khối Marketing thẳng vào hội thoại (cột 4 tab Automation).
 import { zaloOps } from '../../shared/zalo-operations.js';
-import { sendNativeVideo } from '../../shared/video-processor.js';
 import { downloadMediaToTemp, extractZaloMsgId } from './chat-media-helpers.js';
 import { resolveBlockContent } from '../../shared/ee-registry/automation.js';
 import { renderTemplate, renderTemplateDetailed, shiftStylesForRender } from '../../shared/ee-registry/automation.js';
@@ -1122,13 +1121,12 @@ export async function chatRoutes(app: FastifyInstance) {
     }
     profileTouchCooldown.set(conv.id, Date.now());
 
-    const api = zaloPool.getApi(conv.zaloAccountId);
-    if (!api || typeof api.getUserInfo !== 'function') {
+    if (!zaloProviderClient.supports(conv.zaloAccountId, 'user_info')) {
       return { ok: true, skipped: true, reason: 'account_disconnected' };
     }
 
     try {
-      const result = await api.getUserInfo(conv.externalThreadId);
+      const result = await zaloProviderClient.getUserInfoDirect(conv.zaloAccountId, conv.externalThreadId);
       const profiles = result?.changed_profiles || {};
       const profile = profiles[conv.externalThreadId] || profiles[`${conv.externalThreadId}_0`] || null;
       if (!profile) return { ok: true, skipped: true, reason: 'no_profile' };
@@ -1607,8 +1605,9 @@ export async function chatRoutes(app: FastifyInstance) {
     }
     // ── END M53 Virtual gate ───────────────────────────────────────────────
 
-    const instance = zaloPool.getInstance(conversation.zaloAccountId);
-    if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+    if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
+      return reply.status(400).send({ error: 'Zalo account not connected' });
+    }
 
     // PRIVACY GUARD 2026-05-22: nick privacy='main' → chỉ chính chủ (owner) gửi được
     // qua UI. Bot/automation đi qua zaloPool trực tiếp (không qua route này) → vẫn OK.
@@ -1685,7 +1684,12 @@ export async function chatRoutes(app: FastifyInstance) {
       let zaloMsgId = '';
       let sendFail: { reason: string; code: string | null } | null = null;
       try {
-        const sendResult = await instance.api.sendMessage(sendPayload, threadId, threadType);
+        const sendResult = await zaloProviderClient.sendMessageDirect(
+          conversation.zaloAccountId,
+          sendPayload,
+          threadId,
+          threadType,
+        );
         // zca-js trả về { message: { msgId } | null, attachment: [{ msgId }] }
         // Extract zaloMsgId từ message (text) hoặc attachment[0] (media) để dedup với selfListen
         const sr = sendResult as unknown as { message?: { msgId?: number | string } | null; attachment?: Array<{ msgId?: number | string }> };
@@ -1868,8 +1872,9 @@ export async function chatRoutes(app: FastifyInstance) {
     }
 
     // ── Gate 3: nick đã kết nối ────────────────────────────────────────────
-    const instance = zaloPool.getInstance(conversation.zaloAccountId);
-    if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+    if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
+      return reply.status(400).send({ error: 'Zalo account not connected' });
+    }
 
     // ── Gate 4: privacy (nick 'main' chỉ chính chủ gửi) ────────────────────
     if (conversation.zaloAccount.privacyMode === 'main') {
@@ -2023,7 +2028,10 @@ export async function chatRoutes(app: FastifyInstance) {
           cleanups.push(dl.cleanup);
           let sdkResult: unknown;
           try {
-            sdkResult = await sendNativeVideo({ api: instance.api as any, threadId, threadType, videoPath: dl.path });
+            sdkResult = await zaloProviderClient.sendNativeVideoDirect(
+              conversation.zaloAccountId,
+              { threadId, threadType, videoPath: dl.path },
+            );
           } catch (vErr) {
             logger.warn('[send-block] native video lỗi, fallback sendFile:', vErr);
             sdkResult = await zaloOps.sendFile(zaloAccountId, threadId, threadType, [dl.path], io, caption);
@@ -2178,8 +2186,9 @@ export async function chatRoutes(app: FastifyInstance) {
     if (!conversation) return reply.status(404).send({ error: 'Conversation not found' });
     if (!conversation.externalThreadId) return reply.status(400).send({ error: 'No external thread ID' });
 
-    const instance = zaloPool.getInstance(conversation.zaloAccountId);
-    if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+    if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
+      return reply.status(400).send({ error: 'Zalo account not connected' });
+    }
 
     const limits = await zaloRateLimiter.checkLimits(conversation.zaloAccountId);
     if (!limits.allowed) return reply.status(429).send({ error: limits.reason });
@@ -2207,10 +2216,16 @@ export async function chatRoutes(app: FastifyInstance) {
 
       // Bước 1: upload lên Zalo CDN trước để lấy URLs thật (hdUrl/normalUrl/thumbUrl)
       // Phải làm trước vì sendMessage chỉ trả {msgId}, không lộ URLs.
-      const uploadResults = await instance.api.uploadAttachment(tmpFiles, conversation.externalThreadId, threadType);
+      const uploadResults = await zaloProviderClient.uploadAttachmentDirect(
+        conversation.zaloAccountId,
+        tmpFiles,
+        conversation.externalThreadId,
+        threadType,
+      );
 
       // Bước 2: send message — zca-js sẽ re-upload (chấp nhận để có URLs đúng từ bước 1)
-      const sendResult = await instance.api.sendMessage(
+      const sendResult = await zaloProviderClient.sendMessageDirect(
+        conversation.zaloAccountId,
         { msg: '', attachments: tmpFiles },
         conversation.externalThreadId,
         threadType,
@@ -2366,8 +2381,7 @@ export async function chatRoutes(app: FastifyInstance) {
       }
     }
 
-    const instance = zaloPool.getInstance(senderNick.id);
-    if (!instance?.api) {
+    if (!zaloProviderClient.isConnected(senderNick.id)) {
       return reply.status(400).send({ error: 'Nick gửi chưa kết nối Zalo — vui lòng đăng nhập lại nick này' });
     }
 
@@ -2412,7 +2426,7 @@ export async function chatRoutes(app: FastifyInstance) {
 
       // Tier 2: chưa kết bạn → findUser(phone) qua Zalo SDK
       try {
-        const found = await (instance.api as unknown as { findUser?: (p: string) => Promise<{ uid?: string | number } | null> }).findUser?.(phone);
+        const found = await zaloProviderClient.findUserDirect(senderNick.id, phone) as { uid?: string | number } | null;
         const uid = found?.uid != null ? String(found.uid) : null;
         if (uid) {
           threadId = uid;
@@ -2437,7 +2451,7 @@ export async function chatRoutes(app: FastifyInstance) {
 
     try {
       zaloRateLimiter.recordSend(senderNick.id);
-      const sendResult = await instance.api.sendMessage({ msg: body.content }, threadId, 0);
+      const sendResult = await zaloProviderClient.sendMessageDirect(senderNick.id, { msg: body.content }, threadId, 0);
       const sr = sendResult as unknown as { message?: { msgId?: number | string } | null };
       const zaloMsgId = String(sr?.message?.msgId ?? '');
       // Listener echo sẽ tự lưu Message + Conversation vào DB qua message-handler

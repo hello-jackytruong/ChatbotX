@@ -63,6 +63,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-chatbotx}:${POSTGRES_PASSWORD:-secretkey}@postgres:5432/${POSTGRES_DB:-chatbotx}?schema=public
       - REDIS_URL=redis://redis:6379/0
       - S3_ENDPOINT=http://filesystem:9000
+      - ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS=${ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS:-http://zalo-personal:3000}
 
   gateway:
     platform: linux/amd64
@@ -102,6 +103,11 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-chatbotx}:${POSTGRES_PASSWORD:-secretkey}@postgres:5432/${POSTGRES_DB:-chatbotx}?schema=public
       - REDIS_URL=redis://redis:6379/0
       - S3_ENDPOINT=http://filesystem:9000
+      - ZALO_PERSONAL_BRIDGE_ENABLED=${ZALO_PERSONAL_BRIDGE_ENABLED:-false}
+      - ZALO_PERSONAL_BRIDGE_POLL_ENABLED=${ZALO_PERSONAL_BRIDGE_POLL_ENABLED:-false}
+      - ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED=${ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED:-false}
+      - ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST=${ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST:-}
+      - ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS=${ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS:-http://zalo-personal:3000}
 
   javascript-executor:
     platform: linux/amd64

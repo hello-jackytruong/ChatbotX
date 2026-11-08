@@ -17,7 +17,7 @@ import { randomInt, createHash } from 'node:crypto';
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { zaloOps } from '../../shared/zalo-operations.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import { formatMessage } from '../../shared/text-formatter.js';
 import { toZaloStyles } from '../system-notifications/welcome-message-builder.js';
@@ -144,12 +144,13 @@ Thời gian mở khoá đã chọn: **${durationText}**
   }
   await zaloRateLimiter.recordSend(args.senderId, 'message');
 
-  const api = zaloPool.getApi(args.senderId);
-  if (!api) throw new Error('Nick hệ thống chưa connected trong pool');
+  if (!zaloProviderClient.isConnected(args.senderId)) {
+    throw new Error('Nick hệ thống chưa connected trong pool');
+  }
 
   const payload: Record<string, unknown> = { msg: formatted.text };
   if (styles.length > 0) payload.styles = styles;
-  await api.sendMessage(payload, args.targetUid, 0);
+  await zaloProviderClient.sendMessageDirect(args.senderId, payload, args.targetUid, 0);
 }
 
 async function sendUnlockConfirmation(args: {
@@ -182,13 +183,12 @@ async function sendUnlockConfirmation(args: {
     return;
   }
   await zaloRateLimiter.recordSend(args.senderId, 'message');
-  const api = zaloPool.getApi(args.senderId);
-  if (!api) return;
+  if (!zaloProviderClient.isConnected(args.senderId)) return;
 
   const payload: Record<string, unknown> = { msg: formatted.text };
   if (styles.length > 0) payload.styles = styles;
   try {
-    await api.sendMessage(payload, args.targetUid, 0);
+    await zaloProviderClient.sendMessageDirect(args.senderId, payload, args.targetUid, 0);
   } catch (err) {
     // Không throw — confirm message fail KHÔNG block unlock (admin có thể check qua audit log)
     logger.warn(`[privacy-otp] confirm message send fail: ${String(err)}`);

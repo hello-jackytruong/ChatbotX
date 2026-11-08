@@ -1,5 +1,20 @@
 import type * as schema from "./schema"
 
+export type ZaloPersonalCommandOutboxModel =
+  typeof schema.zaloPersonalCommandOutboxModel.$inferSelect
+export type ZaloPersonalBridgeCheckpointModel =
+  typeof schema.zaloPersonalBridgeCheckpointModel.$inferSelect
+export type ZaloPersonalThreadMappingModel =
+  typeof schema.zaloPersonalThreadMappingModel.$inferSelect
+export type ZaloPersonalContactMappingModel =
+  typeof schema.zaloPersonalContactMappingModel.$inferSelect
+export type ZaloPersonalMessageMappingModel =
+  typeof schema.zaloPersonalMessageMappingModel.$inferSelect
+export type ZaloPersonalBridgeDeadLetterModel =
+  typeof schema.zaloPersonalBridgeDeadLetterModel.$inferSelect
+export type IntegrationZaloPersonalModel =
+  typeof schema.integrationZaloPersonalModel.$inferSelect
+
 export type IntegrationWebchatModel =
   typeof schema.integrationWebchatModel.$inferSelect
 export type IntegrationApiModel = typeof schema.integrationApiModel.$inferSelect
@@ -297,6 +312,7 @@ export type InboxWithIntegrations = InboxModel & {
   integrationWebchat?: IntegrationWebchatModel | null
   integrationWhatsapp?: IntegrationWhatsappModel | null
   integrationZalo?: IntegrationZaloModel | null
+  integrationZaloPersonal?: IntegrationZaloPersonalModel | null
   integrationSmtp?: IntegrationSmtpModel | null
   integrationTiktok?: IntegrationTiktokModel | null
 }

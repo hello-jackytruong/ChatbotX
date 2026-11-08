@@ -7,7 +7,7 @@ import { zaloOps } from '../../shared/zalo-operations.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireGrant } from '../rbac/rbac-middleware.js';
 import { getZaloScope } from '../zalo/zalo-scope.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { resolveSystemNotifyRecipient, sendSystemNotificationToUser, resolveUidBySenderFindUser } from './system-notify-service.js';
 import { DEFAULT_WELCOME_TEMPLATE, buildWelcomeMessage, validateTemplate, toZaloStyles } from './welcome-message-builder.js';
 import { formatMessage } from '../../shared/text-formatter.js';
@@ -129,7 +129,7 @@ export async function systemNotifyRoutes(app: FastifyInstance): Promise<void> {
       // 2026-06-11 FIX: trả status SỐNG từ pool thay DB status — DB hay kẹt 'qr_pending'
       // sau re-QR dù pool đang connected → picker nick gửi hiện "(offline)"/Offline sai.
       const withLive = <T extends { id: string; status: string }>(n: T): T =>
-        ({ ...n, status: zaloPool.getStatus(n.id) });
+        ({ ...n, status: zaloProviderClient.getStatus(n.id) });
       return {
         systemNotifyZaloAccountId: org?.systemNotifyZaloAccountId ?? null,
         systemNotifyNick: org?.systemNotifyNick ? withLive(org.systemNotifyNick) : null,

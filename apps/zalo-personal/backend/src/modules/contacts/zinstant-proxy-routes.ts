@@ -9,7 +9,7 @@
  */
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { getZaloScope } from '../zalo/zalo-scope.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
@@ -195,7 +195,7 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
     // theo DB status — DB hay kẹt 'qr_pending' sau re-QR dù pool đang connected → trước đây
     // where:{status:'connected'} không khớp account nào → 503 → <img> sticker vỡ. Pool mới
     // là nguồn thật để gọi getStickersDetail.
-    const liveConnectedIds = Object.entries(zaloPool.getAllStatuses())
+    const liveConnectedIds = Object.entries(zaloProviderClient.getAllStatuses())
       .filter(([, s]) => s === 'connected')
       .map(([accId]) => accId);
     let account: { id: string } | null = null;
@@ -220,9 +220,7 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
     }
     if (!account) return reply.status(503).send({ error: 'no connected Zalo account' });
 
-    const instance = zaloPool.getInstance(account.id);
-    const api = instance?.api as { getStickersDetail?: (ids: number[]) => Promise<unknown[]> } | undefined;
-    if (!api?.getStickersDetail) {
+    if (!zaloProviderClient.supports(account.id, 'stickers')) {
       logger.warn(`[sticker] getStickersDetail not available on account ${account.id}`);
       return reply.status(503).send({ error: 'Zalo API not available' });
     }
@@ -230,7 +228,7 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
     try {
       // getStickersDetail trả: {stickerUrl (static), stickerSpriteUrl (animation sprite),
       // totalFrames, duration, type}. Type=7 thường có sprite cho animation.
-      const details = await api.getStickersDetail([Number(id)]);
+      const details = await zaloProviderClient.getStickersDetailDirect(account.id, [Number(id)]);
       const sticker = (details?.[0] || {}) as Record<string, unknown>;
 
       if ((request.query as { debug?: string }).debug === '1') {
@@ -285,32 +283,26 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(503).send({ error: 'no connected Zalo account' });
     }
 
-    const instance = zaloPool.getInstance(account.id);
-    const stickerApi = instance?.api as {
-      getStickers?: (k: string) => Promise<number[]>;
-      getStickersDetail?: (ids: number[]) => Promise<unknown[]>;
-    } | undefined;
-
-    if (!instance) {
+    if (!zaloProviderClient.isConnected(account.id)) {
       logger.warn(`[sticker-list] instance null in pool — account=${account.id} (${account.displayName}). Pool not loaded?`);
       return reply.status(503).send({ error: 'Zalo instance not ready — vào "Quản lý nick" reconnect rồi thử lại' });
     }
-    if (!stickerApi?.getStickers || !stickerApi.getStickersDetail) {
-      logger.warn(`[sticker-list] SDK methods missing — account=${account.id} hasGetStickers=${!!stickerApi?.getStickers} hasGetStickersDetail=${!!stickerApi?.getStickersDetail}`);
+    if (!zaloProviderClient.supports(account.id, 'stickers')) {
+      logger.warn(`[sticker-list] SDK methods missing — account=${account.id}`);
       return reply.status(503).send({ error: 'Zalo sticker API not available (SDK version mismatch?)' });
     }
 
     try {
       const kw = keyword || 'vui';
       logger.info(`[sticker-list] fetching kw="${kw}" via account=${account.id} (${account.displayName})`);
-      const ids = await stickerApi.getStickers(kw);
+      const ids = await zaloProviderClient.getStickersDirect(account.id, kw);
       logger.info(`[sticker-list] getStickers("${kw}") returned ${ids?.length ?? 0} ids: ${JSON.stringify(ids?.slice(0, 5))}...`);
       if (!ids || ids.length === 0) {
         // KHÔNG cache empty response — tránh stuck UI 10 phút
         return reply.header('Cache-Control', 'no-store').send({ stickers: [], debug: { keyword: kw, accountUsed: account.displayName, idsReturned: 0 } });
       }
 
-      const details = await stickerApi.getStickersDetail(ids.slice(0, 40));
+      const details = await zaloProviderClient.getStickersDetailDirect(account.id, ids.slice(0, 40));
       logger.info(`[sticker-list] getStickersDetail returned ${details?.length ?? 0} details`);
       const stickers = details.map((d) => {
         const s = d as Record<string, unknown>;
@@ -380,13 +372,11 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
 
   async function resolveProfile(uid: string, accountIds: string[]): Promise<Record<string, unknown> | null> {
     for (const accId of accountIds) {
-      const instance = zaloPool.getInstance(accId);
-      const userApi = instance?.api as {
-        getUserInfo?: (uid: string) => Promise<{ changed_profiles?: Record<string, Record<string, unknown>> }>;
-      } | undefined;
-      if (!userApi?.getUserInfo) continue;
+      if (!zaloProviderClient.supports(accId, 'user_info')) continue;
       try {
-        const result = await userApi.getUserInfo(uid);
+        const result = await zaloProviderClient.getUserInfoDirect(accId, uid) as {
+          changed_profiles?: Record<string, Record<string, unknown>>;
+        };
         const profiles = result?.changed_profiles || {};
         const p = profiles[uid] || profiles[`${uid}_0`];
         if (p && (p.zaloName || p.zalo_name || p.displayName || p.avatar)) {
@@ -552,13 +542,11 @@ export async function zinstantProxyRoutes(app: FastifyInstance): Promise<void> {
 
     let profile: Record<string, unknown> | null = null;
     for (const acc of accounts) {
-      const instance = zaloPool.getInstance(acc.id);
-      const userApi = instance?.api as {
-        getUserInfo?: (uid: string) => Promise<{ changed_profiles?: Record<string, Record<string, unknown>> }>;
-      } | undefined;
-      if (!userApi?.getUserInfo) continue;
+      if (!zaloProviderClient.supports(acc.id, 'user_info')) continue;
       try {
-        const result = await userApi.getUserInfo(uid);
+        const result = await zaloProviderClient.getUserInfoDirect(acc.id, uid) as {
+          changed_profiles?: Record<string, Record<string, unknown>>;
+        };
         const profiles = result?.changed_profiles || {};
         const p = profiles[uid] || profiles[`${uid}_0`];
         // Chấp nhận khi profile có ít nhất zaloName hoặc avatar (không rỗng)

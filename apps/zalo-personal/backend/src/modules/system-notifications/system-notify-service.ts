@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { getBullMQRedis } from '../../shared/queue/redis-connection.js';
 import { zaloOps } from '../../shared/zalo-operations.js';
 import { normalizePhone } from '../../shared/utils/phone.js';
@@ -330,8 +330,9 @@ export async function sendSystemNotificationToUser(input: SendToUserInput) {
   }
 
   try {
-    const api = zaloPool.getApi(resolved.senderZaloAccountId);
-    if (!api) throw new Error('Nick gửi hệ thống chưa connected trong Zalo pool');
+    if (!zaloProviderClient.isConnected(resolved.senderZaloAccountId)) {
+      throw new Error('Nick gửi hệ thống chưa connected trong Zalo pool');
+    }
 
     const hasStyles = Array.isArray(input.styles) && input.styles.length > 0;
     const msg = buildMessage(input.title, input.content, priority, hasStyles);
@@ -343,8 +344,9 @@ export async function sendSystemNotificationToUser(input: SendToUserInput) {
     if (input.urgency && input.urgency > 0) messageContent.urgency = input.urgency;
     // T8: threadType 0=user (mặc định) | 1=group. SDK đã support (zalo-operations.ts:243).
     const threadType = input.recipientType === 'group' ? 1 : 0;
-    const sendResult = await api.sendMessage(
-      messageContent as Parameters<typeof api.sendMessage>[0],
+    const sendResult = await zaloProviderClient.sendMessageDirect(
+      resolved.senderZaloAccountId,
+      messageContent,
       resolved.threadIdInSenderView,
       threadType,
     );
