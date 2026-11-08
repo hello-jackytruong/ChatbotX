@@ -36,6 +36,7 @@ services:
       - app
     environment:
       NODE_ENV: production
+      JWT_SECRET: ${ZALO_JWT_SECRET:?Set ZALO_JWT_SECRET in .env}
       DATABASE_URL: ${ZALO_DATABASE_URL:?Set encoded ZALO_DATABASE_URL in .env}
       REDIS_URL: ${ZALO_REDIS_URL:-redis://redis:6379/1}
       ENCRYPTION_KEY: ${ZALO_ENCRYPTION_KEY:?Set ZALO_ENCRYPTION_KEY in .env}

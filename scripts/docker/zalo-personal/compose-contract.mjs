@@ -163,6 +163,10 @@ function verifySharedTopology(config, { production }) {
 
   if (production) {
     assert.equal(
+      gateway.environment.JWT_SECRET,
+      "zalo-jwt-secret-at-least-32-characters",
+    )
+    assert.equal(
       app.depends_on,
       undefined,
       "production Zalo must not start shared services through depends_on",
