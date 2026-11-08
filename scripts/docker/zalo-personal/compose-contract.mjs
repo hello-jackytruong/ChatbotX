@@ -51,6 +51,7 @@ const fixtureEnvironment = {
   ZALO_ENCRYPTION_KEY: "a".repeat(64),
   ZALO_GATEWAY_CREDENTIAL_KEY: "b".repeat(64),
   ZALO_BRIDGE_SECRET_KEY: "c".repeat(64),
+  ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS: "https://zalo.example.test",
   ZALO_REDIS_URL: "redis://redis:6379/1",
   ZALO_S3_ACCESS_KEY_ID: "zalo-storage-user",
   ZALO_S3_SECRET_ACCESS_KEY: "zalo-storage-user-secret",
