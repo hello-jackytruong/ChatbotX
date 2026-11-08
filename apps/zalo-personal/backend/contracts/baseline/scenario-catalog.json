@@ -11,6 +11,7 @@
         "backend/tests/ghost-visible-within-24h.test.ts",
         "backend/tests/manual-disconnect-needs-qr.test.ts",
         "backend/tests/security/refresh-token-service.test.ts",
+        "backend/tests/unit/gateway-account-routing.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
@@ -23,6 +24,7 @@
         "backend/tests/chat-operations-routes.test.ts",
         "backend/tests/chat-routes.test.ts",
         "backend/tests/deleted-nick-aggregate-count.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
         "backend/tests/unit/zalo-message-sync.test.ts",
         "frontend/src/components/chat/slash-popup-rules.spec.ts"
       ],
@@ -98,6 +100,7 @@
         "backend/tests/security/socket-auth.test.ts",
         "backend/tests/security/tenant-context.test.ts",
         "backend/tests/security/tenant-guard.test.ts",
+        "backend/tests/unit/bridge-auth.test.ts",
         "backend/tests/zinstant-proxy-auth.test.ts"
       ],
       "status": "PARTIAL"
@@ -107,6 +110,7 @@
       "risk": "P0",
       "evidence": [
         "backend/tests/dedup-merge.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/media-dedup.test.ts"
       ],
       "status": "PARTIAL"
@@ -118,6 +122,8 @@
         "backend/tests/contracts/runtime-socket-inventory.test.ts",
         "backend/tests/integration/socket/socket-wire-contract.test.ts",
         "backend/tests/security/socket-auth.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts",
         "frontend/src/components/chat/slash-popup-rules.spec.ts",
         "frontend/src/composables/work-scope-logic.spec.ts"
       ],

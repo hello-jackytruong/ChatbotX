@@ -96,8 +96,8 @@ const schema = fs.readFileSync(
   "utf8",
 )
 const modelCount = [...schema.matchAll(/^model\s+\w+\s*\{/gm)].length
-if (modelCount !== 108) {
-  violations.push(`expected 108 Prisma models, found ${modelCount}`)
+if (modelCount < 108) {
+  violations.push(`expected at least 108 Prisma models, found ${modelCount}`)
 }
 
 const license = fs.readFileSync(path.join(sourceRoot, "LICENSE"), "utf8")

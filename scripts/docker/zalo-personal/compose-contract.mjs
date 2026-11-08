@@ -49,6 +49,9 @@ const fixtureEnvironment = {
   ZALO_DB_PASSWORD: "zalo-postgres-password",
   ZALO_JWT_SECRET: "zalo-jwt-secret-at-least-32-characters",
   ZALO_ENCRYPTION_KEY: "a".repeat(64),
+  ZALO_GATEWAY_CREDENTIAL_KEY: "b".repeat(64),
+  ZALO_BRIDGE_SECRET_KEY: "c".repeat(64),
+  ZALO_PERSONAL_BRIDGE_ALLOWED_ORIGINS: "https://zalo.example.test",
   ZALO_REDIS_URL: "redis://redis:6379/1",
   ZALO_S3_ACCESS_KEY_ID: "zalo-storage-user",
   ZALO_S3_SECRET_ACCESS_KEY: "zalo-storage-user-secret",
@@ -128,12 +131,46 @@ function verifySharedTopology(config, { production }) {
   assert.deepEqual(publishedPorts(app), ["3080"])
   assert.equal(new URL(app.environment.DATABASE_URL).hostname, "postgres")
   assert.equal(new URL(app.environment.DATABASE_URL).pathname, "/zalo_personal")
+  assert.equal(app.environment.ZALO_BRIDGE_SECRET_KEY, "c".repeat(64))
+
+  const gateway = services["zalo-personal-gateway"]
+  assert.ok(gateway, "Zalo Personal gateway service is missing")
+  assert.equal(commandText(gateway), "node dist/gateway.js")
+  assert.deepEqual(publishedPorts(gateway), [])
+  assert.equal(gateway.environment.ZALO_PERSONAL_PROVIDER_MODE, "gateway")
+  assert.equal(gateway.environment.REDIS_URL, "redis://redis:6379/1")
+  assert.equal(gateway.environment.S3_BUCKET, "zalocrm-attachments")
+  assert.equal(new URL(gateway.environment.DATABASE_URL).hostname, "postgres")
+  assert.equal(
+    new URL(gateway.environment.DATABASE_URL).pathname,
+    "/zalo_personal",
+  )
+  assert.equal(gateway.environment.ZALO_GATEWAY_CREDENTIAL_KEY, "b".repeat(64))
+  assert.equal(gateway.environment.ZALO_BRIDGE_SECRET_KEY, undefined)
+  assert.equal(gateway.environment.ZALO_GATEWAY_CLAIMS_ENABLED, "false")
+  assert.equal(gateway.environment.ZALO_GATEWAY_COMMAND_CLAIMS_ENABLED, "false")
+  assert.equal(gateway.environment.ZALO_GATEWAY_ACCOUNT_ALLOWLIST, "")
+
+  const worker = services.worker
+  assert.ok(worker, "ChatbotX worker service is missing")
+  assert.equal(worker.environment.ZALO_PERSONAL_BRIDGE_ENABLED, "false")
+  assert.equal(worker.environment.ZALO_PERSONAL_BRIDGE_POLL_ENABLED, "false")
+  assert.equal(
+    worker.environment.ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED,
+    "false",
+  )
+  assert.equal(worker.environment.ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST, "")
 
   if (production) {
     assert.equal(
       app.depends_on,
       undefined,
       "production Zalo must not start shared services through depends_on",
+    )
+    assert.equal(
+      gateway.depends_on,
+      undefined,
+      "production Zalo gateway must not start shared services through depends_on",
     )
   } else {
     assert.match(commandText(services.redis), NO_EVICTION_PATTERN)

@@ -27,6 +27,7 @@ import type { TagScope, TagSource } from '@prisma/client';
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { getZaloScope } from '../zalo/zalo-scope.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logger } from '../../shared/utils/logger.js';
 import {
   addFriendTag,
@@ -176,12 +177,10 @@ export async function registerTagRoutes(app: FastifyInstance): Promise<void> {
     // Priority + groupId là CRM-local (Zalo Real không có khái niệm priority/group).
     if (wantsPushZalo) {
       try {
-        const { zaloPool } = await import('../zalo/zalo-pool.js');
-        const api = zaloPool.getApi(tag.zaloAccountId!);
-        if (!api || typeof api.updateLabels !== 'function') {
+        if (!zaloProviderClient.supports(tag.zaloAccountId!, 'labels')) {
           return reply.code(503).send({ error: 'ZALO_NOT_CONNECTED', message: 'Nick Zalo chưa kết nối — không thể đổi tag' });
         }
-        const current = await api.getLabels();
+        const current = await zaloProviderClient.getLabelsDirect(tag.zaloAccountId!);
         const labelData = (current?.labelData || []).map((l: { id: number | string; text: string; color: string; emoji?: string }) => {
           if (Number(l.id) !== tag.sourceZaloLabelId) return l;
           return {
@@ -191,7 +190,10 @@ export async function registerTagRoutes(app: FastifyInstance): Promise<void> {
             emoji: req.body.emoji ?? l.emoji,
           };
         });
-        await api.updateLabels({ labelData, version: current?.version || 0 });
+        await zaloProviderClient.updateLabelsDirect(tag.zaloAccountId!, {
+          labelData,
+          version: current?.version || 0,
+        });
         logger.info(`[tag-routes] Pushed Zalo update for Tag ${tag.id} (zaloLabelId=${tag.sourceZaloLabelId})`);
       } catch (err) {
         logger.error('[tag-routes] Push Zalo failed:', err);

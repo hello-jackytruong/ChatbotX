@@ -67,6 +67,7 @@ const CHANNEL_WINDOW_SECONDS: Record<ChannelType, number> = {
   messenger: 24 * 60 * 60,
   whatsapp: 24 * 60 * 60,
   zalo: 0,
+  zalo_personal: 0,
   smtp: 0,
   telegram: 0,
   instagram: 24 * 60 * 60,

@@ -27,6 +27,46 @@ services:
     entrypoint: [/bin/sh, /usr/local/bin/init-zalo-database]
     logging: *zalo-logging
 
+  zalo-personal-gateway:
+    image: chatbotx-zalo-personal:${CHATBOTX_ZALO_PERSONAL_IMAGE_TAG:-local}
+    restart: unless-stopped
+    init: true
+    command: [node, dist/gateway.js]
+    networks:
+      - app
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${ZALO_DATABASE_URL:?Set encoded ZALO_DATABASE_URL in .env}
+      REDIS_URL: ${ZALO_REDIS_URL:-redis://redis:6379/1}
+      ENCRYPTION_KEY: ${ZALO_ENCRYPTION_KEY:?Set ZALO_ENCRYPTION_KEY in .env}
+      ZALO_GATEWAY_CREDENTIAL_KEY: ${ZALO_GATEWAY_CREDENTIAL_KEY:?Set ZALO_GATEWAY_CREDENTIAL_KEY in .env}
+      STORAGE_DRIVER: r2
+      S3_ENDPOINT: http://filesystem:9000
+      S3_PUBLIC_URL: ${ZALO_S3_PUBLIC_URL:?Set ZALO_S3_PUBLIC_URL in .env}
+      S3_BUCKET: ${ZALO_S3_BUCKET:-zalocrm-attachments}
+      S3_REGION: ${ZALO_S3_REGION:-us-east-1}
+      S3_ACCESS_KEY: ${ZALO_S3_ACCESS_KEY_ID:?Set ZALO_S3_ACCESS_KEY_ID in .env}
+      S3_SECRET_KEY: ${ZALO_S3_SECRET_ACCESS_KEY:?Set ZALO_S3_SECRET_ACCESS_KEY in .env}
+      ZALO_PERSONAL_PROVIDER_MODE: gateway
+      ZALO_PERSONAL_RUNTIME_ROLE: gateway
+      ZALO_GATEWAY_CLAIMS_ENABLED: ${ZALO_GATEWAY_CLAIMS_ENABLED:-false}
+      ZALO_GATEWAY_COMMAND_CLAIMS_ENABLED: ${ZALO_GATEWAY_COMMAND_CLAIMS_ENABLED:-false}
+      ZALO_GATEWAY_ACCOUNT_ALLOWLIST: ${ZALO_GATEWAY_ACCOUNT_ALLOWLIST:-}
+    volumes:
+      - zalo-file-storage:/var/lib/zalo-crm/files
+    tmpfs:
+      - /tmp:size=256m,noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, test, -f, /tmp/zalo-gateway-ready]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s
+    logging: *zalo-logging
+
   zalo-filesystem-init:
     image: rustfs/rc:v0.1.22
     profiles: [bootstrap]
@@ -65,6 +105,9 @@ services:
       CRM_LOGIN_URL: ${ZALO_APP_URL:?Set ZALO_APP_URL in .env}
       JWT_SECRET: ${ZALO_JWT_SECRET:?Set ZALO_JWT_SECRET in .env}
       ENCRYPTION_KEY: ${ZALO_ENCRYPTION_KEY:?Set ZALO_ENCRYPTION_KEY in .env}
+      ZALO_GATEWAY_CREDENTIAL_KEY: ${ZALO_GATEWAY_CREDENTIAL_KEY:?Set ZALO_GATEWAY_CREDENTIAL_KEY in .env}
+      ZALO_BRIDGE_SECRET_KEY: ${ZALO_BRIDGE_SECRET_KEY:?Set ZALO_BRIDGE_SECRET_KEY in .env}
+      ZALO_PERSONAL_PROVIDER_MODE: ${ZALO_PERSONAL_PROVIDER_MODE:-in_process}
       TOKEN_ENCRYPTION_KEY: ${ZALO_TOKEN_ENCRYPTION_KEY:-}
       FB_TOKEN_ENC_KEY: ${ZALO_FB_TOKEN_ENC_KEY:-}
       # URL must already percent-encode reserved characters in the password.

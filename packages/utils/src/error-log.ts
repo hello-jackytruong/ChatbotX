@@ -95,6 +95,7 @@ export const errorLogProviderLabels = {
   messenger: "Messenger",
   whatsapp: "WhatsApp",
   zalo: "Zalo",
+  zalo_personal: "Zalo Personal",
   smtp: "Email",
   telegram: "Telegram",
   instagram: "Instagram",

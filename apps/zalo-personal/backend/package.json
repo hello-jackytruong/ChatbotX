@@ -6,10 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
+    "dev:gateway": "tsx watch src/gateway.ts",
     "postinstall": "DATABASE_URL=postgresql://build:build@localhost:5432/build prisma generate",
     "build": "tsc",
     "check-types": "tsc --noEmit",
     "start": "node dist/app.js",
+    "start:gateway": "node dist/gateway.js",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
@@ -22,6 +24,7 @@
     "contracts:runtime": "tsx scripts/contracts/runtime-route-inventory.ts && tsx scripts/contracts/runtime-socket-inventory.ts",
     "contracts:generate": "node scripts/contracts/contract-inventory.mjs && npm run contracts:runtime",
     "contracts:check": "node scripts/contracts/contract-inventory.mjs --check && tsx scripts/contracts/runtime-route-inventory.ts --check && tsx scripts/contracts/runtime-socket-inventory.ts --check",
+    "bridge:provision": "tsx scripts/provision-bridge-client.ts",
     "test:contract": "vitest run tests/contracts",
     "test:unit": "vitest run",
     "test:service": "vitest run tests",
@@ -66,7 +69,8 @@
     "socket.io": "^4.8.3",
     "telegram": "^2.26.22",
     "uuid": "^13.0.0",
-    "zca-js": "^2.1.2"
+    "zca-js": "^2.1.2",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -27,7 +27,7 @@ import { getScoringConfig, invalidateCache } from './config-cache.js';
 import { manualPromote, evaluateAndPromote } from './stage-promotion.js';
 import { seedScoringDefaults } from './seed-defaults.js';
 import { recomputeFriendFinalScore } from './scoring-hooks.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import { formatMessage } from '../../shared/text-formatter.js';
 import { renderMessageTemplate } from '../../shared/templating/template-renderer.js';
@@ -545,8 +545,9 @@ export async function scoringRoutes(app: FastifyInstance): Promise<void> {
         .trim();
       if (!rendered) return reply.status(400).send({ error: 'empty_after_render' });
 
-      const instance = zaloPool.getInstance(friend.zaloAccountId);
-      if (!instance?.api) return reply.status(400).send({ error: 'nick_disconnected' });
+      if (!zaloProviderClient.isConnected(friend.zaloAccountId)) {
+        return reply.status(400).send({ error: 'nick_disconnected' });
+      }
 
       const limits = await zaloRateLimiter.checkLimits(friend.zaloAccountId);
       if (!limits.allowed) return reply.status(429).send({ error: 'rate_limited', message: limits.reason });
@@ -560,7 +561,12 @@ export async function scoringRoutes(app: FastifyInstance): Promise<void> {
       if (formatted.styles?.length) sendPayload.styles = formatted.styles;
       if (formatted.mentions?.length) sendPayload.mentions = formatted.mentions;
 
-      const sendResult = await instance.api.sendMessage(sendPayload, conv.externalThreadId, threadType);
+      const sendResult = await zaloProviderClient.sendMessageDirect(
+        friend.zaloAccountId,
+        sendPayload,
+        conv.externalThreadId,
+        threadType,
+      );
       const sr = sendResult as unknown as { message?: { msgId?: number | string } | null };
       const zaloMsgId = String(sr?.message?.msgId ?? '');
 

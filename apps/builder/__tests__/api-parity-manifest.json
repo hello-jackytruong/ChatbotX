@@ -303,6 +303,8 @@
     "integration-whatsapp/webhook-url:buildWebhookConfig": "private:no public surface yet (UI-only, not yet audited)",
     "integration-whatsapp/webhook-url:buildWabaAuthValue": "private:no public surface yet (UI-only, not yet audited)",
     "integration-whatsapp/webhook-url:buildAuthValue": "private:no public surface yet (UI-only, not yet audited)",
+    "integration-zalo-personal/connect.action:connectZaloPersonalAction": "covered:connections",
+    "integration-zalo-personal/connect.action:disconnectZaloPersonalAction": "covered:connections",
     "integration-zalo/connect-zalo.action:connectZaloHandler": "covered:integration-zalo",
     "integration-zalo/disconnect.action:disconnectZaloAction": "covered:integration-zalo",
     "integration-zalo/reconnect-callback:reconnectZaloHandler": "covered:integration-zalo",

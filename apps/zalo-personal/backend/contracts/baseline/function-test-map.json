@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "functionCount": 2150,
+  "functionCount": 2287,
   "functions": [
     {
       "symbol": "loadExtension",
       "kind": "function",
       "exported": false,
       "file": "backend/src/app.ts",
-      "line": 117,
+      "line": 121,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -18,7 +18,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/app.ts",
-      "line": 130,
+      "line": 134,
       "risk": "P2",
       "sideEffects": true,
       "evidence": [],
@@ -29,7 +29,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/app.ts",
-      "line": 458,
+      "line": 467,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -52,6 +52,72 @@
       "exported": false,
       "file": "backend/src/config/index.ts",
       "line": 25,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "shutdown",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 115,
+      "risk": "P2",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "bootstrap",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 125,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "stopOwnedListeners",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 48,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "reconcileAccounts",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 56,
+      "risk": "P2",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "heartbeat",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 89,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "commandLoop",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/gateway.ts",
+      "line": 99,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -970,7 +1036,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 12,
+      "line": 13,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -981,7 +1047,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 26,
+      "line": 27,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -1129,6 +1195,7 @@
         "backend/tests/ghost-visible-within-24h.test.ts",
         "backend/tests/org-branding-routes.test.ts",
         "backend/tests/security/auth-flow.test.ts",
+        "backend/tests/unit/in-process-zca-adapter.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
@@ -1519,6 +1586,204 @@
       "status": "PARTIAL"
     },
     {
+      "symbol": "BridgeAuthenticator.verify",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 102,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/alias-template.test.ts",
+        "backend/tests/dedup-merge.test.ts",
+        "backend/tests/friend-sync-cron.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/integration/socket/socket-wire-contract.test.ts",
+        "backend/tests/regression-m51-4-dup-status.test.ts",
+        "backend/tests/security/socket-auth.test.ts",
+        "backend/tests/unit/bridge-auth.test.ts",
+        "backend/tests/unit/facebook-webhook.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "canonicalize",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 36,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "canonicalPath",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 46,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "bridgeCanonicalRequest",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 54,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "signBridgeRequest",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 67,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/bridge-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "signBridgeResponse",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 71,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "signaturesEqual",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 78,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InMemoryBridgeNonceStore.consume",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/bridge/auth.ts",
+      "line": 86,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "bridgeRoutes",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/bridge/index.ts",
+      "line": 9,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaBridgeNonceStore.consume",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/bridge/prisma-auth.ts",
+      "line": 43,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaBridgeKeyResolver.find",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/bridge/prisma-auth.ts",
+      "line": 7,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [
+        "backend/tests/block-logger.test.ts",
+        "backend/tests/care-session-service.test.ts",
+        "backend/tests/friend-routes.test.ts",
+        "backend/tests/unit/bridge-auth.test.ts",
+        "backend/tests/unit/tag-dual-write.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "requiredHeader",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 46,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "signedRequest",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 54,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/bridge-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "commandResponse",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 67,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "signedReply",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 79,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "createBridgeRoutes",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 85,
+      "risk": "P1",
+      "sideEffects": true,
+      "evidence": [
+        "backend/tests/integration/bridge-contract.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
       "symbol": "campaignRoutes",
       "kind": "function",
       "exported": true,
@@ -1720,7 +1985,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 103,
+      "line": 102,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1731,7 +1996,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 113,
+      "line": 112,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1742,7 +2007,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 149,
+      "line": 148,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1753,7 +2018,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 157,
+      "line": 156,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [
@@ -1774,7 +2039,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 163,
+      "line": 162,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [
@@ -1787,9 +2052,20 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 33,
+      "line": 32,
       "risk": "P0",
       "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "mapReaction",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/chat/chat-operations-routes.ts",
+      "line": 80,
+      "risk": "P1",
+      "sideEffects": false,
       "evidence": [],
       "status": "UNTESTED"
     },
@@ -1798,7 +2074,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 808,
+      "line": 805,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -1807,22 +2083,11 @@
       "status": "FULL"
     },
     {
-      "symbol": "mapReaction",
-      "kind": "function",
-      "exported": false,
-      "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 81,
-      "risk": "P1",
-      "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
-    },
-    {
       "symbol": "reactionDisplay",
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 84,
+      "line": 83,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1833,7 +2098,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 89,
+      "line": 88,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -1844,7 +2109,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 124,
+      "line": 123,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [
@@ -1858,7 +2123,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1411,
+      "line": 1409,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1869,7 +2134,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1938,
+      "line": 1943,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1880,7 +2145,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 44,
+      "line": 43,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -1891,7 +2156,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 67,
+      "line": 66,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -1902,7 +2167,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 88,
+      "line": 87,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -2570,7 +2835,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/contacts/backfill-friend-display-name.ts",
-      "line": 50,
+      "line": 48,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -2581,7 +2846,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/contacts/backfill-global-id.ts",
-      "line": 211,
+      "line": 209,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -2614,7 +2879,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/contacts/backfill-global-id.ts",
-      "line": 82,
+      "line": 80,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -3387,7 +3652,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 341,
+      "line": 333,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -3398,7 +3663,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 381,
+      "line": 373,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -3954,6 +4219,907 @@
       "status": "UNTESTED"
     },
     {
+      "symbol": "AccountLeaseService.heartbeat",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 102,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "AccountLeaseService.release",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 106,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "AccountLeaseService.assertCurrent",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 110,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "fromRow",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 131,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaAccountLeaseStore.acquire",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 144,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-fencing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaAccountLeaseStore.current",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 171,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-pool-state.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaAccountLeaseStore.heartbeat",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 179,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaAccountLeaseStore.isCurrent",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 194,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaAccountLeaseStore.release",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 205,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.advanceTo",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 27,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/integration/gateway-fencing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.currentTime",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 31,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.acquire",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 35,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-fencing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.current",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 55,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-pool-state.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.heartbeat",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 59,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.isCurrent",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 74,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InMemoryAccountLeaseStore.release",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 84,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "AccountLeaseService.acquire",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/account-lease.ts",
+      "line": 98,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-fencing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRepository.complete",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 114,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRepository.get",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 131,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/profile-routes.test.ts",
+        "backend/tests/quota-kind-separation.test.ts",
+        "backend/tests/security/require-active-user.test.ts",
+        "backend/tests/security/security-headers.test.ts",
+        "backend/tests/security/tenant-context.test.ts",
+        "backend/tests/ssrf-guard.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRepository.reconcile",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 136,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "fromRow",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 176,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaGatewayCommandRepository.insert",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 200,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/tag-apply-ai-regression.test.ts",
+        "frontend/src/composables/work-scope-logic.spec.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayCommandRepository.claim",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 221,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayCommandRepository.complete",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 249,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayCommandRepository.get",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 279,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/profile-routes.test.ts",
+        "backend/tests/quota-kind-separation.test.ts",
+        "backend/tests/security/require-active-user.test.ts",
+        "backend/tests/security/security-headers.test.ts",
+        "backend/tests/security/tenant-context.test.ts",
+        "backend/tests/ssrf-guard.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayCommandRepository.reconcile",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 286,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "canonicalize",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 34,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "payloadHash",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 44,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "GatewayCommandRepository.advanceTo",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 59,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/integration/gateway-fencing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRepository.currentTime",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 63,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "GatewayCommandRepository.insert",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 67,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/tag-apply-ai-regression.test.ts",
+        "frontend/src/composables/work-scope-logic.spec.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRepository.claim",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-repository.ts",
+      "line": 95,
+      "risk": "P1",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRunner.runOnce",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-runner.ts",
+      "line": 52,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCommandRunner.runCommand",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/command-runner.ts",
+      "line": 58,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "sealGatewayCredential",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 18,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "openGatewayCredential",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 22,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "GatewayCredentialStore.dualWrite",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 40,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayCredentialStore.read",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/credential-store.ts",
+      "line": 53,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/contract-manifests.test.ts",
+        "backend/tests/group-management.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/tag-dual-write.test.ts",
+        "backend/tests/unit/zalo-access-middleware.test.ts",
+        "backend/tests/unit/zalo-route-helpers.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayEventOutbox.list",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 121,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/block-types.test.ts",
+        "backend/tests/custom-report-sqli.test.ts",
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/friend-routes.test.ts",
+        "backend/tests/group-management.test.ts",
+        "backend/tests/group-routes.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/lead-notify.test.ts",
+        "backend/tests/regression-m51-4-dup-status.test.ts",
+        "backend/tests/unit/facebook-form-discovery.test.ts",
+        "backend/tests/unit/round-robin-assigner.test.ts",
+        "backend/tests/zinstant-proxy-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaGatewayEventOutbox.bounds",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 131,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/sequence-types.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayEventOutbox.append",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 26,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-fencing.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayEventOutbox.list",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 37,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/block-types.test.ts",
+        "backend/tests/custom-report-sqli.test.ts",
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/friend-routes.test.ts",
+        "backend/tests/group-management.test.ts",
+        "backend/tests/group-routes.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/lead-notify.test.ts",
+        "backend/tests/regression-m51-4-dup-status.test.ts",
+        "backend/tests/unit/facebook-form-discovery.test.ts",
+        "backend/tests/unit/round-robin-assigner.test.ts",
+        "backend/tests/zinstant-proxy-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "fromRow",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 62,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "PrismaGatewayEventOutbox.append",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/event-outbox.ts",
+      "line": 80,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-fencing.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "FacadeEventConsumer.consume",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/facade-event-consumer.ts",
+      "line": 16,
+      "risk": "P2",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "FacadeEventConsumer.checkpoint",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/facade-event-consumer.ts",
+      "line": 34,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "startGatewayFacadeSocketConsumer",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 118,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "tick",
+      "kind": "callable",
+      "exported": false,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 124,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/lead-notify.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaFacadeEventRepository.listAccounts",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 32,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaFacadeEventRepository.claimBatch",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 45,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "PrismaFacadeEventRepository.checkpoint",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 81,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayFacadeSocketConsumer.runOnce",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-facade-socket-consumer.ts",
+      "line": 99,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.appendWithRetry",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 116,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "eventKind",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 16,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.forAccount",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 44,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-socket-outbox.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.emit",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 48,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/friend-serializer.test.ts",
+        "backend/tests/friend-sync-cron.test.ts",
+        "backend/tests/friend-sync-service.test.ts",
+        "backend/tests/integration/socket/socket-wire-contract.test.ts",
+        "backend/tests/lead-notify.test.ts",
+        "backend/tests/send-via-deleted-nick-blocked.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.to",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 56,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/blur-contamination-guard.test.ts",
+        "backend/tests/chat-operations-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/custom-report-sqli.test.ts",
+        "backend/tests/deleted-nick-scope.test.ts",
+        "backend/tests/duplicate-detector-merge-policy.test.ts",
+        "backend/tests/friend-serializer.test.ts",
+        "backend/tests/friend-sync-cron.test.ts",
+        "backend/tests/friend-sync-service.test.ts",
+        "backend/tests/group-management.test.ts",
+        "backend/tests/group-moderation-routes.test.ts",
+        "backend/tests/group-routes.test.ts",
+        "backend/tests/group-scan-routes.test.ts",
+        "backend/tests/group-scan-worker.test.ts",
+        "backend/tests/lead-notify.test.ts",
+        "backend/tests/lead-pool-submit-note.test.ts",
+        "backend/tests/media-dedup.test.ts",
+        "backend/tests/media-trash-gc.test.ts",
+        "backend/tests/profile-media.test.ts",
+        "backend/tests/trigger-types.test.ts",
+        "backend/tests/unit/facebook-form-discovery.test.ts",
+        "backend/tests/unit/facebook-token-refresh-cron.test.ts",
+        "backend/tests/unit/facebook-webhook.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts",
+        "backend/tests/unit/lead-field-mapper.test.ts",
+        "backend/tests/unit/zalo-access-middleware.test.ts",
+        "backend/tests/unit/zalo-message-sync.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-rate-limiter.test.ts",
+        "backend/tests/unit/zalo-route-helpers.test.ts",
+        "backend/tests/zalo-ghost-fix.test.ts",
+        "backend/tests/zinstant-proxy-auth.test.ts",
+        "frontend/src/composables/work-scope-logic.spec.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.drain",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 64,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-socket-outbox.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.waitForFailure",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 69,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-socket-outbox.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.scoped",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 73,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/security/tenant-guard.test.ts",
+        "backend/tests/unit/bridge-auth.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-route-helpers.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.emitToInferredAccount",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 84,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "GatewaySocketOutbox.enqueue",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/gateway/gateway-socket-outbox.ts",
+      "line": 95,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [
+        "backend/tests/group-scan-routes.test.ts",
+        "backend/tests/lead-notify.test.ts",
+        "backend/tests/materialize-from-event.test.ts",
+        "backend/tests/reconcile-stuck-steps.test.ts",
+        "backend/tests/sequence-step-worker-block.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "eligibleGatewayAccountIds",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/gateway/rollout.ts",
+      "line": 22,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-rollout.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "readGatewayRolloutConfig",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/gateway/rollout.ts",
+      "line": 7,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-rollout.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
       "symbol": "ensureUnroutedList",
       "kind": "function",
       "exported": false,
@@ -4475,10 +5641,12 @@
       "sideEffects": true,
       "evidence": [
         "backend/tests/care-session-service.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/friend-routes-all-nicks.test.ts",
         "backend/tests/friend-sync-service.test.ts",
         "backend/tests/group-scan-worker.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
         "backend/tests/unit/facebook-token-refresh-cron.test.ts",
         "backend/tests/unit/round-robin-assigner.test.ts"
@@ -4506,9 +5674,16 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/ssrf-guard.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts",
+        "backend/tests/unit/zalo-provider-operation-facade.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -4866,7 +6041,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1188,
+      "line": 1186,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -4877,7 +6052,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1280,
+      "line": 1278,
       "risk": "P1",
       "sideEffects": false,
       "evidence": [],
@@ -5124,7 +6299,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/privacy/otp-service.ts",
-      "line": 155,
+      "line": 156,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -5462,10 +6637,12 @@
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
+        "backend/tests/chat-routes.test.ts",
         "backend/tests/deleted-nick-revive-conversations.test.ts",
         "backend/tests/manual-disconnect-needs-qr.test.ts",
         "backend/tests/unit/zalo-health-check.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -6521,7 +7698,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/scoring/scoring-routes.ts",
-      "line": 663,
+      "line": 669,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -7274,7 +8451,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 244,
+      "line": 246,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -7285,7 +8462,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 289,
+      "line": 291,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -7296,7 +8473,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 49,
+      "line": 50,
       "risk": "P1",
       "sideEffects": true,
       "evidence": [],
@@ -7510,6 +8687,637 @@
       "status": "UNTESTED"
     },
     {
+      "symbol": "ZaloProviderClient.execute",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 114,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.requireApi",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 140,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getStatus",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 148,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/chat-routes.test.ts",
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/manual-disconnect-needs-qr.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.isConnected",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 153,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.supports",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 157,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.sendMessageDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 163,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.getUserInfoDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 177,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.getAllFriendsDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 182,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.findUserDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 187,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.uploadAttachmentDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 192,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getAliasListDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 206,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getLabelsDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 211,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.updateLabelsDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 216,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getStickersDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 221,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getStickersDetailDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 226,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.sendNativeVideoDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 231,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.backfillAccountHistoryDirect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 239,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloProviderClient.getAllStatuses",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 248,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/manual-disconnect-needs-qr.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.getIO",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 256,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/friend-routes-all-nicks.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.setIO",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 260,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.loginWithQr",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 264,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.reconnect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 274,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/manual-disconnect-needs-qr.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
+        "backend/tests/zalo-ghost-fix.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.disconnect",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 287,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/runtime-socket-inventory.test.ts",
+        "backend/tests/deleted-nick-revive-conversations.test.ts",
+        "backend/tests/integration/socket/socket-wire-contract.test.ts",
+        "backend/tests/manual-disconnect-needs-qr.test.ts",
+        "backend/tests/security/ai-capabilities.test.ts",
+        "backend/tests/security/auth-flow.test.ts",
+        "backend/tests/security/refresh-token-service.test.ts",
+        "backend/tests/security/require-active-user.test.ts",
+        "backend/tests/security/security-audit.test.ts",
+        "backend/tests/security/socket-auth.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ZaloProviderClient.cleanupStaleGhosts",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 295,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/ghost-soft-hide-after-24h.test.ts",
+        "backend/tests/ghost-visible-within-24h.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
+        "backend/tests/zalo-ghost-fix.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "canonicalize",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 75,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "extractProviderIds",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/client.ts",
+      "line": 87,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "defer",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/command-runner.ts",
+      "line": 12,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/block-logger.test.ts",
+        "backend/tests/block-reason-catalog.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "runProviderCommand",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/command-runner.ts",
+      "line": 120,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "readStoredCredentials",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/command-runner.ts",
+      "line": 98,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "mapProviderError",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/error-mapper.ts",
+      "line": 17,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-error-mapper.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ProviderEventProjector.beginEpoch",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/event-projector.ts",
+      "line": 15,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-event-projector.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "ProviderEventProjector.project",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/event-projector.ts",
+      "line": 21,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/engine-gates.test.ts",
+        "backend/tests/unit/zalo-provider-event-projector.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "safeFilename",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/gateway-operation-payload.ts",
+      "line": 13,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "stagePath",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/gateway-operation-payload.ts",
+      "line": 18,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "stageObjectPaths",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/gateway-operation-payload.ts",
+      "line": 38,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "prepareGatewayOperation",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-operation-payload.ts",
+      "line": 62,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-operation-payload.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "GatewayProviderClient.execute",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-provider-client.ts",
+      "line": 25,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "getGatewayCachedStatus",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-status-cache.ts",
+      "line": 15,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "getGatewayCachedStatuses",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-status-cache.ts",
+      "line": 19,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "startGatewayStatusCache",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-status-cache.ts",
+      "line": 23,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "refreshGatewayStatusCache",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/gateway-status-cache.ts",
+      "line": 6,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "imageMetadataGetter",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 22,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/in-process-zca-adapter.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "defaultFactory",
+      "kind": "callable",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 36,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "InProcessZcaAdapter.createSession",
+      "kind": "method",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/in-process-zca-adapter.ts",
+      "line": 41,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/in-process-zca-adapter.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "createProviderOperationFacade",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/operation-facade.ts",
+      "line": 12,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-provider-operation-facade.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "operation",
+      "kind": "callable",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/operation-facade.ts",
+      "line": 22,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/unit/gateway-account-routing.test.ts",
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/zalo-provider-operation-facade.test.ts",
+        "backend/tests/unit/zalo-rate-limiter.test.ts",
+        "backend/tests/unit/zalo-route-helpers.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "gatewayAccountAllowlist",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo-provider/remote-operation.ts",
+      "line": 23,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "usesRemoteGateway",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/remote-operation.ts",
+      "line": 32,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/gateway-account-routing.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "executeGatewayOperation",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/modules/zalo-provider/remote-operation.ts",
+      "line": 39,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
       "symbol": "pullAliasMap",
       "kind": "function",
       "exported": true,
@@ -7525,7 +9333,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/alias-sync.ts",
-      "line": 52,
+      "line": 51,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -7560,7 +9368,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 122,
+      "line": 121,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -7571,7 +9379,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 153,
+      "line": 152,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
@@ -7586,7 +9394,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 317,
+      "line": 316,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
@@ -7600,7 +9408,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 349,
+      "line": 348,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -7611,7 +9419,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 47,
+      "line": 46,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -7624,7 +9432,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 52,
+      "line": 51,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -7640,7 +9448,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 67,
+      "line": 66,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -7653,7 +9461,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/friend-event-handler.ts",
-      "line": 89,
+      "line": 88,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -8193,6 +10001,7 @@
       "evidence": [
         "backend/tests/block-logger.test.ts",
         "backend/tests/group-scan-worker.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/media-dedup.test.ts",
         "backend/tests/reconcile-stuck-steps.test.ts",
         "backend/tests/regression-m52-reply-pause.test.ts",
@@ -8739,7 +10548,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 544,
+      "line": 545,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -8750,7 +10559,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 876,
+      "line": 880,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -8761,7 +10570,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 897,
+      "line": 901,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -8772,7 +10581,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 900,
+      "line": 904,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -8827,7 +10636,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 389,
+      "line": 390,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
@@ -8835,8 +10644,32 @@
         "backend/tests/deleted-nick-revive-no-dup.test.ts",
         "backend/tests/ghost-soft-hide-after-24h.test.ts",
         "backend/tests/ghost-visible-within-24h.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
         "backend/tests/unit/zalo-pool-state.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "anonymous.get",
+      "kind": "method",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
+      "line": 395,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
+        "backend/tests/profile-routes.test.ts",
+        "backend/tests/quota-kind-separation.test.ts",
+        "backend/tests/security/require-active-user.test.ts",
+        "backend/tests/security/security-headers.test.ts",
+        "backend/tests/security/tenant-context.test.ts",
+        "backend/tests/ssrf-guard.test.ts",
+        "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/worker-token-passthrough.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -8845,7 +10678,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 396,
+      "line": 414,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -8856,7 +10689,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-listener-factory.ts",
-      "line": 406,
+      "line": 424,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -8960,16 +10793,14 @@
       "status": "UNTESTED"
     },
     {
-      "symbol": "ZaloAccountPool.getIO",
+      "symbol": "ZaloAccountPool.emitAccountEventToOrg",
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 104,
+      "line": 106,
       "risk": "P0",
-      "sideEffects": false,
+      "sideEffects": true,
       "evidence": [
-        "backend/tests/aggregate-emit.test.ts",
-        "backend/tests/friend-routes-all-nicks.test.ts",
         "backend/tests/unit/zalo-pool-state.test.ts"
       ],
       "status": "FULL"
@@ -8986,29 +10817,17 @@
         "backend/tests/ghost-soft-hide-after-24h.test.ts",
         "backend/tests/ghost-visible-within-24h.test.ts",
         "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
-    },
-    {
-      "symbol": "ZaloAccountPool.emitAccountEventToOrg",
-      "kind": "method",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 120,
-      "risk": "P0",
-      "sideEffects": true,
-      "evidence": [
-        "backend/tests/unit/zalo-pool-state.test.ts"
-      ],
-      "status": "FULL"
     },
     {
       "symbol": "ZaloAccountPool.teardownExisting",
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 148,
+      "line": 134,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -9021,7 +10840,7 @@
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 161,
+      "line": 147,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
@@ -9029,6 +10848,8 @@
         "backend/tests/deleted-nick-revive-no-dup.test.ts",
         "backend/tests/ghost-soft-hide-after-24h.test.ts",
         "backend/tests/ghost-visible-within-24h.test.ts",
+        "backend/tests/unit/in-process-zca-adapter.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
@@ -9038,45 +10859,49 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 203,
+      "line": 189,
       "risk": "P0",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
-    },
-    {
-      "symbol": "imageMetadataGetter",
-      "kind": "function",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 29,
-      "risk": "P0",
-      "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "ZaloAccountPool.reconnect",
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 328,
+      "line": 314,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/deleted-nick-revive-conversations.test.ts",
         "backend/tests/manual-disconnect-needs-qr.test.ts",
         "backend/tests/unit/zalo-health-check.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
+    },
+    {
+      "symbol": "mapToLogStatus",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "line": 44,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
     },
     {
       "symbol": "ZaloAccountPool.autoSyncOnConnect",
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 454,
+      "line": 440,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -9087,20 +10912,33 @@
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 476,
+      "line": 462,
       "risk": "P0",
       "sideEffects": true,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/unit/zalo-pool-state.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "ZaloAccountPool.saveCredentials",
       "kind": "method",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 547,
+      "line": 537,
       "risk": "P0",
       "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "defaultReason",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "line": 54,
+      "risk": "P0",
+      "sideEffects": false,
       "evidence": [],
       "status": "UNTESTED"
     },
@@ -9117,28 +10955,6 @@
         "backend/tests/deleted-nick-revive-no-dup.test.ts"
       ],
       "status": "PARTIAL"
-    },
-    {
-      "symbol": "mapToLogStatus",
-      "kind": "function",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 58,
-      "risk": "P0",
-      "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
-    },
-    {
-      "symbol": "defaultReason",
-      "kind": "function",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 68,
-      "risk": "P0",
-      "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
     },
     {
       "symbol": "ZaloAccountPool.findOwnerOfZaloUid",
@@ -9193,7 +11009,8 @@
         "backend/tests/security/security-audit.test.ts",
         "backend/tests/security/socket-auth.test.ts",
         "backend/tests/unit/zalo-health-check.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "FULL"
     },
@@ -9206,10 +11023,12 @@
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
+        "backend/tests/chat-routes.test.ts",
         "backend/tests/deleted-nick-revive-conversations.test.ts",
         "backend/tests/manual-disconnect-needs-qr.test.ts",
         "backend/tests/unit/zalo-health-check.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "FULL"
     },
@@ -9224,7 +11043,8 @@
       "evidence": [
         "backend/tests/deleted-nick-revive-conversations.test.ts",
         "backend/tests/manual-disconnect-needs-qr.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "FULL"
     },
@@ -9237,7 +11057,9 @@
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/chat-routes.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "FULL"
     },
@@ -9252,8 +11074,10 @@
       "evidence": [
         "backend/tests/chat-operations-routes.test.ts",
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
         "backend/tests/zinstant-proxy-auth.test.ts"
       ],
       "status": "FULL"
@@ -9270,6 +11094,20 @@
       "status": "UNTESTED"
     },
     {
+      "symbol": "ZaloAccountPool.setIO",
+      "kind": "method",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "line": 84,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "FULL"
+    },
+    {
       "symbol": "ZaloAccountPool.handleStickyHoldDisconnect",
       "kind": "method",
       "exported": false,
@@ -9279,6 +11117,22 @@
       "sideEffects": true,
       "evidence": [],
       "status": "UNTESTED"
+    },
+    {
+      "symbol": "ZaloAccountPool.getIO",
+      "kind": "method",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-pool.ts",
+      "line": 90,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/friend-routes-all-nicks.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "FULL"
     },
     {
       "symbol": "ZaloAccountPool.handleStickyHoldReconnect",
@@ -9301,19 +11155,6 @@
       "sideEffects": true,
       "evidence": [],
       "status": "UNTESTED"
-    },
-    {
-      "symbol": "ZaloAccountPool.setIO",
-      "kind": "method",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 98,
-      "risk": "P0",
-      "sideEffects": false,
-      "evidence": [
-        "backend/tests/unit/zalo-pool-state.test.ts"
-      ],
-      "status": "FULL"
     },
     {
       "symbol": "ZaloRateLimiter.recordOperation",
@@ -9423,6 +11264,7 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -9460,6 +11302,7 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -9542,11 +11385,33 @@
       "status": "FULL"
     },
     {
+      "symbol": "runCreate",
+      "kind": "callable",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-routes.ts",
+      "line": 103,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "proxyWrite",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/modules/zalo/zalo-routes.ts",
+      "line": 13,
+      "risk": "P0",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
       "symbol": "zaloRoutes",
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 12,
+      "line": 23,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [
@@ -9560,7 +11425,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 563,
+      "line": 574,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -9571,7 +11436,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 586,
+      "line": 597,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -9582,18 +11447,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 597,
-      "risk": "P0",
-      "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
-    },
-    {
-      "symbol": "runCreate",
-      "kind": "callable",
-      "exported": false,
-      "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 92,
+      "line": 608,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -9679,7 +11533,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/modules/zalo/zalo-sync-routes.ts",
-      "line": 102,
+      "line": 103,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -9690,7 +11544,7 @@
       "kind": "function",
       "exported": true,
       "file": "backend/src/modules/zalo/zalo-sync-routes.ts",
-      "line": 15,
+      "line": 14,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -10213,12 +12067,17 @@
       "sideEffects": true,
       "evidence": [
         "backend/tests/aggregate-emit.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/friend-serializer.test.ts",
         "backend/tests/friend-sync-cron.test.ts",
         "backend/tests/friend-sync-service.test.ts",
         "backend/tests/integration/socket/socket-wire-contract.test.ts",
         "backend/tests/lead-notify.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/gateway-socket-outbox.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
         "backend/tests/unit/zalo-pool-state.test.ts"
       ],
       "status": "PARTIAL"
@@ -10232,16 +12091,20 @@
       "risk": "P1",
       "sideEffects": false,
       "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/group-moderation-routes.test.ts",
         "backend/tests/group-scan-routes.test.ts",
         "backend/tests/group-scan-worker.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/security/socket-auth.test.ts",
         "backend/tests/sequence-types.test.ts",
         "backend/tests/ssrf-guard.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
         "backend/tests/unit/facebook-token-refresh-cron.test.ts",
         "backend/tests/unit/round-robin-assigner.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts",
         "backend/tests/worker-token-passthrough.test.ts",
         "backend/tests/zinstant-proxy-auth.test.ts"
@@ -10428,7 +12291,8 @@
         "backend/tests/engine-gates.test.ts",
         "backend/tests/render-template-vars.test.ts",
         "backend/tests/sequence-schedule-calculator.test.ts",
-        "backend/tests/sequence-types.test.ts"
+        "backend/tests/sequence-types.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -11249,8 +13113,10 @@
       "line": 118,
       "risk": "P2",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/unit/in-process-zca-adapter.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "readImageMetadata",
@@ -11501,7 +13367,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 104,
+      "line": 110,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11512,7 +13378,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 115,
+      "line": 121,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11523,7 +13389,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 117,
+      "line": 123,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11534,7 +13400,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 131,
+      "line": 137,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11545,7 +13411,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 163,
+      "line": 169,
       "risk": "P0",
       "sideEffects": true,
       "evidence": [],
@@ -11556,14 +13422,21 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 275,
+      "line": 281,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/ssrf-guard.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts",
+        "backend/tests/unit/zalo-provider-operation-facade.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -11572,18 +13445,20 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 283,
+      "line": 289,
       "risk": "P0",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/unit/gateway-operation-payload.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "sendSticker",
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 288,
+      "line": 294,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11596,7 +13471,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 298,
+      "line": 304,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11609,7 +13484,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 306,
+      "line": 312,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11620,7 +13495,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 313,
+      "line": 319,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11631,7 +13506,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 320,
+      "line": 326,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11642,7 +13517,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 327,
+      "line": 333,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11655,7 +13530,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 332,
+      "line": 338,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11666,7 +13541,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 337,
+      "line": 343,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11677,7 +13552,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 342,
+      "line": 348,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11690,7 +13565,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 347,
+      "line": 353,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11701,7 +13576,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 354,
+      "line": 360,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11714,7 +13589,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 376,
+      "line": 382,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11727,7 +13602,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 385,
+      "line": 391,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11740,7 +13615,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 390,
+      "line": 396,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11753,7 +13628,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 405,
+      "line": 411,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11766,7 +13641,7 @@
       "kind": "callable",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 420,
+      "line": 426,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11777,7 +13652,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 443,
+      "line": 449,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11790,7 +13665,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 454,
+      "line": 460,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11803,7 +13678,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 459,
+      "line": 465,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11814,7 +13689,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 465,
+      "line": 471,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11828,7 +13703,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 470,
+      "line": 476,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11842,7 +13717,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 475,
+      "line": 481,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [],
@@ -11853,7 +13728,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 480,
+      "line": 486,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11867,7 +13742,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 485,
+      "line": 491,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11881,7 +13756,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 490,
+      "line": 496,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11895,7 +13770,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 495,
+      "line": 501,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11909,7 +13784,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 500,
+      "line": 506,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11923,7 +13798,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 505,
+      "line": 511,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11937,7 +13812,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 510,
+      "line": 516,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11951,7 +13826,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 515,
+      "line": 521,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11965,7 +13840,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 520,
+      "line": 526,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11979,7 +13854,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 525,
+      "line": 531,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -11993,7 +13868,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 532,
+      "line": 538,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12008,7 +13883,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 537,
+      "line": 543,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12023,7 +13898,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 544,
+      "line": 550,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12037,7 +13912,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 549,
+      "line": 555,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12051,7 +13926,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 554,
+      "line": 560,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12065,7 +13940,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 559,
+      "line": 565,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12079,7 +13954,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 565,
+      "line": 571,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12092,7 +13967,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 570,
+      "line": 576,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12105,7 +13980,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 575,
+      "line": 581,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12118,7 +13993,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 581,
+      "line": 587,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12132,7 +14007,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 586,
+      "line": 592,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12146,7 +14021,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 591,
+      "line": 597,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12160,7 +14035,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 596,
+      "line": 602,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12174,7 +14049,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 601,
+      "line": 607,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12187,7 +14062,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 607,
+      "line": 613,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12202,7 +14077,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 614,
+      "line": 620,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12216,7 +14091,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 621,
+      "line": 627,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12229,7 +14104,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 641,
+      "line": 647,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12242,7 +14117,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 646,
+      "line": 652,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12251,22 +14126,11 @@
       "status": "PARTIAL"
     },
     {
-      "symbol": "attemptReconnect",
-      "kind": "function",
-      "exported": false,
-      "file": "backend/src/shared/zalo-operations.ts",
-      "line": 65,
-      "risk": "P0",
-      "sideEffects": true,
-      "evidence": [],
-      "status": "UNTESTED"
-    },
-    {
       "symbol": "acceptFriendRequest",
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 651,
+      "line": 657,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12279,7 +14143,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 656,
+      "line": 662,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12292,7 +14156,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 661,
+      "line": 667,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12305,7 +14169,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 666,
+      "line": 672,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12319,7 +14183,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 671,
+      "line": 677,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12332,7 +14196,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 676,
+      "line": 682,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12345,7 +14209,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 681,
+      "line": 687,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12358,7 +14222,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 686,
+      "line": 692,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12371,7 +14235,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 691,
+      "line": 697,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12384,7 +14248,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 696,
+      "line": 702,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12397,7 +14261,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 701,
+      "line": 707,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12406,11 +14270,22 @@
       "status": "PARTIAL"
     },
     {
+      "symbol": "attemptReconnect",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/shared/zalo-operations.ts",
+      "line": 71,
+      "risk": "P0",
+      "sideEffects": true,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
       "symbol": "blockViewFeed",
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 706,
+      "line": 712,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12423,29 +14298,33 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 712,
+      "line": 718,
       "risk": "P0",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "getOwnId",
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 717,
+      "line": 723,
       "risk": "P0",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/contracts/provider-behavior-oracle.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "getAccountInfo",
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 722,
+      "line": 728,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12458,7 +14337,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 727,
+      "line": 733,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12471,7 +14350,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 732,
+      "line": 738,
       "risk": "P0",
       "sideEffects": false,
       "evidence": [
@@ -12484,9 +14363,20 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/shared/zalo-operations.ts",
-      "line": 737,
+      "line": 743,
       "risk": "P0",
       "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "executeRemoteOperation",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/shared/zalo-operations.ts",
+      "line": 839,
+      "risk": "P0",
+      "sideEffects": true,
       "evidence": [],
       "status": "UNTESTED"
     },
@@ -13051,6 +14941,7 @@
       "evidence": [
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/group-management.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/security/hmac.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -13067,6 +14958,7 @@
       "evidence": [
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/group-management.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/security/hmac.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -13270,6 +15162,7 @@
       "evidence": [
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/group-management.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/security/hmac.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -16335,6 +18228,7 @@
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/zalo-access-middleware.test.ts",
         "backend/tests/unit/zalo-field-mapper.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts",
         "backend/tests/unit/zalo-route-helpers.test.ts",
         "backend/tests/worker-token-passthrough.test.ts",
@@ -17632,9 +19526,16 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/chat-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/send-via-deleted-nick-blocked.test.ts",
         "backend/tests/ssrf-guard.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/gateway-operation-payload.test.ts",
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts",
+        "backend/tests/unit/zalo-provider-contract.test.ts",
+        "backend/tests/unit/zalo-provider-operation-facade.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -18830,6 +20731,7 @@
       "evidence": [
         "backend/tests/block-logger.test.ts",
         "backend/tests/care-notify-privacy.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
         "backend/tests/unit/zalo-access-middleware.test.ts",
         "frontend/src/composables/work-scope-logic.spec.ts"
       ],
@@ -19130,6 +21032,7 @@
       "evidence": [
         "backend/tests/block-logger.test.ts",
         "backend/tests/care-notify-privacy.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
         "backend/tests/unit/zalo-access-middleware.test.ts",
         "frontend/src/composables/work-scope-logic.spec.ts"
       ],
@@ -19657,6 +21560,7 @@
       "sideEffects": true,
       "evidence": [
         "backend/tests/chat-operations-routes.test.ts",
+        "backend/tests/contracts/provider-behavior-oracle.test.ts",
         "backend/tests/friend-sync-service.test.ts",
         "backend/tests/unit/facebook-token-refresh-cron.test.ts"
       ],
@@ -20086,6 +21990,7 @@
       "evidence": [
         "backend/tests/block-logger.test.ts",
         "backend/tests/care-notify-privacy.test.ts",
+        "backend/tests/integration/bridge-contract.test.ts",
         "backend/tests/unit/zalo-access-middleware.test.ts",
         "frontend/src/composables/work-scope-logic.spec.ts"
       ],
@@ -20384,7 +22289,8 @@
         "backend/tests/engine-gates.test.ts",
         "backend/tests/render-template-vars.test.ts",
         "backend/tests/sequence-schedule-calculator.test.ts",
-        "backend/tests/sequence-types.test.ts"
+        "backend/tests/sequence-types.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -20962,6 +22868,7 @@
       "evidence": [
         "backend/tests/block-logger.test.ts",
         "backend/tests/custom-report-sqli.test.ts",
+        "backend/tests/unit/gateway-operation-payload.test.ts",
         "backend/tests/unit/round-robin-assigner.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts"
       ],
@@ -21406,8 +23313,10 @@
       "line": 137,
       "risk": "P0",
       "sideEffects": false,
-      "evidence": [],
-      "status": "UNTESTED"
+      "evidence": [
+        "backend/tests/unit/zalo-provider-client.test.ts"
+      ],
+      "status": "PARTIAL"
     },
     {
       "symbol": "deleteAccount",
@@ -21836,7 +23745,8 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/security/require-active-user.test.ts",
-        "backend/tests/unit/tag-dual-write.test.ts"
+        "backend/tests/unit/tag-dual-write.test.ts",
+        "backend/tests/unit/zalo-listener-fence.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -21995,6 +23905,7 @@
         "backend/tests/ghost-visible-within-24h.test.ts",
         "backend/tests/org-branding-routes.test.ts",
         "backend/tests/security/auth-flow.test.ts",
+        "backend/tests/unit/in-process-zca-adapter.test.ts",
         "backend/tests/zalo-ghost-fix.test.ts"
       ],
       "status": "PARTIAL"
@@ -22852,7 +24763,8 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/group-management.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -22866,7 +24778,8 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/group-management.test.ts",
-        "backend/tests/unit/zalo-pool-state.test.ts"
+        "backend/tests/unit/zalo-pool-state.test.ts",
+        "backend/tests/unit/zalo-provider-client.test.ts"
       ],
       "status": "PARTIAL"
     },
@@ -23316,6 +25229,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23395,6 +25309,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23474,6 +25389,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23553,6 +25469,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23632,6 +25549,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23711,6 +25629,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -23784,6 +25703,7 @@
       "evidence": [
         "backend/tests/custom-report-sqli.test.ts",
         "backend/tests/group-management.test.ts",
+        "backend/tests/integration/gateway-crash-recovery.test.ts",
         "backend/tests/security/hmac.test.ts",
         "backend/tests/unit/zalo-rate-limiter.test.ts"
       ],
@@ -23861,6 +25781,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24127,6 +26048,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24228,6 +26150,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24307,6 +26230,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24386,6 +26310,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24465,6 +26390,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24544,6 +26470,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24623,6 +26550,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24702,6 +26630,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24781,6 +26710,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24860,6 +26790,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -24939,6 +26870,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25018,6 +26950,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25097,6 +27030,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25176,6 +27110,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25255,6 +27190,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25334,6 +27270,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25413,6 +27350,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25492,6 +27430,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25571,6 +27510,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25650,6 +27590,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25729,6 +27670,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25808,6 +27750,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25887,6 +27830,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -25966,6 +27910,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26045,6 +27990,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26124,6 +28070,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26203,6 +28150,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26315,6 +28263,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26405,6 +28354,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26495,6 +28445,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26574,6 +28525,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",
@@ -26653,6 +28605,7 @@
         "backend/tests/sequence-schedule-calculator.test.ts",
         "backend/tests/sequence-step-worker-block.test.ts",
         "backend/tests/unit/facebook-aes-gcm.test.ts",
+        "backend/tests/unit/gateway-facade-socket-consumer.test.ts",
         "backend/tests/unit/lead-field-mapper.test.ts",
         "backend/tests/unit/tag-apply-ai-regression.test.ts",
         "backend/tests/unit/tag-dual-write.test.ts",

@@ -120,6 +120,7 @@ import { integrationTiktokRelations } from "./integration-tiktok"
 import { integrationWebchatRelations } from "./integration-webchat"
 import { integrationWhatsappRelations } from "./integration-whatsapp"
 import { integrationZaloRelations } from "./integration-zalo"
+import { integrationZaloPersonalRelations } from "./integration-zalo-personal"
 import { leaderboardRelations } from "./leaderboard"
 import { leaderboardAuditLogRelations } from "./leaderboard-audit-log"
 import { leaderboardParticipantRelations } from "./leaderboard-participant"
@@ -188,6 +189,7 @@ import { workspaceApiTokenRelations } from "./workspace-api-token"
 import { workspaceBotMessageUsageRelations } from "./workspace-bot-message-usage"
 import { workspaceDeletionRecordRelations } from "./workspace-deletion-record"
 import { workspaceMemberRelations } from "./workspace-member"
+import { zaloPersonalBridgeRelations } from "./zalo-personal-bridge"
 
 export const relations = {
   ...integrationApiRelations,
@@ -260,6 +262,7 @@ export const relations = {
   ...messengerProfileBackfillRunRelations,
   ...integrationWebchatRelations,
   ...integrationZaloRelations,
+  ...integrationZaloPersonalRelations,
   ...invitationRelations,
   ...emailTopicRelations,
   ...analyticsEmailTopicRelations,
@@ -378,4 +381,5 @@ export const relations = {
   ...workingHoursRelations,
   ...analyticsAgentResponseEventRelations,
   ...pipelineRelations,
+  ...zaloPersonalBridgeRelations,
 }

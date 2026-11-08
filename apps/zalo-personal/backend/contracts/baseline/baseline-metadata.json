@@ -1,11 +1,11 @@
 {
   "version": 2,
   "sourceCommit": "c03c03245a1010d1e279d0548edc5b1f568f3a9e",
-  "schemaSha256": "981409634d42a77478eea9611b21240a2f2c1c4174dcfda98d0739e125d157e2",
+  "schemaSha256": "e4e53b6851372e062bba0fefe5d92cd31d9bd8d55cf55222c8344ebe77fdcbc9",
   "packageLocks": [
     {
       "file": "backend/package-lock.json",
-      "sha256": "052961b2763055b6403f8d76c53abca51b801e4e5b59ca9efcd42f11f4233c88"
+      "sha256": "e847b5ce95e059ecff70c8262ce9050be9561d6cf670e9b192afc5eef5c416da"
     },
     {
       "file": "frontend/package-lock.json",

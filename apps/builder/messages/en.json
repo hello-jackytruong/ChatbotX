@@ -1320,6 +1320,24 @@
     "deleteConfirmation": "Are you absolutely sure?\nThis action cannot be undone.\nThis will permanently delete your {feature} from our servers."
   },
   "fields": {
+    "zalo_personal": {
+      "label": "Zalo Personal",
+      "title": "Zalo Personal",
+      "connect": "Connect Zalo Personal",
+      "connected": "Zalo Personal connected",
+      "name": "Display name",
+      "accountId": "Account ID",
+      "bridgeUrl": "Bridge URL",
+      "keyId": "Key ID",
+      "secret": "Service secret",
+      "status": {
+        "connected": "Connected",
+        "degraded": "Degraded",
+        "needs_reauth": "Needs reconnect",
+        "paused": "Paused",
+        "disconnected": "Disconnected"
+      }
+    },
     "optionalHint": "(optional)",
     "marketingMessagesConfigId": {
       "label": "Marketing Messages Config ID",

@@ -8,7 +8,9 @@ import { mockUser, mockPrisma, mockIO } from './test-helpers.js';
 const prismaMock = mockPrisma();
 const sendMessageMock = vi.fn().mockResolvedValue({ msgId: 'zalo-msg-2' });
 const zaloPoolMock = {
+  getApi: vi.fn(),
   getInstance: vi.fn(),
+  getStatus: vi.fn(),
 };
 
 
@@ -62,7 +64,10 @@ beforeEach(() => {
     api: {
       sendMessage: sendMessageMock,
     },
+    status: 'connected',
   });
+  zaloPoolMock.getApi.mockReturnValue({ sendMessage: sendMessageMock });
+  zaloPoolMock.getStatus.mockReturnValue('connected');
   zaloRateLimiterMock.checkLimits.mockResolvedValue({ allowed: true });
   zaloRateLimiterMock.recordSend.mockReturnValue(undefined);
 });

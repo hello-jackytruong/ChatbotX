@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "accountId": "account-synthetic-1",
+  "nextSequence": "1",
+  "highWaterMark": "1",
+  "retentionFloor": "1",
+  "events": [
+    {
+      "eventId": "event-synthetic-1",
+      "accountId": "account-synthetic-1",
+      "accountSequence": "1",
+      "fenceToken": "1",
+      "kind": "message",
+      "providerEventId": "provider-message-synthetic-1",
+      "payload": { "sourceId": "provider-message-synthetic-1" },
+      "occurredAt": "2026-11-08T00:00:00.000Z"
+    }
+  ]
+}

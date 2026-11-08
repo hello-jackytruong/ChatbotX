@@ -36,6 +36,7 @@ import {
 import { maintainLeaderboardPartitions } from "./handlers/maintain-leaderboard-partitions"
 import { maintainMacPartitions } from "./handlers/maintain-mac-partitions"
 import { materializeRecurringBroadcasts } from "./handlers/materialize-recurring-broadcasts"
+import { pollZaloPersonalBridge } from "./handlers/poll-zalo-personal-bridge"
 import { prepareBroadcast } from "./handlers/prepare-broadcast"
 import { processBroadcastContacts } from "./handlers/process-broadcast-contacts"
 import { purgeAutomationThrottle } from "./handlers/purge-automation-throttle"
@@ -293,6 +294,10 @@ async function startScheduleWorker() {
 
             case ScheduleJobData.refreshChannelTokens:
               await refreshChannelTokens(job.data.data.channels)
+              return
+
+            case ScheduleJobData.pollZaloPersonalBridge:
+              await pollZaloPersonalBridge()
               return
 
             case ScheduleJobData.refreshLicense:

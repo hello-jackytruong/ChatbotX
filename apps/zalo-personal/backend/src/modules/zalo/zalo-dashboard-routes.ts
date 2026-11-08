@@ -14,7 +14,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireGrant } from '../rbac/rbac-middleware.js';
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { getZaloScope, canManageAccount, requireAccountVisible } from './zalo-scope.js';
 import { uptimeWindowBatch } from './status-log-service.js';
@@ -94,7 +94,7 @@ export async function zaloDashboardRoutes(app: FastifyInstance): Promise<void> {
     const needReloginIds: string[] = [];
 
     for (const a of accounts) {
-      const live = zaloPool.getStatus(a.id) ?? a.status;
+      const live = zaloProviderClient.getStatus(a.id) ?? a.status;
       const u = uptimeMap.get(a.id);
       uptimeSum += u?.uptimePct ?? 0;
 
@@ -240,7 +240,7 @@ export async function zaloDashboardRoutes(app: FastifyInstance): Promise<void> {
     }));
 
     return accounts.map((a) => {
-      const live = zaloPool.getStatus(a.id) ?? a.status;
+      const live = zaloProviderClient.getStatus(a.id) ?? a.status;
       const u = uptimeMap.get(a.id);
       const uptime7d = u?.uptimePct ?? 0;
       const todayMetrics: NickDayMetrics | undefined = metricsToday.get(a.id);
@@ -495,7 +495,7 @@ export async function zaloDashboardRoutes(app: FastifyInstance): Promise<void> {
               continue;
             }
             // Fire-and-forget; status delivered via Socket.IO
-            zaloPool.reconnect(a.id, session, a.proxyUrl).catch(() => {});
+            zaloProviderClient.reconnect(a.id, session, a.proxyUrl).catch(() => {});
             results.push({ id: a.id, ok: true });
           } else if (action === 'sync-contacts') {
             // Defer to existing sync-contacts route via internal HTTP would be circular —
@@ -506,7 +506,7 @@ export async function zaloDashboardRoutes(app: FastifyInstance): Promise<void> {
             // NGẮT THỦ CÔNG (2026-06-16): set reason='manual' + mốc ngắt → cron/autoReconnect
             // BỎ QUA nick này (ngắt là ngắt thật, KHÔNG tự nối lại). GIỮ session để "Kết nối lại"
             // (sale sẽ quét QR lại — Anh chốt). disconnectedAt = mốc cố định FE hiện "Đã ngắt lúc…".
-            zaloPool.disconnect(a.id);
+            await zaloProviderClient.disconnect(a.id);
             await prisma.zaloAccount.update({
               where: { id: a.id },
               data: { status: 'disconnected', disconnectReason: 'manual', disconnectedAt: new Date() },

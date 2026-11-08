@@ -11,7 +11,7 @@
  */
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { detectDuplicates } from './duplicate-detector.js';
 import { mergeContacts } from './merge-service.js';
 
@@ -45,13 +45,11 @@ async function getPlaceholderUsernames(): Promise<Set<string>> {
 async function resolveProfile(uid: string, accountIds: string[]): Promise<ZaloProfile | null> {
   const placeholders = await getPlaceholderUsernames();
   for (const accId of accountIds) {
-    const instance = zaloPool.getInstance(accId);
-    const userApi = instance?.api as {
-      getUserInfo?: (uid: string) => Promise<{ changed_profiles?: Record<string, Record<string, unknown>> }>;
-    } | undefined;
-    if (!userApi?.getUserInfo) continue;
+    if (!zaloProviderClient.supports(accId, 'user_info')) continue;
     try {
-      const result = await userApi.getUserInfo(uid);
+      const result = await zaloProviderClient.getUserInfoDirect(accId, uid) as {
+        changed_profiles?: Record<string, Record<string, unknown>>;
+      };
       const profiles = result?.changed_profiles || {};
       const p = profiles[uid] || profiles[`${uid}_0`];
       if (p && (p.globalId || p.username || p.zaloName || p.displayName || p.avatar)) {

@@ -5,9 +5,20 @@
 import type { FastifyInstance } from 'fastify';
 import { Prisma } from '@prisma/client';
 import { authMiddleware } from '../auth/auth-middleware.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { prisma, tenantTransaction } from '../../shared/database/prisma-client.js';
 import { getZaloScope, canManageAccount, requireAccountManagement, requireAccountVisible } from './zalo-scope.js';
+import { sealGatewayCredential } from '../gateway/credential-store.js';
+
+function proxyWrite(proxyUrl: string | null): { proxyUrl: string | null; proxyCiphertext: string | null } {
+  const key = process.env.ZALO_GATEWAY_CREDENTIAL_KEY || process.env.ENCRYPTION_KEY || '';
+  return {
+    proxyUrl,
+    proxyCiphertext: proxyUrl && /^[a-fA-F0-9]{64}$/.test(key)
+      ? sealGatewayCredential(proxyUrl, key)
+      : null,
+  };
+}
 
 export async function zaloRoutes(app: FastifyInstance): Promise<void> {
   // All routes in this plugin require auth
@@ -51,7 +62,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
       ...a,
       proxyUrl: a.proxyUrl ? maskProxyUrl(a.proxyUrl) : null,
       hasProxy: !!a.proxyUrl,
-      liveStatus: zaloPool.getStatus(a.id),
+      liveStatus: zaloProviderClient.getStatus(a.id),
       canManage: canManageAccount(a.ownerUserId, userId, user.role),
       isOwnedByMe: a.ownerUserId === userId,
     }));
@@ -115,7 +126,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
               data: {
                 ...(phone ? { phone } : {}),
                 ...(displayName ? { displayName } : {}),
-                ...(proxyUrl !== undefined ? { proxyUrl: proxyUrl ?? null } : {}),
+                ...(proxyUrl !== undefined ? proxyWrite(proxyUrl ?? null) : {}),
               },
               select: { id: true, displayName: true, status: true, ownerUserId: true, phone: true },
             });
@@ -128,7 +139,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
               orgId: user.orgId,
               ownerUserId: user.id,
               displayName: displayName ?? null,
-              proxyUrl: proxyUrl ?? null,
+              ...proxyWrite(proxyUrl ?? null),
               phone: phone || null,
               status: 'qr_pending',
             },
@@ -185,7 +196,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
         select: { proxyUrl: true },
       });
       // Fire-and-forget — QR delivered via Socket.IO
-      zaloPool.loginQR(id, account?.proxyUrl ?? null).catch(() => {
+      zaloProviderClient.loginWithQr(id, account?.proxyUrl ?? null).catch(() => {
         // errors are emitted via socket; no need to crash here
       });
 
@@ -231,7 +242,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Fire-and-forget — result emitted via Socket.IO
-      zaloPool.reconnect(id, session, account.proxyUrl).catch(() => {});
+      zaloProviderClient.reconnect(id, session, account.proxyUrl).catch(() => {});
 
       return { message: 'Reconnect initiated' };
     },
@@ -255,7 +266,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
       const user = request.user!;
 
       // Stop listener trước (nick archived không cần kết nối nữa).
-      zaloPool.disconnect(id);
+      await zaloProviderClient.disconnect(id);
       // Chỉ ẩn — GIỮ sessionData + zaloUid để kết nối lại nguyên vẹn (revive). KHÔNG nhả uid.
       // T13: ghi archivedById = ai bấm xóa (tab "Nick đã xóa" hiện người xóa).
       await prisma.zaloAccount.update({
@@ -349,7 +360,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
       if (acc._count.conversations > 0 || acc._count.friends > 0) {
         return reply.status(409).send({ error: 'has_data', message: 'Nick còn dữ liệu (hội thoại/bạn bè) — không xóa hẳn được, chỉ khôi phục.' });
       }
-      zaloPool.disconnect(id);
+      await zaloProviderClient.disconnect(id);
       await prisma.zaloAccountAccess.deleteMany({ where: { zaloAccountId: id } });
       await prisma.zaloAccount.delete({ where: { id } }); // cascade dọn friendshipAttempts rỗng
       request.log?.info?.(`[zalo:${id}] purged (thẻ ma rỗng, 0 conv/0 friend) by ${request.user?.id}`);
@@ -488,7 +499,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
       const gate = await requireAccountVisible(request, reply, id);
       if (!gate) return reply;
 
-      return { accountId: id, liveStatus: zaloPool.getStatus(id) };
+      return { accountId: id, liveStatus: zaloProviderClient.getStatus(id) };
     },
   );
 
@@ -509,7 +520,7 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
 
       await prisma.zaloAccount.update({
         where: { id },
-        data: { proxyUrl: proxyUrl ?? null },
+        data: proxyWrite(proxyUrl ?? null),
       });
 
       return { message: 'Proxy updated', hasProxy: !!proxyUrl };

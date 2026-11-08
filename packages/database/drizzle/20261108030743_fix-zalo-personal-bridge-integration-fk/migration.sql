@@ -1,0 +1,3 @@
+ALTER TABLE "ZaloPersonalBridgeCheckpoint" ADD CONSTRAINT "ZaloPersonalBridgeCheckpoint_znjL1KS1p6QO_fkey" FOREIGN KEY ("integrationId") REFERENCES "IntegrationZaloPersonal"("id") ON DELETE CASCADE ON UPDATE CASCADE;--> statement-breakpoint
+ALTER TABLE "ZaloPersonalBridgeDeadLetter" ADD CONSTRAINT "ZaloPersonalBridgeDeadLetter_W1RXTL8VBBVe_fkey" FOREIGN KEY ("integrationId") REFERENCES "IntegrationZaloPersonal"("id") ON DELETE CASCADE ON UPDATE CASCADE;--> statement-breakpoint
+ALTER TABLE "ZaloPersonalCommandOutbox" ADD CONSTRAINT "ZaloPersonalCommandOutbox_zyHYcADovMWF_fkey" FOREIGN KEY ("integrationId") REFERENCES "IntegrationZaloPersonal"("id") ON DELETE CASCADE ON UPDATE CASCADE;

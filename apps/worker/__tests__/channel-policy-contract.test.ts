@@ -18,6 +18,7 @@ import {
   handledOutgoingContentEntities as whatsappHandledOutgoingContentEntities,
 } from "../../../integrations/whatsapp/src/handlers/message/outgoing-message"
 import { handledFlowStepTypes as zaloHandledFlowStepTypes } from "../../../integrations/zalo/src/handlers/message/outgoing-message"
+import { handledFlowStepTypes as zaloPersonalHandledFlowStepTypes } from "../../../integrations/zalo-personal/src/handlers/message"
 
 const MESSAGE_STEP_TYPES = [
   stepTypes.enum.sendText,
@@ -55,6 +56,7 @@ const HANDLED_STEP_TYPES: ReadonlyArray<{
   { channel: "tiktok", steps: tiktokHandledFlowStepTypes },
   { channel: "whatsapp", steps: whatsappHandledFlowStepTypes },
   { channel: "zalo", steps: zaloHandledFlowStepTypes },
+  { channel: "zalo_personal", steps: zaloPersonalHandledFlowStepTypes },
 ]
 
 /**

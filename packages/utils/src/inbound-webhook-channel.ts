@@ -167,6 +167,11 @@ export const INBOUND_WEBHOOK_CHANNEL_SPECS: Record<
     channelUserId: { kind: "zaloUserId", examplePath: "$.user_id" },
     creationIdentities: ["channelUserId"],
   },
+  zalo_personal: {
+    inboxIdentifiers: noInboxIdentifiers,
+    channelUserId: { kind: "zaloUserId", examplePath: "$.sender.id" },
+    creationIdentities: ["channelUserId"],
+  },
   // The TikTok connect path in business stores the username as `Inbox.sourceId`
   // while `Connection.sourceId` is always the account open id.
   tiktok: {

@@ -13,10 +13,10 @@ import { emitChatMessage } from '../../shared/realtime/emit-chat.js';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireZaloAccess } from '../zalo/zalo-access-middleware.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import { zaloOps } from '../../shared/zalo-operations.js';
-import { generateThumbnail, sendNativeVideo } from '../../shared/video-processor.js';
+import { generateThumbnail } from '../../shared/video-processor.js';
 import { uploadBuffer, type UploadResult } from '../../shared/storage/minio-client.js';
 import { compressImage } from '../media/media-service.js';
 import { logger } from '../../shared/utils/logger.js';
@@ -86,8 +86,9 @@ export async function chatAttachmentRoutes(app: FastifyInstance) {
       // Fix 2026-06-03 — optimistic badge "Sale CRM · {tên}"
       const userFullName = await getUserFullName(user.id);
 
-      const instance = zaloPool.getInstance(conversation.zaloAccountId);
-      if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+      if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
+        return reply.status(400).send({ error: 'Zalo account not connected' });
+      }
 
       // PRIVACY GUARD 2026-05-22: nick privacy=main → chỉ chính chủ upload được
       if (conversation.zaloAccount.privacyMode === 'main') {
@@ -168,7 +169,8 @@ export async function chatAttachmentRoutes(app: FastifyInstance) {
         if (imageIndexes.length > 0) {
           zaloRateLimiter.recordSend(conversation.zaloAccountId);
           const paths = imageIndexes.map((i) => tmpPaths[i]);
-          const sendResult: any = await instance.api.sendMessage(
+          const sendResult: any = await zaloProviderClient.sendMessageDirect(
+            conversation.zaloAccountId,
             { msg: caption, attachments: paths },
             threadId,
             threadType,
@@ -204,8 +206,7 @@ export async function chatAttachmentRoutes(app: FastifyInstance) {
             logger.warn('[chat-attachment] Video thumbnail generation failed:', err);
           }
           try {
-            const sendResult: any = await sendNativeVideo({
-              api: instance.api as any,
+            const sendResult: any = await zaloProviderClient.sendNativeVideoDirect(conversation.zaloAccountId, {
               videoPath: tmpPaths[i],
               thumbnailPath: generatedThumbnail?.path,
               threadId,

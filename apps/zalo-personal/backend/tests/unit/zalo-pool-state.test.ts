@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const attachZaloListenerMock = vi.hoisted(() => vi.fn());
+
 const prismaMock = {
   zaloAccount: {
     findUnique: vi.fn(),
@@ -21,7 +23,7 @@ vi.mock('../../src/shared/tenant/tenant-context.js', () => ({
 }));
 vi.mock('../../src/shared/utils/logger.js', () => ({ logger: loggerMock }));
 vi.mock('zca-js', () => ({ Zalo: class {} }));
-vi.mock('../../src/modules/zalo/zalo-listener-factory.js', () => ({ attachZaloListener: vi.fn() }));
+vi.mock('../../src/modules/zalo/zalo-listener-factory.js', () => ({ attachZaloListener: attachZaloListenerMock }));
 vi.mock('../../src/modules/api/webhook-service.js', () => ({ emitWebhook: vi.fn() }));
 vi.mock('../../src/modules/zalo/zalo-message-sync.js', () => ({
   startMessageSync: vi.fn(),
@@ -55,6 +57,7 @@ type PoolInternals = {
   io: unknown;
   reconnecting: Set<string>;
   stickyHoldNotificationTimers: Map<string, NodeJS.Timeout[]>;
+  attachListener: (accountId: string, api: unknown) => void;
   teardownExisting: (accountId: string) => void;
 };
 
@@ -211,5 +214,26 @@ describe('ZaloAccountPool state and listener lifecycle', () => {
     expect(stopMessageSyncMock).toHaveBeenNthCalledWith(1, 'acc-1');
     expect(stopMessageSyncMock).toHaveBeenNthCalledWith(2, 'acc-1');
     expect(zaloPool.getStatus('acc-1')).toBe('disconnected');
+  });
+
+  it('ignores a closed callback from a superseded listener epoch', () => {
+    const oldInstance = instance('connected', {}, 'org-1');
+    oldInstance.epoch = 1;
+    pool.instances.set('acc-1', oldInstance);
+    pool.attachListener('acc-1', {});
+    const listenerOptions = attachZaloListenerMock.mock.calls[0]?.[0] as {
+      onDisconnected: (accountId: string) => void;
+    };
+
+    const replacement = instance('connected', {}, 'org-1');
+    replacement.epoch = 2;
+    pool.instances.set('acc-1', replacement);
+    listenerOptions.onDisconnected('acc-1');
+
+    expect(pool.instances.get('acc-1')?.status).toBe('connected');
+    expect(stopMessageSyncMock).not.toHaveBeenCalledWith('acc-1');
+    expect(loggerMock.info).toHaveBeenCalledWith(
+      '[zalo:acc-1] Ignoring stale \'closed\' from superseded listener (epoch 1 != current 2)',
+    );
   });
 });

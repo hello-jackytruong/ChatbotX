@@ -21,6 +21,7 @@ export const channelTypes = z.enum([
   "messenger",
   "whatsapp",
   "zalo",
+  "zalo_personal",
   "smtp",
   "telegram",
   "instagram",
@@ -167,25 +168,32 @@ export const CHANNEL_CAPABILITIES: Record<ChannelType, ChannelCapability> = {
     order: 7,
     callable: false,
   },
-  webchat: {
+  zalo_personal: {
     creatable: true,
     manageable: true,
     requiresCredential: false,
     order: 8,
     callable: false,
   },
+  webchat: {
+    creatable: true,
+    manageable: true,
+    requiresCredential: false,
+    order: 9,
+    callable: false,
+  },
   smtp: {
     creatable: false,
     manageable: true,
     requiresCredential: false,
-    order: 9,
+    order: 10,
     callable: false,
   },
   api: {
     creatable: true,
     manageable: true,
     requiresCredential: false,
-    order: 10,
+    order: 11,
     callable: false,
   },
   // Not a real connectable channel — the fallback icon/label for unknown
@@ -195,7 +203,7 @@ export const CHANNEL_CAPABILITIES: Record<ChannelType, ChannelCapability> = {
     creatable: false,
     manageable: false,
     requiresCredential: false,
-    order: 11,
+    order: 12,
     callable: false,
   },
 }

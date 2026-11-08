@@ -305,6 +305,8 @@ export const receiveMessage = async (
   channelType: "instagram" | "instagramFacebook"
   /** The inbox the message arrived on, for analytics attribution. */
   inboxId: string
+  /** The local contact resolved for this delivery. */
+  contactId: string
   /** That inbox's real channel (`channelType` above is an Instagram-flavored legacy value). */
   inboxChannel: string
   /** True for a standby (listen-only) delivery: the caller must run no automation. */
@@ -958,6 +960,7 @@ export const receiveMessage = async (
     ref,
     channelType,
     inboxId: inbox.id,
+    contactId: contactInbox.contactId,
     inboxChannel: inbox.channel,
     suppressAutomation,
     standbyCopy,

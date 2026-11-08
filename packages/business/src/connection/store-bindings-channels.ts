@@ -1,3 +1,4 @@
+import { and, type DatabaseClient, db, eq } from "@chatbotx.io/database/client"
 import type { IntegrationType } from "@chatbotx.io/database/partials"
 import {
   integrationActiveCampaignModel,
@@ -29,7 +30,13 @@ import {
   integrationWebchatModel,
   integrationWhatsappModel,
   integrationZaloModel,
+  integrationZaloPersonalModel,
 } from "@chatbotx.io/database/schema"
+import { encryptedDataSchema, encryptUtils } from "@chatbotx.io/encryption"
+import type { AuthValue } from "@chatbotx.io/sdk"
+import { createId } from "@chatbotx.io/utils"
+import { z } from "zod"
+import { zaloPersonalRuntimeAuthSchema } from "../integration-zalo-personal/schema"
 import type {
   ConnectionStoreBinding,
   makeChannelBinding,
@@ -108,6 +115,126 @@ const OPENAI_COMPATIBLE_DEFAULTS = {
 const messagingProfileDefaults = () => ({
   conversationStarters: [],
   persistentMenus: [],
+})
+
+const zaloPersonalSecretSchema = z.object({ secret: z.string().min(1) })
+
+const zaloPersonalSecretAad = (
+  workspaceId: string,
+  accountId: string,
+): string => `zalo-personal:${workspaceId}:${accountId}`
+
+const sanitizeZaloPersonalAuth = (
+  auth: AuthValue,
+): {
+  authType: "custom"
+  accountId: string
+  bridgeUrl: string
+  keyId: string
+} => {
+  const parsed = zaloPersonalRuntimeAuthSchema.parse(auth)
+  return {
+    authType: "custom",
+    accountId: parsed.accountId,
+    bridgeUrl: parsed.bridgeUrl,
+    keyId: parsed.keyId,
+  }
+}
+
+const makeZaloPersonalBinding = (): ConnectionStoreBinding => ({
+  loadAuthByForeignKey: async (
+    inboxId,
+    workspaceId,
+    tx: DatabaseClient = db,
+  ) => {
+    const [row] = await tx
+      .select()
+      .from(integrationZaloPersonalModel)
+      .where(
+        and(
+          eq(integrationZaloPersonalModel.inboxId, inboxId),
+          eq(integrationZaloPersonalModel.workspaceId, workspaceId),
+        ),
+      )
+      .limit(1)
+    if (!row) {
+      throw new Error(
+        `Unable to load auth for IntegrationZaloPersonal inbox ${inboxId}`,
+      )
+    }
+    const decrypted = await encryptUtils.decryptObject(
+      encryptedDataSchema.parse(row.encryptedSecret),
+      zaloPersonalSecretSchema,
+      zaloPersonalSecretAad(workspaceId, row.accountId),
+    )
+    return zaloPersonalRuntimeAuthSchema.parse({
+      ...row.auth,
+      secret: decrypted.secret,
+    })
+  },
+  saveAuthByForeignKey: async (
+    inboxId,
+    workspaceId,
+    auth,
+    config,
+    tx: DatabaseClient = db,
+  ) => {
+    const parsed = zaloPersonalRuntimeAuthSchema.parse(auth)
+    const encryptedSecret = await encryptUtils.encryptObject(
+      { secret: parsed.secret },
+      zaloPersonalSecretAad(workspaceId, parsed.accountId),
+    )
+    const updated = await tx
+      .update(integrationZaloPersonalModel)
+      .set({
+        auth: sanitizeZaloPersonalAuth(parsed),
+        encryptedSecret,
+        accountId: parsed.accountId,
+        bridgeUrl: parsed.bridgeUrl,
+        keyId: parsed.keyId,
+        ...(typeof config?.name === "string" && config.name.trim()
+          ? { name: config.name.trim() }
+          : {}),
+      })
+      .where(
+        and(
+          eq(integrationZaloPersonalModel.inboxId, inboxId),
+          eq(integrationZaloPersonalModel.workspaceId, workspaceId),
+        ),
+      )
+      .returning({ id: integrationZaloPersonalModel.id })
+    return updated.length > 0
+  },
+  insertRow: async (input, tx: DatabaseClient = db) => {
+    if (input.kind !== "channel") {
+      throw new Error("IntegrationZaloPersonal requires a channel connection")
+    }
+    const parsed = zaloPersonalRuntimeAuthSchema.parse(input.auth)
+    const [row] = await tx
+      .insert(integrationZaloPersonalModel)
+      .values({
+        id: createId(),
+        workspaceId: input.workspaceId,
+        inboxId: input.inboxId,
+        auth: sanitizeZaloPersonalAuth(parsed),
+        encryptedSecret: await encryptUtils.encryptObject(
+          { secret: parsed.secret },
+          zaloPersonalSecretAad(input.workspaceId, parsed.accountId),
+        ),
+        accountId: parsed.accountId,
+        bridgeUrl: parsed.bridgeUrl,
+        keyId: parsed.keyId,
+        name:
+          typeof input.config?.name === "string" && input.config.name.trim()
+            ? input.config.name.trim()
+            : input.descriptor.displayName,
+      })
+      .returning({ id: integrationZaloPersonalModel.id })
+    return { id: row.id }
+  },
+  deleteRowByForeignKey: () => Promise.resolve(),
+  duplicateConstraint: "IntegrationZaloPersonal_accountId_key",
+  configColumns: ["accountId", "bridgeUrl", "keyId", "name"],
 })
 
 /**
@@ -412,4 +539,5 @@ export const buildConnectionStoreBindings = (
     identityColumn: "oaId",
     onDisconnect: "keep_row",
   }),
+  zalo_personal: makeZaloPersonalBinding(),
 })

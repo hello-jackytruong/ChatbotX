@@ -22,6 +22,7 @@ COMPOSE=(
   -f "$REPO_ROOT/docker-compose.zalo-personal.production.yml"
 )
 SHARED_SERVICES=(postgres redis filesystem)
+ZALO_SERVICES=(zalo-personal zalo-personal-gateway)
 
 log() { printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 fail() { log "ERROR: $*" >&2; exit 1; }
@@ -345,7 +346,7 @@ activate_previous_image() {
   [[ "$previous_image" == chatbotx-zalo-personal:sha-* ]] || return 1
   previous_tag="${previous_image#chatbotx-zalo-personal:}"
   export CHATBOTX_ZALO_PERSONAL_IMAGE_TAG="$previous_tag"
-  compose up -d --no-deps --wait --wait-timeout 180 zalo-personal
+  compose up -d --no-deps --wait --wait-timeout 180 "${ZALO_SERVICES[@]}"
   readiness_probe
 }
 
@@ -378,14 +379,14 @@ activate() {
   else
     state_unset previous-image
   fi
-  if ! compose up -d --no-deps --wait --wait-timeout 180 zalo-personal ||
+  if ! compose up -d --no-deps --wait --wait-timeout 180 "${ZALO_SERVICES[@]}" ||
     ! readiness_probe; then
     log "Zalo activation failed; restoring the previous image."
     if [[ -n "$previous_image" ]]; then
       activate_previous_image "$previous_image" ||
         fail "Zalo activation and automatic image rollback both failed."
     else
-      compose stop zalo-personal || true
+      compose stop "${ZALO_SERVICES[@]}" || true
     fi
     fail "Zalo activation failed; the previous image was restored when available."
   fi
@@ -496,7 +497,7 @@ main() {
     backup) acquire_lock; preflight; create_backup; backup_object_bytes ;;
     install-backup-cron) install_backup_cron ;;
     rollback) acquire_lock; rollback ;;
-    status) compose ps zalo-personal postgres redis filesystem ;;
+    status) compose ps "${ZALO_SERVICES[@]}" postgres redis filesystem ;;
     logs) compose logs -f --tail=200 "${2:-zalo-personal}" ;;
     config) compose --profile bootstrap config --quiet ;;
     *) usage; return 2 ;;

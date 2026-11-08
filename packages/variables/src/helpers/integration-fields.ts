@@ -303,6 +303,8 @@ const getChannelIntegrationId = (
       return inbox.integrationWhatsapp?.id ?? null
     case channelTypes.enum.zalo:
       return inbox.integrationZalo?.id ?? null
+    case channelTypes.enum.zalo_personal:
+      return inbox.integrationZaloPersonal?.id ?? null
     case channelTypes.enum.tiktok:
       return inbox.integrationTiktok?.id ?? null
     case channelTypes.enum.threads:
@@ -433,6 +435,8 @@ export const getIntegrationField = async (
           return inbox.integrationWhatsapp?.name ?? null
         case channelTypes.enum.zalo:
           return inbox.integrationZalo?.name ?? null
+        case channelTypes.enum.zalo_personal:
+          return inbox.integrationZaloPersonal?.name ?? null
         case channelTypes.enum.tiktok:
           return inbox.integrationTiktok?.name ?? null
         case channelTypes.enum.threads:

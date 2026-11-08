@@ -36,6 +36,10 @@ export const allInboxConfigs = {
     label: "Zalo OA",
     value: "zalo",
   },
+  zalo_personal: {
+    label: "Zalo Personal",
+    value: "zalo_personal",
+  },
   telegram: {
     label: "Telegram",
     value: "telegram",

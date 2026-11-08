@@ -13,7 +13,7 @@
  */
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 
 interface ResolvedProfile {
   zaloName: string | null;
@@ -21,13 +21,11 @@ interface ResolvedProfile {
 }
 
 async function resolveOne(uid: string, accountId: string): Promise<ResolvedProfile | null> {
-  const instance = zaloPool.getInstance(accountId);
-  const userApi = instance?.api as {
-    getUserInfo?: (uid: string) => Promise<{ changed_profiles?: Record<string, Record<string, unknown>> }>;
-  } | undefined;
-  if (!userApi?.getUserInfo) return null;
+  if (!zaloProviderClient.supports(accountId, 'user_info')) return null;
   try {
-    const result = await userApi.getUserInfo(uid);
+    const result = await zaloProviderClient.getUserInfoDirect(accountId, uid) as {
+      changed_profiles?: Record<string, Record<string, unknown>>;
+    };
     const profiles = result?.changed_profiles || {};
     const p = profiles[uid] || profiles[`${uid}_0`];
     if (!p) return null;

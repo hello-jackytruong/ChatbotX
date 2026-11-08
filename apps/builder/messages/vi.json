@@ -1320,6 +1320,24 @@
     "deleteConfirmation": "Bạn có thực sự chắc chắn?\nHành động này không thể hoàn tác.\nĐiều này sẽ xóa vĩnh viễn {feature} khỏi máy chủ của chúng tôi."
   },
   "fields": {
+    "zalo_personal": {
+      "label": "Zalo Cá nhân",
+      "title": "Zalo Cá nhân",
+      "connect": "Kết nối Zalo Cá nhân",
+      "connected": "Đã kết nối Zalo Cá nhân",
+      "name": "Tên hiển thị",
+      "accountId": "ID tài khoản",
+      "bridgeUrl": "URL cầu nối",
+      "keyId": "ID khóa",
+      "secret": "Khóa bí mật dịch vụ",
+      "status": {
+        "connected": "Đã kết nối",
+        "degraded": "Suy giảm",
+        "needs_reauth": "Cần kết nối lại",
+        "paused": "Đã tạm dừng",
+        "disconnected": "Đã ngắt kết nối"
+      }
+    },
     "optionalHint": "(không bắt buộc)",
     "marketingMessagesConfigId": {
       "label": "ID cấu hình Marketing Messages",

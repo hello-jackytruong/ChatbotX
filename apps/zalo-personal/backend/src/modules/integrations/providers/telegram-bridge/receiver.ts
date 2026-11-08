@@ -16,7 +16,7 @@ import { logger } from '../../../../shared/utils/logger.js';
 import { zaloOps } from '../../../../shared/zalo-operations.js';
 import { getUpdates, sendMessage, downloadTelegramFile, cleanupTempFile, type TgMessageUpdate } from './telegram-api.js';
 import { emitChatMessage } from '../../../../shared/realtime/emit-chat.js';
-import { zaloPool } from '../../../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../../../zalo-provider/client.js';
 import { redeemLinkCode, getLinkedUser } from './link.js';
 import { hasZaloAccess } from '../../../zalo/zalo-access-middleware.js';
 
@@ -239,7 +239,7 @@ async function processUpdate(u: TgMessageUpdate): Promise<void> {
         .catch(() => {});
       // Realtime: đẩy tin lên UI chat CRM ngay (khỏi refresh) — cùng helper với chat web.
       await emitChatMessage({
-        io: zaloPool.getIO(),
+        io: zaloProviderClient.getIO(),
         orgId: conv.zaloAccount.orgId,
         accountId: conv.zaloAccountId,
         conversationId: conv.id,

@@ -141,6 +141,7 @@ export function buildInboxLink(
       refKey: "ref",
       refValue,
     },
+    zalo_personal: undefined,
     webchat: {
       url: `${appUrl}/webchat?workspaceId=${inbox.workspaceId}&webchatId=${inbox.sourceId}`,
       refKey: "ref",
@@ -195,6 +196,7 @@ export function buildPostLink(channel: ChannelType, postId: string): string {
     whatsapp: "",
     telegram: "",
     zalo: "",
+    zalo_personal: "",
     tiktok: "",
     webchat: "",
     smtp: "",
@@ -216,6 +218,7 @@ export function buildMessageLink(
     whatsapp: "",
     telegram: "",
     zalo: "",
+    zalo_personal: "",
     tiktok: "",
     webchat: "",
     smtp: "",

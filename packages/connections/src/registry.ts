@@ -40,6 +40,7 @@ import { integration as integrationTiktok } from "@chatbotx.io/integration-tikto
 import { integration as integrationWebchat } from "@chatbotx.io/integration-webchat"
 import { integration as integrationWhatsapp } from "@chatbotx.io/integration-whatsapp"
 import { integration as integrationZalo } from "@chatbotx.io/integration-zalo"
+import { integration as integrationZaloPersonal } from "@chatbotx.io/integration-zalo-personal"
 import type { Integration, IntegrationDefinition } from "@chatbotx.io/sdk"
 import { messengerConnectionTeardownHook } from "./messenger-teardown"
 
@@ -210,4 +211,5 @@ export const CONNECTION_REGISTRY: StoreBoundConnectionRegistry = {
   },
   whatsapp: fromIntegration(integrationWhatsapp, "whatsapp", "whatsapp"),
   zalo: fromIntegration(integrationZalo, "zalo", "zalo"),
+  zalo_personal: fromIntegration(integrationZaloPersonal, "zalo_personal"),
 }

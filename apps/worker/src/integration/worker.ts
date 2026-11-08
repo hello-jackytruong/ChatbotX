@@ -248,6 +248,19 @@ function startIntegrationWorker() {
                 return
               }
 
+              const bridgeCompletion =
+                job.data.data.integrationType === "zalo_personal"
+                  ? {
+                      messageId: message.id,
+                      conversationId: conversation.id,
+                      contactId: received.contactId,
+                      direction:
+                        message.messageType === "outgoing"
+                          ? ("outbound" as const)
+                          : ("inbound" as const),
+                    }
+                  : undefined
+
               const isNotPostbackOrQuickReply = !(
                 postbackAction || quickReplyAction
               )
@@ -261,13 +274,13 @@ function startIntegrationWorker() {
                   message,
                 }))
               ) {
-                return
+                return bridgeCompletion
               }
 
               // Standby deliveries (another responder owns the thread) are
               // stored only: no story-reply, routing or fallback analytics.
               if (suppressAutomation) {
-                return
+                return bridgeCompletion
               }
 
               // An image/file message has contentType "text" — only its
@@ -286,7 +299,7 @@ function startIntegrationWorker() {
                   channelType,
                 }))
               ) {
-                return
+                return bridgeCompletion
               }
 
               const attachmentFileTypes = message.attachments.map(
@@ -371,7 +384,7 @@ function startIntegrationWorker() {
               } else if (isNotPostbackOrQuickReply) {
                 await trackNoResponse()
               }
-              return
+              return bridgeCompletion
             }
             case IntegrationJobAction.incomingComment: {
               await receiveComment(job.data.data)

@@ -6,10 +6,9 @@ import type { FastifyInstance } from 'fastify';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireGrant } from '../rbac/rbac-middleware.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { randomUUID } from 'node:crypto';
-import { backfillAccountHistory } from './zalo-history-backfill.js';
 import { resolveOrCreateContact } from '../contacts/resolve-contact.js';
 
 export async function zaloSyncRoutes(app: FastifyInstance) {
@@ -21,11 +20,12 @@ export async function zaloSyncRoutes(app: FastifyInstance) {
       const user = request.user!;
       const { id } = request.params as { id: string };
 
-      const instance = zaloPool.getInstance(id);
-      if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+      if (!zaloProviderClient.isConnected(id)) {
+        return reply.status(400).send({ error: 'Zalo account not connected' });
+      }
 
       try {
-        const result = await instance.api.getAllFriends();
+        const result = await zaloProviderClient.getAllFriendsDirect(id);
         // getAllFriends returns object with profiles
         const friends = Object.values(result || {}) as any[];
         let created = 0, updated = 0;
@@ -58,7 +58,7 @@ export async function zaloSyncRoutes(app: FastifyInstance) {
         }
 
         // Backfill: link orphaned conversations (contactId is null) to contacts
-        const linked = await linkOrphanedConversations(id, user.orgId, instance.api);
+        const linked = await linkOrphanedConversations(id, user.orgId);
 
         logger.info(`[sync] Zalo contacts: ${created} created, ${updated} updated, ${linked} conversations linked`);
         return { success: true, created, updated, linked, total: friends.length };
@@ -81,11 +81,12 @@ export async function zaloSyncRoutes(app: FastifyInstance) {
   app.post('/api/v1/zalo-accounts/:id/sync-history', { preHandler: requireGrant('zalo_account', 'edit') },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const instance = zaloPool.getInstance(id);
-      if (!instance?.api) return reply.status(400).send({ error: 'Zalo account not connected' });
+      if (!zaloProviderClient.isConnected(id)) {
+        return reply.status(400).send({ error: 'Zalo account not connected' });
+      }
 
       try {
-        const result = await backfillAccountHistory(instance.api, id);
+        const result = await zaloProviderClient.backfillAccountHistoryDirect(id);
         return { success: true, ...result };
       } catch (err) {
         logger.error('[sync] Zalo history sync error:', err);
@@ -102,7 +103,6 @@ export async function zaloSyncRoutes(app: FastifyInstance) {
 async function linkOrphanedConversations(
   accountId: string,
   orgId: string,
-  api: any,
 ): Promise<number> {
   const orphaned = await prisma.conversation.findMany({
     where: { zaloAccountId: accountId, contactId: null, threadType: 'user' },
@@ -128,7 +128,7 @@ async function linkOrphanedConversations(
       let avatar = '';
       let phone = '';
       try {
-        const result = await api.getUserInfo(uid);
+        const result = await zaloProviderClient.getUserInfoDirect(accountId, uid);
         const profiles = result?.changed_profiles || {};
         const profile = profiles[uid] || profiles[`${uid}_0`];
         if (profile) {

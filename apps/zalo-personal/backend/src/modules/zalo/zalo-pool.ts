@@ -3,10 +3,8 @@
  * Handles QR login, session reconnect, message listener lifecycle,
  * and credential persistence to the database.
  *
- * Note: zca-js is imported via createRequire because its TypeScript
- * declarations don't expose named exports in ESM mode.
+ * SDK construction is isolated behind the in-process provider adapter.
  */
-import { createRequire } from 'module';
 import type { Server } from 'socket.io';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../shared/database/prisma-client.js';
@@ -16,22 +14,10 @@ import { attachZaloListener, type UserInfoCacheEntry } from './zalo-listener-fac
 import { emitWebhook } from '../api/webhook-service.js';
 import { startMessageSync, stopMessageSync } from './zalo-message-sync.js';
 import { backfillIfEmpty } from './zalo-history-backfill.js';
-import { readFile } from 'fs/promises';
-import { imageSize } from 'image-size';
 import { withProxy } from './proxy-util.js';
 import { writeTransition, type ZaloStatus, type StatusReason } from './status-log-service.js';
-
-// zca-js has no reliable ESM type exports — load via CJS interop
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Zalo } = require('zca-js') as { Zalo: new (opts: { logging: boolean; selfListen?: boolean; imageMetadataGetter?: (path: string) => Promise<{ width: number; height: number; size: number }> }) => any };
-
-async function imageMetadataGetter(filePath: string) {
-  const data = await readFile(filePath);
-  const info = imageSize(data);
-  if (!info.width || !info.height) throw new Error(`Cannot read image size: ${filePath}`);
-  return { width: info.width, height: info.height, size: data.length };
-}
+import { inProcessZcaAdapter } from '../zalo-provider/in-process-zca-adapter.js';
+import { sealGatewayCredential } from '../gateway/credential-store.js';
 
 interface ZaloCredentials {
   cookie: any;
@@ -187,7 +173,7 @@ class ZaloAccountPool {
     const epoch = ++this.epochCounter;
     // (5) Bump epoch + set instance mới NGAY → mọi autoReconnect timer cũ đang chờ (30s/2min)
     //     khi fire sẽ thấy epoch lệch / status mới và bỏ qua, không ghi đè instance QR mới.
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter });
+    const zalo = inProcessZcaAdapter.createSession();
     this.instances.set(accountId, { zalo, api: null, status: 'qr_pending', lastActivity: new Date(), epoch });
     logger.info(`[zalo:${accountId}] loginQR — fresh instance created (epoch=${epoch}), waiting for QR event…`);
 
@@ -367,7 +353,7 @@ class ZaloAccountPool {
     // → Zalo evict → 'closed' loop). stop() = ws.close(1000)+reset, an toàn.
     this.teardownExisting(accountId);
     const epoch = ++this.epochCounter;
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter });
+    const zalo = inProcessZcaAdapter.createSession();
     this.instances.set(accountId, { zalo, api: null, status: 'connecting', lastActivity: new Date(), epoch });
 
     try {
@@ -461,7 +447,7 @@ class ZaloAccountPool {
       const { syncAccountFully } = await import('./friend-sync-service.js');
       const res = await syncAccountFully(accountId, account.orgId, {
         trigger: 'connect',
-        io: this.io,
+        io: (this.io as any)?.forAccount?.(accountId) ?? this.io,
       });
       logger.info(
         `[zalo:${accountId}] Auto-sync on connect: friends_emitted=${res.friends?.emittedCount ?? 0} aliases=${res.aliasesUpdated} labels=${res.labelsUpdated} errors=${res.errors.length}`,
@@ -477,10 +463,14 @@ class ZaloAccountPool {
     // Fix flap 2026-06-06: capture epoch của instance HIỆN TẠI tại thời điểm attach.
     // 'closed' event đến từ listener cũ (epoch lỗi thời) sẽ bị bỏ qua trong onDisconnected.
     const myEpoch = this.instances.get(accountId)?.epoch ?? this.epochCounter;
+    const listenerIo = (this.io as any)?.forAccount?.(accountId) ?? this.io;
     attachZaloListener({
       accountId,
       api,
-      io: this.io,
+      io: listenerIo,
+      isActive: typeof listenerIo?.isActive === 'function'
+        ? () => listenerIo.isActive()
+        : undefined,
       userInfoCache: this.userInfoCache,
       onDisconnected: (id) => {
         // Fix flap 2026-06-06: nếu instance hiện tại có epoch khác → listener này đã bị
@@ -545,9 +535,19 @@ class ZaloAccountPool {
 
   // Persist session credentials to DB
   private saveCredentials(accountId: string, credentials: ZaloCredentials): void {
+    const gatewayKey = process.env.ZALO_GATEWAY_CREDENTIAL_KEY || process.env.ENCRYPTION_KEY;
+    const sessionCiphertext = gatewayKey && /^[a-fA-F0-9]{64}$/.test(gatewayKey)
+      ? sealGatewayCredential(JSON.stringify(credentials), gatewayKey)
+      : undefined;
     // 2026-06-11: system-context — pool ghi nền (không tenant ctx), tránh RLS chặn.
     runSystemQuery(() => prisma.zaloAccount
-      .update({ where: { id: accountId }, data: { sessionData: credentials as any } }))
+      .update({
+        where: { id: accountId },
+        data: {
+          sessionData: credentials as any,
+          ...(sessionCiphertext ? { sessionCiphertext } : {}),
+        },
+      }))
       .catch((err) => logger.error(`[zalo:${accountId}] saveCredentials error:`, err));
   }
 

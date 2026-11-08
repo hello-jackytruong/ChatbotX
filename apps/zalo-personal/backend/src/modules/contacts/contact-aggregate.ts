@@ -16,7 +16,7 @@ import { logger } from '../../shared/utils/logger.js';
 import { randomUUID } from 'node:crypto';
 import { counterDelta, deriveRelationshipKind } from '../zalo/friend-event-handler.js';
 import { logActivity } from '../activity/activity-logger.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { ensureContactCollaborator } from './contact-scope.js';
 
 const PREVIEW_LIMIT = 200;
@@ -421,7 +421,7 @@ export async function applyFriendAggregate(args: AggregateMessageInput): Promise
 
     // Flush deferred socket emits AFTER transaction commit (avoid emitting on rollback)
     if (emitQueue.length > 0) {
-      const io = zaloPool.getIO();
+      const io = zaloProviderClient.getIO();
       if (io) {
         for (const ev of emitQueue) {
           io.to(`org:${ev.orgId}`).emit('friend:updated', {

@@ -96,7 +96,8 @@ CALLS=()
 activate
 calls="$(printf '%s\n' "${CALLS[@]}")"
 assert_contains "$calls" "--no-deps" "Zalo activation must not start dependencies"
-assert_contains "$calls" "zalo-personal" "Zalo activation must target only the app"
+assert_contains "$calls" "zalo-personal" "Zalo activation must target the facade"
+assert_contains "$calls" "zalo-personal-gateway" "Zalo activation must target the gateway"
 
 source_text="$(<"$SCRIPT_DIR/production.sh")"
 assert_contains "$source_text" 'new PrismaPg' "Prisma 7 readiness must use its PostgreSQL adapter"

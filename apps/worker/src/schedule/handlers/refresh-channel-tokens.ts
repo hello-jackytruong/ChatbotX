@@ -20,6 +20,7 @@ const refreshTokenAdapter: Record<
   (() => Promise<void>) | undefined
 > = {
   zalo: refreshZaloTokens,
+  zalo_personal: undefined,
   tiktok: refreshTiktokTokens,
   threads: refreshThreadsTokens,
   instagram: refreshInstagramAndFacebookTokens,

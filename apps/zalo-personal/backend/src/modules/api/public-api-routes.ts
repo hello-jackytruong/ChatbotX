@@ -6,6 +6,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 
 // ── API key auth middleware ────────────────────────────────────────────────────
 
@@ -274,13 +275,17 @@ export async function publicApiRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(422).send({ error: 'Zalo account is not connected' });
       }
 
-      // Dynamically import zaloPool to avoid circular deps
-      const { zaloPool } = await import('../zalo/zalo-pool.js');
-      const api = zaloPool.getApi(body.zaloAccountId);
-      if (!api) return reply.status(422).send({ error: 'Zalo account not active in pool' });
+      if (!zaloProviderClient.isConnected(body.zaloAccountId)) {
+        return reply.status(422).send({ error: 'Zalo account not active in pool' });
+      }
 
       const threadType = body.threadType === 'group' ? 1 : 0;
-      await api.sendMessage(body.content, body.threadId, threadType);
+      await zaloProviderClient.sendMessageDirect(
+        body.zaloAccountId,
+        body.content,
+        body.threadId,
+        threadType,
+      );
 
       return { success: true };
     } catch (err) {

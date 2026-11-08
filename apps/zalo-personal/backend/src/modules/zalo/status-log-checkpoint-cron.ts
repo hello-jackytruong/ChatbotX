@@ -20,7 +20,7 @@ import cron from 'node-cron';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { logger } from '../../shared/utils/logger.js';
 import { writeTransition, type ZaloStatus } from './status-log-service.js';
-import { zaloPool } from './zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { withTenant, runSystemQuery } from '../../shared/tenant/tenant-context.js';
 
 // 5 phút — đủ tight để uptime drift trong window 5p, đủ rộng để không spam DB.
@@ -67,7 +67,7 @@ export async function runCheckpoint(): Promise<{
   reconciled: number;
   created: number;
 }> {
-  const poolStatuses = zaloPool.getAllStatuses();
+  const poolStatuses = zaloProviderClient.getAllStatuses();
   const poolIds = new Set(Object.keys(poolStatuses));
 
   // Find all accounts to reconcile: pool nicks + DB nicks có open record.

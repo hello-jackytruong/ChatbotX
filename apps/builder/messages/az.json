@@ -1320,6 +1320,24 @@
     "deleteConfirmation": "Tam əminsiniz?\nBu əməliyyatı geri almaq mümkün deyil.\nBu əməliyyat {feature} elementinizi serverlərimizdən həmişəlik siləcək."
   },
   "fields": {
+    "zalo_personal": {
+      "label": "Zalo Personal",
+      "title": "Zalo Personal",
+      "connect": "Connect Zalo Personal",
+      "connected": "Zalo Personal connected",
+      "name": "Display name",
+      "accountId": "Account ID",
+      "bridgeUrl": "Bridge URL",
+      "keyId": "Key ID",
+      "secret": "Service secret",
+      "status": {
+        "connected": "Connected",
+        "degraded": "Degraded",
+        "needs_reauth": "Needs reconnect",
+        "paused": "Paused",
+        "disconnected": "Disconnected"
+      }
+    },
     "optionalHint": "(istəyə bağlı)",
     "marketingMessagesConfigId": {
       "label": "Marketinq mesajlarının konfiqurasiya ID-si",

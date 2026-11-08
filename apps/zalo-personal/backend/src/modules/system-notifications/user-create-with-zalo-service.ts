@@ -22,7 +22,7 @@ import { prisma, tenantTransaction } from '../../shared/database/prisma-client.j
 import { logger } from '../../shared/utils/logger.js';
 import { normalizePhone } from '../../shared/utils/phone.js';
 import { zaloOps } from '../../shared/zalo-operations.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import {
   buildAdminFallbackMessage,
@@ -456,15 +456,16 @@ async function sendWelcomeAndFallback(p: SendLoginParams): Promise<CreateUserRes
   let deliveryChannel: 'inbox' | 'strangers' | 'failed' = 'failed';
   let sendError: string | null = null;
   try {
-    const api = zaloPool.getApi(senderId);
-    if (!api) throw new Error('Nick gửi hệ thống chưa connected trong pool');
+    if (!zaloProviderClient.isConnected(senderId)) {
+      throw new Error('Nick gửi hệ thống chưa connected trong pool');
+    }
     await zaloRateLimiter.recordSend(senderId, 'message');
     const payload: Record<string, unknown> = { msg: welcome.formatted.text };
     // FIX 2026-05-27 bug "tin login plain text": convert text-formatter format → zca-js Style
     const zaloStyles = toZaloStyles(welcome.formatted.styles);
     if (zaloStyles.length > 0) payload.styles = zaloStyles;
     if (imageAttachment) payload.attachments = imageAttachment;
-    await api.sendMessage(payload, p.targetUid, 0);
+    await zaloProviderClient.sendMessageDirect(senderId, payload, p.targetUid, 0);
     messageSent = true;
     deliveryChannel = p.finalRelation === 'friend' ? 'inbox' : 'strangers';
   } catch (err) {
@@ -487,9 +488,8 @@ async function sendWelcomeAndFallback(p: SendLoginParams): Promise<CreateUserRes
             credentials: { email: p.user.email, phone: p.user.phone, password: p.tempPassword, loginUrl },
           });
           await zaloRateLimiter.recordSend(senderId, 'message');
-          const api = zaloPool.getApi(senderId);
-          if (api) {
-            await api.sendMessage({ msg: fallbackText }, adminUid, 0);
+          if (zaloProviderClient.isConnected(senderId)) {
+            await zaloProviderClient.sendMessageDirect(senderId, { msg: fallbackText }, adminUid, 0);
             fallbackSentToAdmin = true;
           }
         }

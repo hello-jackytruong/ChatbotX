@@ -49,6 +49,10 @@ export const env = createEnv({
       .min(1)
       .max(200)
       .default(10),
+    ZALO_PERSONAL_BRIDGE_ENABLED: z.stringbool().default(false),
+    ZALO_PERSONAL_BRIDGE_POLL_ENABLED: z.stringbool().default(false),
+    ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED: z.stringbool().default(false),
+    ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST: z.string().default(""),
     // Historical messages stored per Messenger conversation, measured back
     // from that conversation's latest activity. Keep bounded so an accidental
     // value cannot turn one Page connection into an unbounded Graph crawl.

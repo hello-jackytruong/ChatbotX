@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "routeCount": 730,
-  "producerCount": 422,
+  "routeCount": 735,
+  "producerCount": 427,
   "consumerCount": 308,
   "routes": [
     {
@@ -10,7 +10,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 56,
+      "line": 57,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -20,7 +20,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 216,
+      "line": 218,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -30,7 +30,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 155,
+      "line": 156,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -40,7 +40,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 292,
+      "line": 294,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -50,7 +50,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 297,
+      "line": 299,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -60,7 +60,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 321,
+      "line": 323,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -70,7 +70,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 247,
+      "line": 249,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -80,7 +80,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 252,
+      "line": 254,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -90,7 +90,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 279,
+      "line": 281,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -100,7 +100,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 134,
+      "line": 135,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -330,7 +330,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 196,
+      "line": 197,
       "authOrPreHandler": true,
       "statuses": [
         500
@@ -342,7 +342,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 222,
+      "line": 223,
       "authOrPreHandler": true,
       "statuses": [
         201,
@@ -383,7 +383,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 31,
+      "line": 32,
       "authOrPreHandler": true,
       "statuses": [
         500
@@ -395,7 +395,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 85,
+      "line": 86,
       "authOrPreHandler": true,
       "statuses": [
         201,
@@ -409,7 +409,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 64,
+      "line": 65,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -422,7 +422,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 114,
+      "line": 115,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -435,7 +435,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 145,
+      "line": 146,
       "authOrPreHandler": true,
       "statuses": [
         500
@@ -447,7 +447,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 168,
+      "line": 169,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -460,7 +460,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/api/public-api-routes.ts",
-      "line": 254,
+      "line": 255,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1093,7 +1093,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2343,
+      "line": 2358,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1576,7 +1576,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 417,
+      "line": 416,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1586,7 +1586,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2481,
+      "line": 2495,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -1598,7 +1598,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 988,
+      "line": 987,
       "authOrPreHandler": true,
       "statuses": [
         403,
@@ -1630,7 +1630,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 757,
+      "line": 754,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -1642,7 +1642,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 424,
+      "line": 423,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1655,7 +1655,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 707,
+      "line": 704,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -1667,7 +1667,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2312,
+      "line": 2327,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1677,7 +1677,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1259,
+      "line": 1257,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -1689,7 +1689,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1490,
+      "line": 1488,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1707,7 +1707,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 302,
+      "line": 301,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -1719,7 +1719,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 366,
+      "line": 365,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1733,7 +1733,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 328,
+      "line": 327,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1747,7 +1747,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 593,
+      "line": 590,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1757,7 +1757,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 256,
+      "line": 255,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1770,7 +1770,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 169,
+      "line": 168,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1783,7 +1783,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2495,
+      "line": 2509,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -1795,7 +1795,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1850,
+      "line": 1854,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1811,7 +1811,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 636,
+      "line": 633,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -1823,7 +1823,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2459,
+      "line": 2473,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1836,7 +1836,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 1105,
+      "line": 1104,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -1848,7 +1848,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 286,
+      "line": 285,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1858,7 +1858,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-operations-routes.ts",
-      "line": 615,
+      "line": 612,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1868,7 +1868,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 2170,
+      "line": 2178,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -1883,7 +1883,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 129,
+      "line": 128,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1907,7 +1907,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 178,
+      "line": 177,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -1917,7 +1917,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/chat/chat-routes.ts",
-      "line": 336,
+      "line": 335,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -2979,7 +2979,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 836,
+      "line": 834,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -2991,7 +2991,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 732,
+      "line": 730,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -3004,7 +3004,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1199,
+      "line": 1197,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -3016,7 +3016,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 950,
+      "line": 948,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -3028,7 +3028,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 929,
+      "line": 927,
       "authOrPreHandler": true,
       "statuses": [
         404
@@ -3057,7 +3057,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1023,
+      "line": 1021,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -3070,7 +3070,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 995,
+      "line": 993,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -3083,7 +3083,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1254,
+      "line": 1252,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -3099,7 +3099,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 789,
+      "line": 787,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -3112,7 +3112,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 859,
+      "line": 857,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -3125,7 +3125,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1228,
+      "line": 1226,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3135,7 +3135,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1047,
+      "line": 1045,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3145,7 +3145,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1067,
+      "line": 1065,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -3182,7 +3182,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1151,
+      "line": 1149,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3192,7 +3192,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1092,
+      "line": 1090,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3202,7 +3202,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 1125,
+      "line": 1123,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3212,7 +3212,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 886,
+      "line": 884,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3222,7 +3222,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/media/media-routes.ts",
-      "line": 972,
+      "line": 970,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -3874,7 +3874,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/scoring/scoring-routes.ts",
-      "line": 616,
+      "line": 622,
       "authOrPreHandler": true,
       "statuses": [
         403,
@@ -4104,7 +4104,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/app.ts",
-      "line": 347,
+      "line": 352,
       "authOrPreHandler": false,
       "statuses": []
     },
@@ -4560,7 +4560,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 18,
+      "line": 29,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -4570,7 +4570,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 61,
+      "line": 72,
       "authOrPreHandler": true,
       "statuses": [
         200,
@@ -4947,7 +4947,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 249,
+      "line": 260,
       "authOrPreHandler": true,
       "statuses": [
         204
@@ -5018,7 +5018,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 549,
+      "line": 550,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -5031,7 +5031,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 812,
+      "line": 814,
       "authOrPreHandler": true,
       "statuses": [
         404,
@@ -5045,7 +5045,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 672,
+      "line": 673,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5060,7 +5060,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 636,
+      "line": 637,
       "authOrPreHandler": true,
       "statuses": [
         500
@@ -5072,7 +5072,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 652,
+      "line": 653,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -5082,7 +5082,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 174,
+      "line": 185,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -5106,7 +5106,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 524,
+      "line": 535,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5136,7 +5136,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 496,
+      "line": 507,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -5148,7 +5148,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 335,
+      "line": 346,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5162,7 +5162,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 197,
+      "line": 208,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5176,7 +5176,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 272,
+      "line": 283,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -5209,7 +5209,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 482,
+      "line": 493,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -5219,7 +5219,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-sync-routes.ts",
-      "line": 19,
+      "line": 18,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5256,7 +5256,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 288,
+      "line": 299,
       "authOrPreHandler": true,
       "statuses": [
         401
@@ -5280,7 +5280,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-routes.ts",
-      "line": 364,
+      "line": 375,
       "authOrPreHandler": true,
       "statuses": [
         400
@@ -5302,7 +5302,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/zalo/zalo-labels-routes.ts",
-      "line": 591,
+      "line": 592,
       "authOrPreHandler": true,
       "statuses": [
         500
@@ -5360,7 +5360,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 269,
+      "line": 267,
       "authOrPreHandler": true,
       "statuses": [
         502,
@@ -5388,7 +5388,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 515,
+      "line": 505,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -5403,7 +5403,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 410,
+      "line": 400,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -5413,7 +5413,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/contacts/zinstant-proxy-routes.ts",
-      "line": 474,
+      "line": 464,
       "authOrPreHandler": true,
       "statuses": [
         400,
@@ -6637,7 +6637,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/app.ts",
-      "line": 337,
+      "line": 342,
       "authOrPreHandler": false,
       "statuses": []
     },
@@ -6678,6 +6678,60 @@
       "receiver": "api",
       "file": "frontend/src/views/IntegrationsView.vue",
       "line": 247,
+      "authOrPreHandler": false,
+      "statuses": []
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/accounts/:accountId/events",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 133,
+      "authOrPreHandler": false,
+      "statuses": []
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/commands",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 100,
+      "authOrPreHandler": false,
+      "statuses": [
+        426
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/commands/:commandId",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 119,
+      "authOrPreHandler": false,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/health",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 200,
+      "authOrPreHandler": false,
+      "statuses": []
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/reconcile",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 169,
       "authOrPreHandler": false,
       "statuses": []
     },
@@ -7077,7 +7131,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 224,
+      "line": 226,
       "authOrPreHandler": true,
       "statuses": []
     },
@@ -7817,7 +7871,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/tags/tag-routes.ts",
-      "line": 119,
+      "line": 120,
       "authOrPreHandler": true,
       "statuses": []
     },

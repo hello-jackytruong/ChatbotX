@@ -8,6 +8,7 @@ import {
   threadControlService,
   whatsappFlowService,
 } from "@chatbotx.io/business"
+import { zaloPersonalBridgeService } from "@chatbotx.io/business/zalo-personal-bridge"
 import {
   channelTypes,
   isServiceSendBlocked,
@@ -29,6 +30,11 @@ import {
   messageEventTypeSchema,
   stepTypes,
 } from "@chatbotx.io/flow-config"
+import {
+  buildSendFlowStepCommand,
+  buildSendMessageCommand,
+} from "@chatbotx.io/integration-zalo-personal/message"
+import { zaloPersonalAuthSchema } from "@chatbotx.io/integration-zalo-personal/schema"
 import {
   type RealtimeEventData,
   RealtimeEventType,
@@ -53,6 +59,7 @@ import type {
   ChatJobSendFlowStep,
   ChatJobSendTyping,
 } from "@chatbotx.io/worker-config"
+import { env } from "../../env"
 import {
   settleCommentAutomationDelivered,
   settleCommentAutomationFailure,
@@ -62,6 +69,7 @@ import {
   settleCommentModeration,
 } from "../../lib/comment-moderation"
 import { logger } from "../../lib/logger"
+import { isZaloPersonalBridgeAccountEnabled } from "../../lib/zalo-personal-rollout"
 import {
   allIntegrations,
   resolveIntegrationContextFromContactInbox,
@@ -335,7 +343,33 @@ export async function sendMessageToChannel(
     // stamped at send time, not after — see that function's `dispatchedAt`.
     const dispatchedAt = new Date()
     let result: OutgoingSendResult
-    if (isPrivateReply) {
+    if (contactInbox.channel === channelTypes.enum.zalo_personal) {
+      const auth = zaloPersonalAuthSchema.parse(ctx.auth)
+      if (
+        !(
+          env.ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED &&
+          isZaloPersonalBridgeAccountEnabled(auth.accountId)
+        )
+      ) {
+        throw new Error("ZALO_PERSONAL_BRIDGE_OUTBOUND_DISABLED")
+      }
+      const integrationId = String(ctx.integrationDetail.id)
+      result = await zaloPersonalBridgeService.dispatchOutbound({
+        workspaceId: conversation.workspaceId,
+        integrationId,
+        inboxId: contactInbox.inboxId,
+        messageId: handlerMessage.id,
+        accountId: auth.accountId,
+        bridgeUrl: auth.bridgeUrl,
+        keyId: auth.keyId,
+        secret: auth.secret,
+        command: buildSendMessageCommand({
+          accountId: auth.accountId,
+          contactId: contactInbox.sourceId,
+          message: handlerMessage,
+        }),
+      })
+    } else if (isPrivateReply) {
       // Only offered by the Inbox on a channel that implements the handler —
       // see `canPrivateReplyToComment` in the builder. Threads has no DM API,
       // and TikTok accepts one only for a comment it flagged as high intent.
@@ -1193,24 +1227,56 @@ export async function sendFlowStepToChannel({
   const dispatchedAt = new Date()
   let result: OutgoingSendResult
   try {
-    result = await integration.runChannelHandler("message", "sendFlowStep", {
-      ctx,
-      data: {
-        contact: {
-          ...contactInbox,
-          sourceConversationId: resolveChannelConversationId(conversation),
+    if (contactInbox.channel === channelTypes.enum.zalo_personal) {
+      const auth = zaloPersonalAuthSchema.parse(ctx.auth)
+      if (
+        !(
+          env.ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED &&
+          isZaloPersonalBridgeAccountEnabled(auth.accountId)
+        )
+      ) {
+        throw new Error("ZALO_PERSONAL_BRIDGE_OUTBOUND_DISABLED")
+      }
+      const stableMessageId = messageId ?? richResponse?.executionId
+      if (!stableMessageId) {
+        throw new Error("ZALO_PERSONAL_FLOW_MESSAGE_ID_REQUIRED")
+      }
+      result = await zaloPersonalBridgeService.dispatchOutbound({
+        workspaceId: conversation.workspaceId,
+        integrationId: String(ctx.integrationDetail.id),
+        inboxId: contactInbox.inboxId,
+        messageId: stableMessageId,
+        accountId: auth.accountId,
+        bridgeUrl: auth.bridgeUrl,
+        keyId: auth.keyId,
+        secret: auth.secret,
+        command: buildSendFlowStepCommand({
+          accountId: auth.accountId,
+          contactId: contactInbox.sourceId,
+          messageId: stableMessageId,
+          step: resolvedStep as unknown as Record<string, unknown>,
+        }),
+      })
+    } else {
+      result = await integration.runChannelHandler("message", "sendFlowStep", {
+        ctx,
+        data: {
+          contact: {
+            ...contactInbox,
+            sourceConversationId: resolveChannelConversationId(conversation),
+          },
+          flowId,
+          flowVersionId,
+          step: resolvedStep,
+          productMessage,
+          quickReplies,
+          metadata,
+          richResponse,
+          sendFrom,
+          commentAnchor,
         },
-        flowId,
-        flowVersionId,
-        step: resolvedStep,
-        productMessage,
-        quickReplies,
-        metadata,
-        richResponse,
-        sendFrom,
-        commentAnchor,
-      },
-    })
+      })
+    }
   } catch (error) {
     // The same reconciliation `sendMessageToChannel` runs, so both chokepoints
     // learn from a rejected send. Its verdict is ignored: this function has

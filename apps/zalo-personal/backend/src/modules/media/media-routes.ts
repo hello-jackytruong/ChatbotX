@@ -16,14 +16,14 @@ import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { requireGrant } from '../rbac/rbac-middleware.js';
 import { userHasGrant } from '../rbac/permission-group-service.js';
-import { zaloPool } from '../zalo/zalo-pool.js';
+import { zaloProviderClient } from '../zalo-provider/client.js';
 import { zaloOps } from '../../shared/zalo-operations.js';
 import { zaloRateLimiter } from '../zalo/zalo-rate-limiter.js';
 import { registerAsset, bumpUsage, resolveSavedVisibility, generateWatermarkVariant, disableWatermark, logMediaUsage, normalizeTags, type MediaKind } from './media-service.js';
 import { downloadMediaToTemp } from '../chat/chat-media-helpers.js';
 import { createMediaMessage, getUserFullName } from '../chat/chat-helpers.js';
 import { emitChatMessage } from '../../shared/realtime/emit-chat.js';
-import { generateThumbnail, sendNativeVideo } from '../../shared/video-processor.js';
+import { generateThumbnail } from '../../shared/video-processor.js';
 import { uploadBuffer, getObjectBuffer, keyFromPublicUrl } from '../../shared/storage/minio-client.js';
 import { scanOrPass } from '../../shared/security/clamav-client.js';
 import { readFile } from 'node:fs/promises';
@@ -594,8 +594,7 @@ export async function mediaRoutes(app: FastifyInstance) {
 
       // Guard sớm: nick phải đang KẾT NỐI (status connected) — tránh treo khi nick
       // QR-pending/disconnected. zaloOps cũng check lại, nhưng báo sớm rõ hơn cho sale.
-      const instance = zaloPool.getInstance(conversation.zaloAccountId);
-      if (!instance?.api || instance.status !== 'connected') {
+      if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
         return reply.status(400).send({
           error: 'Nick Zalo chưa kết nối (cần quét QR đăng nhập lại nick).',
           code: 'NICK_NOT_CONNECTED',
@@ -656,9 +655,8 @@ export async function mediaRoutes(app: FastifyInstance) {
             logger.warn('[media] video thumbnail gen failed (gửi từ kho):', (e as Error)?.message ?? e);
           }
           try {
-            if (!instance?.api) throw new Error('nick api null');
-            const sendResult: any = await sendNativeVideo({
-              api: instance.api as any, videoPath: tmp.path, thumbnailPath: thumbPath,
+            const sendResult: any = await zaloProviderClient.sendNativeVideoDirect(conversation.zaloAccountId, {
+              videoPath: tmp.path, thumbnailPath: thumbPath,
               threadId, threadType: threadType as 0 | 1, message: caption,
             });
             zaloMsgId = String(sendResult?.msgId || sendResult?.data?.msgId || '');
@@ -1291,8 +1289,7 @@ export async function mediaRoutes(app: FastifyInstance) {
       if (conversation.zaloAccount.archivedAt) {
         return reply.status(409).send({ error: 'Nick này đã bị xóa — chỉ xem lại lịch sử, không gửi được.', code: 'NICK_ARCHIVED' });
       }
-      const instance = zaloPool.getInstance(conversation.zaloAccountId);
-      if (!instance?.api || instance.status !== 'connected') {
+      if (!zaloProviderClient.isConnected(conversation.zaloAccountId)) {
         return reply.status(400).send({ error: 'Nick Zalo chưa kết nối', code: 'NICK_NOT_CONNECTED' });
       }
       if (conversation.zaloAccount.privacyMode === 'main' && conversation.zaloAccount.ownerUserId !== userId) {
