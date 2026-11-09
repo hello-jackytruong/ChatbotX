@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { providerCommandSchema } from '../zalo-provider/contracts.js';
 import type { GatewayCommandRecord } from '../gateway/command-repository.js';
 import type { GatewayEventRecord } from '../gateway/event-outbox.js';
@@ -11,7 +11,11 @@ import {
 } from './auth.js';
 
 type BridgeAuthPort = {
-  verify(request: BridgeSignedRequest, accountId?: string): Promise<BridgeKey>;
+  verify(
+    request: BridgeSignedRequest,
+    accountId?: string,
+    options?: { allowRevokedForOnboardingCleanup?: boolean },
+  ): Promise<BridgeKey>;
 };
 
 type CommandPort = {
@@ -37,11 +41,53 @@ type EventPort = {
   bounds?(accountId: string): Promise<{ highWaterMark: bigint; retentionFloor: bigint }>;
 };
 
+type BindingPort = {
+  bind(input: {
+    kid: string;
+    accountId: string;
+    workspaceId: string;
+    inboxId: string;
+  }): Promise<'bound' | 'conflict' | 'not_found'>;
+};
+
+type OnboardingPort = {
+  provision(input: {
+    connectSessionId: string;
+    orgId: string;
+    ownerUserId: string;
+    workspaceId: string;
+  }): Promise<{ accountId: string; keyId: string; secret: string }>;
+  cleanup?(input: {
+    accountId: string;
+    kid: string;
+    connectSessionId: string;
+  }): Promise<'cleaned' | 'not_found'>;
+};
+
 export type BridgeRouteDependencies = {
   auth: BridgeAuthPort;
+  bindings: BindingPort;
   commands: CommandPort;
   events: EventPort;
+  onboarding?: OnboardingPort;
 };
+
+const bindingSchema = z.object({
+  version: z.literal(1),
+  workspaceId: z.string().trim().min(1),
+  inboxId: z.string().trim().min(1),
+}).strict();
+
+const onboardingSchema = z.object({
+  version: z.literal(1),
+  workspaceId: z.string().trim().min(1),
+  connectSessionId: z.string().trim().min(1),
+}).strict();
+
+const onboardingCleanupSchema = z.object({
+  version: z.literal(1),
+  connectSessionId: z.string().trim().min(1),
+}).strict();
 
 function requiredHeader(request: FastifyRequest, name: string): string {
   const value = request.headers[name];
@@ -76,7 +122,8 @@ function commandResponse(command: GatewayCommandRecord) {
   };
 }
 
-function signedReply(reply: FastifyReply, principal: BridgeKey, correlationId: string, payload: unknown) {
+function signedReply(reply: FastifyReply, principal: BridgeKey, request: FastifyRequest, payload: unknown) {
+  const correlationId = requiredHeader(request, 'x-bridge-nonce');
   reply.header('x-bridge-correlation-id', correlationId);
   reply.header('x-bridge-response-signature', signBridgeResponse(principal.secret, correlationId, payload));
   return payload;
@@ -97,6 +144,29 @@ export function createBridgeRoutes(dependencies: BridgeRouteDependencies) {
       return reply.status(500).send({ error: 'BRIDGE_INTERNAL_ERROR' });
     });
 
+    app.post('/internal/bridge/v1/onboarding', async (request, reply) => {
+      if ((request.body as { version?: unknown } | null)?.version !== 1) {
+        return reply.status(426).send({ error: 'UNSUPPORTED_BRIDGE_VERSION', supported: [1] });
+      }
+      const input = onboardingSchema.parse(request.body);
+      const principal = await dependencies.auth.verify(signedRequest(request));
+      if (!principal.provisioningScope) {
+        throw new BridgeAuthError('PROVISIONING_SCOPE_DENIED', 403);
+      }
+      if (!dependencies.onboarding) {
+        throw new BridgeAuthError('PROVISIONING_NOT_CONFIGURED', 503);
+      }
+      const result = await dependencies.onboarding.provision({
+        ...principal.provisioningScope,
+        connectSessionId: input.connectSessionId,
+        workspaceId: input.workspaceId,
+      });
+      const payload = { version: 1 as const, ...result };
+      return reply.status(201).send(
+        signedReply(reply, principal, request, payload),
+      );
+    });
+
     app.post('/internal/bridge/v1/commands', async (request, reply) => {
       if ((request.body as { version?: unknown } | null)?.version !== 1) {
         return reply.status(426).send({ error: 'UNSUPPORTED_BRIDGE_VERSION', supported: [1] });
@@ -113,7 +183,7 @@ export function createBridgeRoutes(dependencies: BridgeRouteDependencies) {
       });
       const payload = commandResponse(inserted.command);
       return reply.status(inserted.created ? 202 : 200)
-        .send(signedReply(reply, principal, command.commandId, payload));
+        .send(signedReply(reply, principal, request, payload));
     });
 
     app.get<{ Params: { commandId: string } }>(
@@ -126,7 +196,7 @@ export function createBridgeRoutes(dependencies: BridgeRouteDependencies) {
           throw new BridgeAuthError('ACCOUNT_SCOPE_DENIED', 403);
         }
         const payload = commandResponse(command);
-        return signedReply(reply, principal, command.commandId, payload);
+        return signedReply(reply, principal, request, payload);
       },
     );
 
@@ -163,7 +233,7 @@ export function createBridgeRoutes(dependencies: BridgeRouteDependencies) {
           occurredAt: event.occurredAt.toISOString(),
         })),
       };
-      return signedReply(reply, principal, `${accountId}:${nextSequence}`, payload);
+      return signedReply(reply, principal, request, payload);
     });
 
     app.post<{ Body: {
@@ -193,14 +263,91 @@ export function createBridgeRoutes(dependencies: BridgeRouteDependencies) {
           command: command ? commandResponse(command) : null,
           resolution: command?.status === 'succeeded' ? 'confirmed' : 'unresolved',
         };
-        return signedReply(reply, principal, commandId ?? accountId, payload);
+        return signedReply(reply, principal, request, payload);
       },
     );
 
     app.get('/internal/bridge/v1/health', async (request, reply) => {
       const principal = await dependencies.auth.verify(signedRequest(request));
       const payload = { version: 1, ready: true };
-      return signedReply(reply, principal, 'health', payload);
+      return signedReply(reply, principal, request, payload);
     });
+
+    app.get<{ Params: { accountId: string } }>(
+      '/internal/bridge/v1/accounts/:accountId/health',
+      async (request, reply) => {
+        const { accountId } = request.params;
+        const principal = await dependencies.auth.verify(signedRequest(request), accountId);
+        const payload = { version: 1, ready: true, accountId };
+        return signedReply(reply, principal, request, payload);
+      },
+    );
+
+    app.put<{
+      Params: { accountId: string };
+      Body: { version?: unknown; workspaceId?: unknown; inboxId?: unknown };
+    }>(
+      '/internal/bridge/v1/accounts/:accountId/binding',
+      async (request, reply) => {
+        if (request.body?.version !== 1) {
+          return reply.status(426).send({ error: 'UNSUPPORTED_BRIDGE_VERSION', supported: [1] });
+        }
+        const { accountId } = request.params;
+        const binding = bindingSchema.parse(request.body);
+        const principal = await dependencies.auth.verify(signedRequest(request), accountId);
+        const status = await dependencies.bindings.bind({
+          kid: principal.kid,
+          accountId,
+          workspaceId: binding.workspaceId,
+          inboxId: binding.inboxId,
+        });
+        if (status === 'not_found') {
+          throw new BridgeAuthError('BRIDGE_ACCOUNT_MAPPING_NOT_FOUND', 404);
+        }
+        if (status === 'conflict') {
+          throw new BridgeAuthError('BRIDGE_ACCOUNT_BINDING_CONFLICT', 409);
+        }
+        const payload = {
+          version: 1,
+          accountId,
+          workspaceId: binding.workspaceId,
+          inboxId: binding.inboxId,
+          status,
+        };
+        return signedReply(reply, principal, request, payload);
+      },
+    );
+
+    app.post<{
+      Params: { accountId: string };
+      Body: { version?: unknown; connectSessionId?: unknown };
+    }>(
+      '/internal/bridge/v1/accounts/:accountId/onboarding-cleanup',
+      async (request, reply) => {
+        if (request.body?.version !== 1) {
+          return reply.status(426).send({ error: 'UNSUPPORTED_BRIDGE_VERSION', supported: [1] });
+        }
+        if (!dependencies.onboarding?.cleanup) {
+          throw new BridgeAuthError('PROVISIONING_NOT_CONFIGURED', 503);
+        }
+        const { accountId } = request.params;
+        const cleanup = onboardingCleanupSchema.parse(request.body);
+        const principal = await dependencies.auth.verify(
+          signedRequest(request),
+          accountId,
+          { allowRevokedForOnboardingCleanup: true },
+        );
+        const status = await dependencies.onboarding.cleanup({
+          accountId,
+          kid: principal.kid,
+          connectSessionId: cleanup.connectSessionId,
+        });
+        if (status === 'not_found') {
+          throw new BridgeAuthError('BRIDGE_ACCOUNT_MAPPING_NOT_FOUND', 404);
+        }
+        const payload = { version: 1, accountId, status };
+        return signedReply(reply, principal, request, payload);
+      },
+    );
   };
 }

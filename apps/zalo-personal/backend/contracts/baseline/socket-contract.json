@@ -854,7 +854,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/gateway.ts",
-      "line": 135,
+      "line": 155,
       "payloadExpression": "() => void shutdown('SIGINT')"
     },
     {
@@ -872,7 +872,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/gateway.ts",
-      "line": 134,
+      "line": 154,
       "payloadExpression": "() => void shutdown('SIGTERM')"
     },
     {
@@ -962,7 +962,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 270,
+      "line": 289,
       "payloadExpression": "{\n            accountId,\n            zaloUid: ownId,\n            existingAccountId: dup?.accountId ?? null,\n            owner: ownerName,\n            message: ownerName\n              ? `Nick này đang do ${ownerName} quản lý. Liên hệ chủ tổ "
     },
     {
@@ -1007,7 +1007,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 209,
+      "line": 212,
       "payloadExpression": "{ accountId }"
     },
     {
@@ -1025,7 +1025,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 204,
+      "line": 207,
       "payloadExpression": "{ accountId }"
     },
     {
@@ -1043,7 +1043,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 197,
+      "line": 200,
       "payloadExpression": "{ accountId, qrImage: event.data.image }"
     },
     {
@@ -1070,7 +1070,7 @@
       "direction": "server-to-client",
       "room": "`account:${accountId}`",
       "file": "backend/src/modules/zalo/zalo-pool.ts",
-      "line": 213,
+      "line": 216,
       "payloadExpression": "{\n              accountId,\n              displayName: event.data.display_name,\n              avatar: event.data.avatar,\n            }"
     },
     {

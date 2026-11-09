@@ -349,6 +349,29 @@ export const connectSessionNextActionSchema = z.discriminatedUnion("type", [
     type: z.literal("enter_input"),
     inputFields: z.array(connectionConfigFieldSchema),
   }),
+  z
+    .object({
+      type: z.literal("display_qr"),
+      state: z.enum([
+        "preparing",
+        "ready",
+        "scanned",
+        "connecting",
+        "expired",
+        "session_dead",
+      ]),
+      qrImage: z.string().min(1).max(2_000_000).optional(),
+      retryable: z.boolean(),
+    })
+    .superRefine((action, context) => {
+      if (action.qrImage && action.state !== "ready") {
+        context.addIssue({
+          code: "custom",
+          message: "QR image is only valid while the QR is ready",
+          path: ["qrImage"],
+        })
+      }
+    }),
   z.object({ type: z.literal("wait") }),
 ])
 export type ConnectSessionNextAction = z.infer<

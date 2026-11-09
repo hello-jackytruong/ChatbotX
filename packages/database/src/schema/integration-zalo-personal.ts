@@ -22,6 +22,8 @@ export const integrationZaloPersonalModel = pgTable(
         accountId: string
         bridgeUrl: string
         keyId: string
+        managedBy?: "chatbotx_qr"
+        connectSessionId?: string
       }>()
       .notNull(),
     encryptedSecret: jsonb().$type<EncryptedSecret>().notNull(),

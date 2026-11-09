@@ -8,7 +8,11 @@ import {
   eq,
   gt,
   inArray,
+  isNotNull,
   lte,
+  ne,
+  not,
+  or,
   sql,
 } from "../../client"
 import {
@@ -76,7 +80,12 @@ export const connectSessionRepository = {
 
   /** The newest unexpired, in-flight session of a provider — how a settings page resumes after the OAuth round-trip. */
   async findLatestInFlightByProvider(
-    input: { workspaceId: string; provider: IntegrationType },
+    input: {
+      workspaceId: string
+      provider: IntegrationType
+      actorUserId?: string
+      actorTokenId?: string
+    },
     tx: DatabaseClient = db,
   ): Promise<ConnectSessionModel | undefined> {
     const [session] = await tx
@@ -86,8 +95,110 @@ export const connectSessionRepository = {
         and(
           eq(connectSessionModel.workspaceId, input.workspaceId),
           eq(connectSessionModel.provider, input.provider),
+          input.actorUserId
+            ? eq(connectSessionModel.actorUserId, input.actorUserId)
+            : undefined,
+          input.actorTokenId
+            ? eq(connectSessionModel.actorTokenId, input.actorTokenId)
+            : undefined,
           inArray(connectSessionModel.status, ACTIVE_CONNECT_SESSION_STATUSES),
           sql`${connectSessionModel.expiresAt} > now()`,
+        ),
+      )
+      .orderBy(desc(connectSessionModel.createdAt))
+      .limit(1)
+    return session ? parseConnectSession(session) : undefined
+  },
+
+  async listActiveByProvider(
+    input: {
+      provider: IntegrationType
+      limit: number
+      afterId?: string
+      requireProviderRuntime?: boolean
+      includeExpiredFinalizing?: boolean
+    },
+    tx: DatabaseClient = db,
+  ): Promise<ConnectSessionModel[]> {
+    const sessions = await tx
+      .select()
+      .from(connectSessionModel)
+      .where(
+        and(
+          eq(connectSessionModel.provider, input.provider),
+          inArray(connectSessionModel.status, ACTIVE_CONNECT_SESSION_STATUSES),
+          input.includeExpiredFinalizing
+            ? or(
+                gt(connectSessionModel.expiresAt, sql`now()`),
+                eq(connectSessionModel.step, "finalizing"),
+              )
+            : gt(connectSessionModel.expiresAt, sql`now()`),
+          input.afterId ? gt(connectSessionModel.id, input.afterId) : undefined,
+          input.requireProviderRuntime
+            ? isNotNull(connectSessionModel.providerReference)
+            : undefined,
+          input.requireProviderRuntime
+            ? isNotNull(connectSessionModel.encryptedAuth)
+            : undefined,
+        ),
+      )
+      .orderBy(connectSessionModel.id)
+      .limit(input.limit)
+    return sessions.map(parseConnectSession)
+  },
+
+  async listExpiredByProviderWithRuntime(
+    input: { provider: IntegrationType; limit: number; afterId?: string },
+    tx: DatabaseClient = db,
+  ): Promise<ConnectSessionModel[]> {
+    const sessions = await tx
+      .select()
+      .from(connectSessionModel)
+      .where(
+        and(
+          eq(connectSessionModel.provider, input.provider),
+          inArray(connectSessionModel.status, ACTIVE_CONNECT_SESSION_STATUSES),
+          lte(connectSessionModel.expiresAt, sql`now()`),
+          isNotNull(connectSessionModel.providerReference),
+          isNotNull(connectSessionModel.encryptedAuth),
+          ne(connectSessionModel.step, "finalizing"),
+          input.afterId ? gt(connectSessionModel.id, input.afterId) : undefined,
+        ),
+      )
+      .orderBy(connectSessionModel.id)
+      .limit(input.limit)
+    return sessions.map(parseConnectSession)
+  },
+
+  async findLatestInFlightByTargetConnection(
+    input: {
+      workspaceId: string
+      provider: IntegrationType
+      targetConnectionId: string
+      actorUserId?: string
+      actorTokenId?: string
+    },
+    tx: DatabaseClient = db,
+  ): Promise<ConnectSessionModel | undefined> {
+    const [session] = await tx
+      .select()
+      .from(connectSessionModel)
+      .where(
+        and(
+          eq(connectSessionModel.workspaceId, input.workspaceId),
+          eq(connectSessionModel.provider, input.provider),
+          eq(connectSessionModel.targetConnectionId, input.targetConnectionId),
+          input.actorUserId
+            ? eq(connectSessionModel.actorUserId, input.actorUserId)
+            : undefined,
+          input.actorTokenId
+            ? eq(connectSessionModel.actorTokenId, input.actorTokenId)
+            : undefined,
+          inArray(connectSessionModel.status, ACTIVE_CONNECT_SESSION_STATUSES),
+          or(
+            gt(connectSessionModel.expiresAt, sql`now()`),
+            eq(connectSessionModel.step, "finalizing"),
+          ),
         ),
       )
       .orderBy(desc(connectSessionModel.createdAt))
@@ -140,6 +251,9 @@ export const connectSessionRepository = {
               | "encryptedAuth"
               | "expiresAt"
               | "nextAction"
+              | "providerCursor"
+              | "providerFenceToken"
+              | "providerReference"
               | "returnUrl"
               | "status"
               | "step"
@@ -154,7 +268,11 @@ export const connectSessionRepository = {
         | (Partial<
             Pick<
               typeof connectSessionModel.$inferInsert,
-              "errorCode" | "nextAction" | "step"
+              | "errorCode"
+              | "nextAction"
+              | "step"
+              | "providerCursor"
+              | "providerFenceToken"
             >
           > & {
             status: "completed" | "failed" | "expired" | "cancelled"
@@ -163,6 +281,10 @@ export const connectSessionRepository = {
           })
       statuses: ConnectSessionStatus[]
       requireUnexpired?: boolean
+      expectedProviderCursor?: string | null
+      expectedProviderFenceToken?: string | null
+      excludedStep?: string
+      expectedStep?: string
     },
     tx: DatabaseClient = db,
   ): Promise<ConnectSessionModel | undefined> {
@@ -178,6 +300,57 @@ export const connectSessionRepository = {
           eq(connectSessionModel.workspaceId, input.workspaceId),
           inArray(connectSessionModel.status, input.statuses),
           expiryCondition,
+          input.expectedProviderCursor === undefined
+            ? undefined
+            : sql`${connectSessionModel.providerCursor} IS NOT DISTINCT FROM ${input.expectedProviderCursor}`,
+          input.expectedProviderFenceToken === undefined
+            ? undefined
+            : sql`${connectSessionModel.providerFenceToken} IS NOT DISTINCT FROM ${input.expectedProviderFenceToken}`,
+          input.excludedStep
+            ? ne(connectSessionModel.step, input.excludedStep)
+            : undefined,
+          input.expectedStep
+            ? eq(connectSessionModel.step, input.expectedStep)
+            : undefined,
+        ),
+      )
+      .returning()
+    return row ? parseConnectSession(row) : undefined
+  },
+
+  async completeProvisioned(
+    input: {
+      id: string
+      workspaceId: string
+      connectionId: string
+    },
+    tx: DatabaseClient = db,
+  ): Promise<ConnectSessionModel | undefined> {
+    const result: ConnectSessionOutcome = {
+      targetId: input.connectionId,
+      status: "connected",
+      connectionId: input.connectionId,
+    }
+    const [row] = await tx
+      .update(connectSessionModel)
+      .set({
+        results: [result],
+        resultConnectionIds: [input.connectionId],
+        status: "completed",
+        step: "done",
+        nextAction: null,
+        consumedAt: sql`now()`,
+        encryptedAuth: null,
+      })
+      .where(
+        and(
+          eq(connectSessionModel.id, input.id),
+          eq(connectSessionModel.workspaceId, input.workspaceId),
+          inArray(connectSessionModel.status, ACTIVE_CONNECT_SESSION_STATUSES),
+          or(
+            gt(connectSessionModel.expiresAt, sql`now()`),
+            eq(connectSessionModel.step, "finalizing"),
+          ),
         ),
       )
       .returning()
@@ -201,6 +374,7 @@ export const connectSessionRepository = {
         status: "cancelled",
         consumedAt: sql`now()`,
         encryptedAuth: null,
+        nextAction: null,
       })
       .where(
         and(
@@ -215,20 +389,33 @@ export const connectSessionRepository = {
 
   /** Expires due active sessions and clears authorization ciphertext in one update. */
   async expireDue(
-    input: { before: Date; statuses: ConnectSessionStatus[] },
+    input: {
+      before: Date
+      statuses: ConnectSessionStatus[]
+      preserveRuntimeForProvider?: IntegrationType
+    },
     tx: DatabaseClient = db,
   ): Promise<number> {
+    const preservedRuntime = input.preserveRuntimeForProvider
+      ? and(
+          eq(connectSessionModel.provider, input.preserveRuntimeForProvider),
+          isNotNull(connectSessionModel.providerReference),
+          isNotNull(connectSessionModel.encryptedAuth),
+        )
+      : undefined
     const rows = await tx
       .update(connectSessionModel)
       .set({
         status: "expired",
         consumedAt: sql`now()`,
         encryptedAuth: null,
+        nextAction: null,
       })
       .where(
         and(
           inArray(connectSessionModel.status, input.statuses),
           lte(connectSessionModel.expiresAt, input.before),
+          preservedRuntime ? not(preservedRuntime) : undefined,
         ),
       )
       .returning({ id: connectSessionModel.id })
@@ -391,6 +578,7 @@ export const connectSessionRepository = {
         step: "done",
         consumedAt: sql`now()`,
         encryptedAuth: null,
+        nextAction: null,
       })
       .where(
         and(

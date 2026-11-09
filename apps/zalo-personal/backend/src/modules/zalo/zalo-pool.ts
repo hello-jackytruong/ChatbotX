@@ -18,6 +18,9 @@ import { withProxy } from './proxy-util.js';
 import { writeTransition, type ZaloStatus, type StatusReason } from './status-log-service.js';
 import { inProcessZcaAdapter } from '../zalo-provider/in-process-zca-adapter.js';
 import { sealGatewayCredential } from '../gateway/credential-store.js';
+import { isQrIdentityMismatch } from './zalo-identity.js';
+
+export { isQrIdentityMismatch } from './zalo-identity.js';
 
 interface ZaloCredentials {
   cookie: any;
@@ -242,6 +245,22 @@ class ZaloAccountPool {
       instance.lastActivity = new Date();
 
       const ownId = await api.getOwnId();
+      const persistedIdentity = await runSystemQuery(() =>
+        prisma.zaloAccount.findUnique({
+          where: { id: accountId },
+          select: { zaloUid: true },
+        }));
+      if (isQrIdentityMismatch(persistedIdentity?.zaloUid, ownId)) {
+        this.teardownExisting(accountId);
+        instance.api = null;
+        instance.status = 'disconnected';
+        void this.emitAccountEventToOrg(accountId, 'zalo:error', {
+          accountId,
+          error: 'ZALO_IDENTITY_MISMATCH',
+        });
+        logger.warn(`[zalo:${accountId}] QR identity mismatch; expected persisted Zalo UID`);
+        return;
+      }
       instance.zaloUid = ownId;
 
       // Fetch own profile info for avatar
@@ -709,10 +728,25 @@ class ZaloAccountPool {
     try {
       const acc = await prisma.zaloAccount.findUnique({
         where: { id: accountId },
-        select: { status: true, zaloUid: true, _count: { select: { conversations: true } } },
+        select: {
+          status: true,
+          zaloUid: true,
+          _count: {
+            select: { bridgeAccountMappings: true, conversations: true },
+          },
+        },
       });
       if (!acc || acc.zaloUid || acc.status === 'connected' || acc._count.conversations > 0) {
         return; // không phải ghost → giữ lại
+      }
+      // ChatbotX-managed onboarding consumes `zalo:duplicate` from the durable
+      // gateway outbox, then archives the account and revokes its scoped
+      // bridge credential with a session-bound CAS. Hard-deleting here would
+      // cascade the just-written event/lease/mapping before ChatbotX can see
+      // it, and can make the gateway treat the stale-fence append as fatal.
+      if (acc._count.bridgeAccountMappings > 0) {
+        logger.info(`[zalo:${accountId}] giữ record qr_pending để ChatbotX cleanup sau zalo:duplicate`);
+        return;
       }
       // Xoá access trước (FK) rồi xoá account. Hard delete OK vì đây là record rỗng vừa tạo.
       await prisma.zaloAccountAccess.deleteMany({ where: { zaloAccountId: accountId } });
@@ -1102,9 +1136,32 @@ class ZaloAccountPool {
         });
         if (ghosts.length === 0) return 0;
         const ids = ghosts.map((g) => g.id);
+        const managedMappings = await prisma.bridgeAccountMapping.findMany({
+          where: {
+            accountId: { in: ids },
+            active: true,
+            chatbotxConnectSessionId: { not: null },
+          },
+          select: { clientId: true },
+        });
+        const managedClientIds = managedMappings.map((mapping) => mapping.clientId);
         // Ngắt khỏi pool nếu đang chạy listener (best-effort, trước khi ẩn).
         for (const id of ids) {
           try { this.disconnect(id); } catch { /* best-effort */ }
+        }
+        if (managedClientIds.length > 0) {
+          const revokedAt = new Date();
+          await prisma.bridgeAccountMapping.updateMany({
+            where: {
+              accountId: { in: ids },
+              clientId: { in: managedClientIds },
+            },
+            data: { active: false, chatbotxInboxId: null },
+          });
+          await prisma.bridgeClient.updateMany({
+            where: { id: { in: managedClientIds } },
+            data: { active: false, revokedAt },
+          });
         }
         await prisma.zaloAccount.updateMany({
           where: { id: { in: ids } },

@@ -37,7 +37,9 @@ describe("ZaloPersonalBridgeService.dispatchOutbound", () => {
       status: "succeeded",
       result: { providerIds: { messageId: "provider-1" } },
     })
+    const bindAccount = vi.fn().mockResolvedValue({ status: "bound" })
     const service = new ZaloPersonalBridgeService(repository as never, () => ({
+      bindAccount,
       acceptCommand,
       getCommand: vi.fn(),
       reconcile,
@@ -53,6 +55,11 @@ describe("ZaloPersonalBridgeService.dispatchOutbound", () => {
     })
 
     expect(acceptCommand).toHaveBeenCalledOnce()
+    expect(bindAccount).toHaveBeenCalledWith({
+      accountId: "account-1",
+      workspaceId: "workspace-1",
+      inboxId: "inbox-1",
+    })
     expect(reconcile).toHaveBeenCalledWith({
       accountId: "account-1",
       commandId: "message-1",

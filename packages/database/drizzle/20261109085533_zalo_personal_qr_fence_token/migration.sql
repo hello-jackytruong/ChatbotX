@@ -1,0 +1,1 @@
+ALTER TABLE "ConnectSession" ADD COLUMN "providerFenceToken" text;

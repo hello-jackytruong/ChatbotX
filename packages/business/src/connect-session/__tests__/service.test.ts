@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
+  transactionClient: { execute: vi.fn() },
   countActiveByWorkspaceId: vi.fn(async () => 0),
   insert: vi.fn(),
   update: vi.fn(),
@@ -11,6 +12,11 @@ const mocks = vi.hoisted(() => ({
   releaseTarget: vi.fn(),
   appendResults: vi.fn(),
   completeReconnect: vi.fn(),
+  completeProvisioned: vi.fn(),
+  listActiveByProvider: vi.fn(async () => []),
+  listExpiredByProviderWithRuntime: vi.fn(async () => []),
+  findLatestInFlightByProvider: vi.fn(),
+  findLatestInFlightByTargetConnection: vi.fn(),
   updateWhereStatusIn: vi.fn(),
   cancelPendingByProvider: vi.fn(async () => 0),
   expireDue: vi.fn(async () => 0),
@@ -25,6 +31,18 @@ const mocks = vi.hoisted(() => ({
   ),
 }))
 
+vi.mock("@chatbotx.io/database/client", () => ({
+  db: {
+    transaction: (
+      operation: (tx: typeof mocks.transactionClient) => Promise<unknown>,
+    ) => operation(mocks.transactionClient),
+  },
+  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
+    strings,
+    values,
+  }),
+}))
+
 vi.mock("@chatbotx.io/database/repositories", () => ({
   connectSessionRepository: {
     countActiveByWorkspaceId: mocks.countActiveByWorkspaceId,
@@ -37,6 +55,12 @@ vi.mock("@chatbotx.io/database/repositories", () => ({
     releaseTarget: mocks.releaseTarget,
     appendResults: mocks.appendResults,
     completeReconnect: mocks.completeReconnect,
+    completeProvisioned: mocks.completeProvisioned,
+    listActiveByProvider: mocks.listActiveByProvider,
+    listExpiredByProviderWithRuntime: mocks.listExpiredByProviderWithRuntime,
+    findLatestInFlightByProvider: mocks.findLatestInFlightByProvider,
+    findLatestInFlightByTargetConnection:
+      mocks.findLatestInFlightByTargetConnection,
     updateWhereStatusIn: mocks.updateWhereStatusIn,
     cancelPendingByProvider: mocks.cancelPendingByProvider,
     expireDue: mocks.expireDue,
@@ -64,6 +88,8 @@ const baseSession = (overrides: Partial<Record<string, unknown>> = {}) => ({
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.countActiveByWorkspaceId.mockResolvedValue(0)
+  mocks.findLatestInFlightByProvider.mockResolvedValue(undefined)
+  mocks.findLatestInFlightByTargetConnection.mockResolvedValue(undefined)
   mocks.update.mockImplementation(
     async (input: { id: string; values: Record<string, unknown> }) => ({
       ...baseSession(),
@@ -87,6 +113,150 @@ beforeEach(() => {
         results: [input.result],
       }),
   )
+  mocks.completeProvisioned.mockImplementation(
+    async (input: { id: string; connectionId: string }) =>
+      baseSession({
+        id: input.id,
+        status: "completed",
+        resultConnectionIds: [input.connectionId],
+      }),
+  )
+})
+
+describe("connectSessionService QR provider lifecycle", () => {
+  it("serializes QR resume by workspace, provider and actor", async () => {
+    const existing = baseSession({
+      provider: "zalo_personal",
+      actorUserId: null,
+      actorTokenId: "token-a",
+    })
+    mocks.findLatestInFlightByProvider.mockResolvedValue(existing)
+
+    await expect(
+      connectSessionService.createOrResumeQrSession({
+        workspaceId: "ws-1",
+        provider: "zalo_personal",
+        purpose: "connect",
+        platformOwnerId: "owner-1",
+        actorTokenId: "token-a",
+      }),
+    ).resolves.toBe(existing)
+
+    expect(mocks.transactionClient.execute).toHaveBeenCalledOnce()
+    expect(mocks.findLatestInFlightByProvider).toHaveBeenCalledWith(
+      {
+        workspaceId: "ws-1",
+        provider: "zalo_personal",
+        actorTokenId: "token-a",
+      },
+      mocks.transactionClient,
+    )
+    expect(mocks.insert).not.toHaveBeenCalled()
+  })
+
+  it("hides a token-owned session from another token in the same workspace", async () => {
+    mocks.findByIdForWorkspace.mockResolvedValue(
+      baseSession({ actorUserId: null, actorTokenId: "token-a" }),
+    )
+
+    await expect(
+      connectSessionService.requireByIdForWorkspaceAndActor({
+        id: "session-1",
+        workspaceId: "ws-1",
+        actorTokenId: "token-b",
+      }),
+    ).rejects.toMatchObject({ code: "notFound" })
+  })
+
+  it("attaches the server-owned provider reference and encrypted auth", async () => {
+    const encryptedAuth = { v: 1, iv: "a", text: "b", tag: "c" } as never
+
+    const session = await connectSessionService.attachProviderRuntime({
+      id: "session-1",
+      workspaceId: "ws-1",
+      providerReference: "account-1",
+      encryptedAuth,
+    })
+
+    expect(session.providerReference).toBe("account-1")
+    expect(mocks.updateWhereStatusIn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "session-1",
+        workspaceId: "ws-1",
+        statuses: ["pending"],
+        values: expect.objectContaining({
+          encryptedAuth,
+          providerReference: "account-1",
+          step: "prepare_qr",
+        }),
+      }),
+    )
+  })
+
+  it("updates a QR state only while the session remains active", async () => {
+    const nextAction = {
+      type: "display_qr",
+      state: "ready",
+      qrImage: "c3ludGhldGlj",
+      retryable: true,
+    } as const
+
+    await connectSessionService.updateQrState({
+      id: "session-1",
+      workspaceId: "ws-1",
+      nextAction,
+      step: "scan_qr",
+      providerCursor: "42",
+      providerFenceToken: "3",
+      expectedProviderCursor: null,
+      expectedProviderFenceToken: null,
+    })
+
+    expect(mocks.updateWhereStatusIn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requireUnexpired: true,
+        values: {
+          nextAction,
+          step: "scan_qr",
+          providerCursor: "42",
+          providerFenceToken: "3",
+        },
+      }),
+    )
+  })
+
+  it("initializes the QR event baseline once before provider commands can emit events", async () => {
+    await connectSessionService.initializeQrEventBaseline({
+      id: "session-1",
+      workspaceId: "ws-1",
+      providerCursor: "42",
+    })
+
+    expect(mocks.updateWhereStatusIn).toHaveBeenCalledWith({
+      id: "session-1",
+      workspaceId: "ws-1",
+      statuses: ["pending", "authorized", "awaiting_selection"],
+      requireUnexpired: true,
+      expectedProviderCursor: null,
+      expectedProviderFenceToken: null,
+      values: { providerCursor: "42" },
+    })
+  })
+
+  it("completes a provisioned session exactly once", async () => {
+    const session = await connectSessionService.completeProvisioned({
+      id: "session-1",
+      workspaceId: "ws-1",
+      connectionId: "connection-1",
+    })
+
+    expect(session.status).toBe("completed")
+    expect(mocks.completeProvisioned).toHaveBeenCalledWith({
+      id: "session-1",
+      workspaceId: "ws-1",
+      connectionId: "connection-1",
+    })
+  })
 })
 
 describe("connectSessionService.create", () => {
@@ -296,10 +466,86 @@ describe("expiry rule", () => {
           status: "expired",
           consumedAt: expect.any(Date),
           encryptedAuth: null,
+          nextAction: null,
         }),
       }),
     )
     expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it("reports managed Zalo QR as expired without erasing its retryable cleanup capability", async () => {
+    const encryptedAuth = { v: 1, text: "encrypted" }
+    mocks.updateWhereStatusIn.mockResolvedValue(
+      baseSession({
+        expiresAt: PAST,
+        provider: "zalo_personal",
+        providerReference: "account-1",
+        encryptedAuth,
+        nextAction: null,
+        step: "cleanup_pending",
+      }),
+    )
+    mocks.findByIdForWorkspace.mockResolvedValue(
+      baseSession({
+        expiresAt: PAST,
+        provider: "zalo_personal",
+        providerReference: "account-1",
+        encryptedAuth,
+        nextAction: {
+          type: "display_qr",
+          state: "ready",
+          qrImage: "sensitive-image",
+          retryable: true,
+        },
+      }),
+    )
+
+    const result = await connectSessionService.findByIdForWorkspace({
+      id: "session-1",
+      workspaceId: "ws-1",
+    })
+
+    expect(result).toMatchObject({
+      status: "expired",
+      encryptedAuth,
+      nextAction: null,
+    })
+    expect(mocks.updateWhereStatusIn).toHaveBeenCalledWith({
+      id: "session-1",
+      workspaceId: "ws-1",
+      statuses: ["pending", "authorized", "awaiting_selection"],
+      expectedStep: undefined,
+      values: { nextAction: null, step: "cleanup_pending" },
+    })
+  })
+
+  it.each([
+    "cleanup_failed:provider_error",
+    "cleanup_cancelled",
+  ])("preserves the claimed %s outcome while lazily redacting expired QR data", async (step) => {
+    const encryptedAuth = { v: 1, text: "encrypted" }
+    mocks.findByIdForWorkspace.mockResolvedValue(
+      baseSession({
+        expiresAt: PAST,
+        provider: "zalo_personal",
+        providerReference: "account-1",
+        encryptedAuth,
+        nextAction: null,
+        step,
+      }),
+    )
+
+    await connectSessionService.findByIdForWorkspace({
+      id: "session-1",
+      workspaceId: "ws-1",
+    })
+
+    expect(mocks.updateWhereStatusIn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedStep: step,
+        values: { nextAction: null, step },
+      }),
+    )
   })
 
   it("does not flip a session a concurrent completion already made terminal (regression: lazy expiry must not overwrite a concurrent completion)", async () => {
@@ -542,6 +788,7 @@ describe("connectSessionService.completeSelection", () => {
         step: "done",
         consumedAt: expect.any(Date),
         encryptedAuth: null,
+        nextAction: null,
       },
     })
     expect(result.status).toBe("completed")
@@ -704,6 +951,7 @@ describe("connectSessionService.purgeExpired", () => {
 
     expect(mocks.expireDue).toHaveBeenCalledWith(
       expect.objectContaining({
+        preserveRuntimeForProvider: "zalo_personal",
         statuses: expect.arrayContaining([
           "pending",
           "authorized",

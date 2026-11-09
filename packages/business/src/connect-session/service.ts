@@ -1,6 +1,7 @@
-import { type DatabaseClient, db } from "@chatbotx.io/database/client"
+import { type DatabaseClient, db, sql } from "@chatbotx.io/database/client"
 import type {
   ConnectSessionErrorCode,
+  ConnectSessionNextAction,
   ConnectSessionOutcome,
   ConnectSessionPurpose,
   ConnectSessionStatus,
@@ -222,8 +223,424 @@ class ConnectSessionService extends BaseService {
   async findLatestInFlightByProvider(input: {
     workspaceId: string
     provider: IntegrationType
+    actorUserId?: string
+    actorTokenId?: string
   }): Promise<ConnectSessionModel | undefined> {
     return await connectSessionRepository.findLatestInFlightByProvider(input)
+  }
+
+  async listActiveByProvider(input: {
+    provider: IntegrationType
+    limit: number
+    afterId?: string
+    requireProviderRuntime?: boolean
+    includeExpiredFinalizing?: boolean
+  }): Promise<ConnectSessionModel[]> {
+    return await connectSessionRepository.listActiveByProvider(input)
+  }
+
+  async listExpiredByProviderWithRuntime(input: {
+    provider: IntegrationType
+    limit: number
+    afterId?: string
+  }): Promise<ConnectSessionModel[]> {
+    return await connectSessionRepository.listExpiredByProviderWithRuntime(
+      input,
+    )
+  }
+
+  async findLatestInFlightByTargetConnection(input: {
+    workspaceId: string
+    provider: IntegrationType
+    targetConnectionId: string
+    actorUserId?: string
+    actorTokenId?: string
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.findLatestInFlightByTargetConnection(
+      input,
+    )
+  }
+
+  /** Serializes create/resume for one actor and QR target without a new table-level lock. */
+  async createOrResumeQrSession(
+    input: {
+      workspaceId: string
+      provider: IntegrationType
+      purpose: "connect" | "reconnect"
+      targetConnectionId?: string
+      platformOwnerId: string
+    } & ConnectSessionActor,
+  ): Promise<ConnectSessionModel> {
+    const actor: ConnectSessionActor =
+      input.actorUserId === undefined
+        ? { actorTokenId: input.actorTokenId as string }
+        : { actorUserId: input.actorUserId }
+    const actorKey =
+      actor.actorUserId === undefined
+        ? `token:${actor.actorTokenId}`
+        : `user:${actor.actorUserId}`
+    const lockKey = [
+      "connect-session",
+      input.workspaceId,
+      input.provider,
+      input.purpose,
+      input.targetConnectionId ?? "new",
+      actorKey,
+    ].join(":")
+    return await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+      )
+      const existing = input.targetConnectionId
+        ? await connectSessionRepository.findLatestInFlightByTargetConnection(
+            {
+              workspaceId: input.workspaceId,
+              provider: input.provider,
+              targetConnectionId: input.targetConnectionId,
+              ...actor,
+            },
+            tx,
+          )
+        : await connectSessionRepository.findLatestInFlightByProvider(
+            {
+              workspaceId: input.workspaceId,
+              provider: input.provider,
+              ...actor,
+            },
+            tx,
+          )
+      if (existing) {
+        return existing
+      }
+      return (
+        await this.create(
+          {
+            workspaceId: input.workspaceId,
+            provider: input.provider,
+            purpose: input.purpose,
+            targetConnectionId: input.targetConnectionId,
+            platformOwnerId: input.platformOwnerId,
+            nextAction: () => ({
+              type: "display_qr",
+              state: "preparing",
+              retryable: true,
+            }),
+            ...actor,
+          },
+          tx,
+        )
+      ).session
+    })
+  }
+
+  async attachProviderRuntime(input: {
+    id: string
+    workspaceId: string
+    providerReference: string
+    encryptedAuth: EncryptedData
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: ["pending"],
+      requireUnexpired: true,
+      values: {
+        encryptedAuth: input.encryptedAuth,
+        providerReference: input.providerReference,
+        step: "prepare_qr",
+        nextAction: {
+          type: "display_qr",
+          state: "preparing",
+          retryable: true,
+        },
+      },
+    })
+    if (updated) {
+      return updated
+    }
+    throw connectSessionExpiredException(
+      "This connect session is no longer active.",
+    )
+  }
+
+  async updateQrState(input: {
+    id: string
+    workspaceId: string
+    step: string
+    nextAction: Extract<ConnectSessionNextAction, { type: "display_qr" }>
+    providerCursor: string
+    providerFenceToken: string
+    expectedProviderCursor: string | null
+    expectedProviderFenceToken: string | null
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      requireUnexpired: true,
+      expectedProviderCursor: input.expectedProviderCursor,
+      expectedProviderFenceToken: input.expectedProviderFenceToken,
+      values: {
+        nextAction: input.nextAction,
+        providerCursor: input.providerCursor,
+        providerFenceToken: input.providerFenceToken,
+        step: input.step,
+      },
+    })
+    if (updated) {
+      return updated
+    }
+    const current = await this.findByIdForWorkspace(input)
+    if (
+      current?.providerCursor &&
+      BigInt(current.providerCursor) >= BigInt(input.providerCursor)
+    ) {
+      return current
+    }
+    throw connectSessionExpiredException(
+      "This connect session is no longer active.",
+    )
+  }
+
+  async initializeQrEventBaseline(input: {
+    id: string
+    workspaceId: string
+    providerCursor: string
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      requireUnexpired: true,
+      expectedProviderCursor: null,
+      expectedProviderFenceToken: null,
+      values: { providerCursor: input.providerCursor },
+    })
+    if (updated) {
+      return updated
+    }
+    const current = await this.findByIdForWorkspace(input)
+    if (
+      current?.providerCursor !== null &&
+      current?.providerCursor !== undefined
+    ) {
+      return current
+    }
+    throw connectSessionExpiredException(
+      "This connect session is no longer active.",
+    )
+  }
+
+  async advanceProviderCursor(input: {
+    id: string
+    workspaceId: string
+    providerCursor: string
+    providerFenceToken: string
+    expectedProviderCursor: string | null
+    expectedProviderFenceToken: string | null
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      requireUnexpired: true,
+      expectedProviderCursor: input.expectedProviderCursor,
+      expectedProviderFenceToken: input.expectedProviderFenceToken,
+      values: {
+        providerCursor: input.providerCursor,
+        providerFenceToken: input.providerFenceToken,
+      },
+    })
+    if (updated) {
+      return updated
+    }
+    const current = await this.findByIdForWorkspace(input)
+    if (
+      current?.providerCursor &&
+      BigInt(current.providerCursor) >= BigInt(input.providerCursor)
+    ) {
+      return current
+    }
+    throw connectSessionExpiredException(
+      "This connect session is no longer active.",
+    )
+  }
+
+  async claimQrFinalization(input: {
+    id: string
+    workspaceId: string
+    providerCursor: string
+    providerFenceToken: string
+    expectedProviderCursor: string | null
+    expectedProviderFenceToken: string | null
+    expectedStep: string
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      expectedProviderCursor: input.expectedProviderCursor,
+      expectedProviderFenceToken: input.expectedProviderFenceToken,
+      expectedStep: input.expectedStep,
+      values: {
+        step: "finalizing",
+        nextAction: {
+          type: "display_qr",
+          state: "connecting",
+          retryable: true,
+        },
+        providerCursor: input.providerCursor,
+        providerFenceToken: input.providerFenceToken,
+      },
+    })
+  }
+
+  async claimQrFailureCleanup(input: {
+    id: string
+    workspaceId: string
+    errorCode: ConnectSessionErrorCode
+    providerCursor: string
+    providerFenceToken: string
+    expectedProviderCursor: string | null
+    expectedProviderFenceToken: string | null
+    expectedStep: string
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      expectedProviderCursor: input.expectedProviderCursor,
+      expectedProviderFenceToken: input.expectedProviderFenceToken,
+      expectedStep: input.expectedStep,
+      values: {
+        step: `cleanup_failed:${input.errorCode}`,
+        nextAction: null,
+        providerCursor: input.providerCursor,
+        providerFenceToken: input.providerFenceToken,
+      },
+    })
+  }
+
+  async claimQrCancellation(input: {
+    id: string
+    workspaceId: string
+    expectedStep: string
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      expectedStep: input.expectedStep,
+      excludedStep: "finalizing",
+      values: { step: "cleanup_cancelled", nextAction: null },
+    })
+  }
+
+  async claimQrExpiryCleanup(input: {
+    id: string
+    workspaceId: string
+    expectedStep: string
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      expectedStep: input.expectedStep,
+      excludedStep: "finalizing",
+      values: { step: "cleanup_expired", nextAction: null },
+    })
+  }
+
+  async failQrSession(input: {
+    id: string
+    workspaceId: string
+    errorCode: ConnectSessionErrorCode
+    providerCursor: string
+    providerFenceToken: string
+    expectedProviderCursor: string | null
+    expectedProviderFenceToken: string | null
+  }): Promise<ConnectSessionModel | undefined> {
+    return await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      expectedProviderCursor: input.expectedProviderCursor,
+      expectedProviderFenceToken: input.expectedProviderFenceToken,
+      values: {
+        status: "failed",
+        errorCode: input.errorCode,
+        step: "session_dead",
+        nextAction: {
+          type: "display_qr",
+          state: "session_dead",
+          retryable: true,
+        },
+        providerCursor: input.providerCursor,
+        providerFenceToken: input.providerFenceToken,
+        consumedAt: new Date(),
+        encryptedAuth: null,
+      },
+    })
+  }
+
+  async cancelQrSession(input: {
+    id: string
+    workspaceId: string
+  }): Promise<ConnectSessionModel> {
+    const existing = await this.requireByIdForWorkspace(input)
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      excludedStep: "finalizing",
+      values: {
+        status: "cancelled",
+        consumedAt: new Date(),
+        encryptedAuth: null,
+        nextAction: null,
+      },
+    })
+    return updated ?? existing
+  }
+
+  async expireQrSession(input: {
+    id: string
+    workspaceId: string
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.updateWhereStatusIn({
+      id: input.id,
+      workspaceId: input.workspaceId,
+      statuses: [...ACTIVE_STATUSES],
+      excludedStep: "finalizing",
+      values: {
+        status: "expired",
+        consumedAt: new Date(),
+        encryptedAuth: null,
+        nextAction: null,
+      },
+    })
+    return updated ?? (await this.requireByIdForWorkspace(input))
+  }
+
+  async completeProvisioned(input: {
+    id: string
+    workspaceId: string
+    connectionId: string
+  }): Promise<ConnectSessionModel> {
+    const updated = await connectSessionRepository.completeProvisioned(input)
+    if (updated) {
+      return updated
+    }
+    const current = await this.findByIdForWorkspace(input)
+    if (
+      current?.status === "completed" &&
+      current.resultConnectionIds.includes(input.connectionId)
+    ) {
+      return current
+    }
+    throw connectSessionExpiredException(
+      "This connect session is no longer active.",
+    )
   }
 
   /**
@@ -244,6 +661,19 @@ class ConnectSessionService extends BaseService {
   }): Promise<ConnectSessionModel> {
     const session = await this.findByIdForWorkspace(input)
     if (!session) {
+      throw new ConnectSessionNotFoundException()
+    }
+    return session
+  }
+
+  async requireByIdForWorkspaceAndActor(
+    input: { id: string; workspaceId: string } & ConnectSessionActor,
+  ): Promise<ConnectSessionModel> {
+    const session = await this.requireByIdForWorkspace(input)
+    const matches = input.actorUserId
+      ? session.actorUserId === input.actorUserId
+      : session.actorTokenId === input.actorTokenId
+    if (!matches) {
       throw new ConnectSessionNotFoundException()
     }
     return session
@@ -416,6 +846,7 @@ class ConnectSessionService extends BaseService {
         step: "done",
         consumedAt: new Date(),
         encryptedAuth: null,
+        nextAction: null,
       },
     })
     if (updated) {
@@ -539,6 +970,7 @@ class ConnectSessionService extends BaseService {
         errorCode: input.errorCode,
         consumedAt: new Date(),
         encryptedAuth: null,
+        nextAction: null,
       },
     })
     if (updated) {
@@ -568,6 +1000,7 @@ class ConnectSessionService extends BaseService {
         status: "cancelled",
         consumedAt: new Date(),
         encryptedAuth: null,
+        nextAction: null,
       },
     })
     return updated ?? existing
@@ -610,6 +1043,7 @@ class ConnectSessionService extends BaseService {
     const expired = await connectSessionRepository.expireDue({
       before: new Date(),
       statuses: [...ACTIVE_STATUSES],
+      preserveRuntimeForProvider: "zalo_personal",
     })
     const terminalPurge =
       await connectSessionRepository.purgeOldTerminal(options)
@@ -644,6 +1078,36 @@ class ConnectSessionService extends BaseService {
     if (!ACTIVE_STATUSES.has(session.status)) {
       return session
     }
+    if (session.step === "finalizing") {
+      return session
+    }
+    if (
+      session.provider === "zalo_personal" &&
+      session.providerReference &&
+      session.encryptedAuth
+    ) {
+      // The worker must revoke the remote account-scoped credential before
+      // this encrypted cleanup capability is cleared. Readers still observe
+      // an expired, QR-free session while the durable cleanup is retried.
+      const redacted = await connectSessionRepository.updateWhereStatusIn({
+        id: session.id,
+        workspaceId: session.workspaceId,
+        statuses: [...ACTIVE_STATUSES],
+        expectedStep: session.step,
+        values: {
+          nextAction: null,
+          step: session.step?.startsWith("cleanup_")
+            ? session.step
+            : "cleanup_pending",
+        },
+      })
+      const current =
+        redacted ??
+        (await connectSessionRepository.findById({ id: session.id }))
+      return current && ACTIVE_STATUSES.has(current.status)
+        ? { ...current, status: "expired", nextAction: null }
+        : current
+    }
     const updated = await connectSessionRepository.updateWhereStatusIn({
       id: session.id,
       workspaceId: session.workspaceId,
@@ -652,6 +1116,7 @@ class ConnectSessionService extends BaseService {
         status: "expired",
         consumedAt: new Date(),
         encryptedAuth: null,
+        nextAction: null,
       },
     })
     if (updated) {

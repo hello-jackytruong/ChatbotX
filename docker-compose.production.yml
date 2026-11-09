@@ -243,6 +243,11 @@ services:
       BUILDER_HOST: 0.0.0.0
       NODE_OPTIONS: --max-old-space-size=${BUILDER_MAX_OLD_SPACE_MB:-1024}
       DATABASE_POOL_MAX: ${BUILDER_DATABASE_POOL_MAX:-20}
+      # Provisioning capability belongs only to builder. Worker receives
+      # account-scoped credentials through encrypted ConnectSession state.
+      ZALO_PERSONAL_PROVISIONING_BRIDGE_URL: ${ZALO_PERSONAL_PROVISIONING_BRIDGE_URL:-}
+      ZALO_PERSONAL_PROVISIONING_KID: ${ZALO_PERSONAL_PROVISIONING_KID:-}
+      ZALO_PERSONAL_PROVISIONING_SECRET: ${ZALO_PERSONAL_PROVISIONING_SECRET:-}
     ports:
       - 127.0.0.1:${APP_PORT:-3123}:3000
     healthcheck:
@@ -292,6 +297,7 @@ services:
       ZALO_PERSONAL_BRIDGE_POLL_ENABLED: ${ZALO_PERSONAL_BRIDGE_POLL_ENABLED:-false}
       ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED: ${ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED:-false}
       ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST: ${ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST:-}
+      ZALO_PERSONAL_BRIDGE_ONBOARDING_ENABLED: ${ZALO_PERSONAL_BRIDGE_ONBOARDING_ENABLED:-false}
     healthcheck:
       # Tini is PID 1 and the worker entrypoint execs Node as its child. This
       # catches a missing/crashed worker process without needing an HTTP port.

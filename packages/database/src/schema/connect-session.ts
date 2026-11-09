@@ -51,6 +51,14 @@ export const connectSessionModel = pgTable(
         onUpdate: "cascade",
       }),
     provider: text().$type<IntegrationType>().notNull(),
+    // Server-owned provider correlation used by non-OAuth sessions (for
+    // Zalo Personal QR this is the provisioned Zalo account id). Never
+    // accepted from a public/client request.
+    providerReference: text(),
+    // Last durable provider sequence projected into this session. Server-only;
+    // prevents QR event replay after worker restart.
+    providerCursor: text(),
+    providerFenceToken: text(),
     purpose: text().$type<ConnectSessionPurpose>().notNull(),
     // For `reconnect`: identity must match the existing Connection on completion.
     targetConnectionId: bigintAsString().references(() => connectionModel.id, {
@@ -108,6 +116,13 @@ export const connectSessionModel = pgTable(
       "btree",
       table.expiresAt.asc().nullsLast(),
     ),
+    index("ConnectSession_provider_providerReference_idx")
+      .using(
+        "btree",
+        table.provider.asc().nullsLast(),
+        table.providerReference.asc().nullsLast(),
+      )
+      .where(sql`${table.providerReference} IS NOT NULL`),
     index("ConnectSession_consumedAt_idx")
       .using("btree", table.consumedAt.asc().nullsLast())
       .where(sql`${table.consumedAt} IS NOT NULL`),

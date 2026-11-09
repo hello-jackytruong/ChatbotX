@@ -18,6 +18,7 @@ import type {
   ConnectionModel,
   ConnectSessionModel,
 } from "@chatbotx.io/database/types"
+import { authenticateLegacyZaloPersonalCredentials } from "@chatbotx.io/integration-zalo-personal"
 import type {
   ConnectionCredential,
   ConnectSessionNextAction,
@@ -57,10 +58,23 @@ export const connectFromCredentials = async (input: {
    * active connection.
    */
   allowUpdate?: boolean
+  /** Server-only compatibility path for the pre-QR Zalo Personal API. */
+  allowLegacyQrCredentials?: boolean
 }): Promise<ConnectionModel> => {
   const adapter = resolveAdapter(input.provider)
   const { provider } = adapter
-  if (!(isCredentialStrategy(provider.strategy) && provider.fromCredentials)) {
+  const legacyZaloPersonal =
+    input.provider === "zalo_personal" &&
+    input.allowLegacyQrCredentials === true
+  const fromCredentials = legacyZaloPersonal
+    ? authenticateLegacyZaloPersonalCredentials
+    : provider.fromCredentials
+  if (
+    !(
+      (isCredentialStrategy(provider.strategy) || legacyZaloPersonal) &&
+      fromCredentials
+    )
+  ) {
     throw connectionWrongStrategyException(input.provider)
   }
   if (!adapter.store) {
@@ -68,7 +82,9 @@ export const connectFromCredentials = async (input: {
   }
   const store = adapter.store
 
-  const parsedConfig = parseConfig(provider.configFields, input.config)
+  const parsedConfig = legacyZaloPersonal
+    ? input.config
+    : parseConfig(provider.configFields, input.config)
   // Fields the caller sent that aren't part of the provider's own
   // credential shape (`configFields`) — e.g. an AI provider's `model`/
   // `temperature`/`maxOutputTokens` — flow straight through to the
@@ -88,11 +104,14 @@ export const connectFromCredentials = async (input: {
   // field would be unconditionally excluded below and silently dropped
   // before ever reaching `store.insertRow`.
   const allowedConfigColumns = new Set(store.configColumns ?? [])
-  const extraConfig = Object.fromEntries(
-    Object.entries(input.config).filter(
-      ([key]) => !configFieldNames.has(key) || allowedConfigColumns.has(key),
-    ),
-  )
+  const extraConfig = legacyZaloPersonal
+    ? {}
+    : Object.fromEntries(
+        Object.entries(input.config).filter(
+          ([key]) =>
+            !configFieldNames.has(key) || allowedConfigColumns.has(key),
+        ),
+      )
   // Anything left is not part of the provider's own validated credential
   // shape — only pass it to the satellite insert if the binding's
   // `configColumns` allow-list explicitly names it (e.g. an AI provider's
@@ -109,7 +128,7 @@ export const connectFromCredentials = async (input: {
   }
 
   const [auth, ownerId] = await Promise.all([
-    provider.fromCredentials(parsedConfig).catch((err) => {
+    fromCredentials(parsedConfig).catch((err) => {
       const providerError = toConnectionProviderError(err)
       const retryStatus = providerFailureStatus(providerError)
       logger.warn(

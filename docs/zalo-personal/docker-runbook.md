@@ -154,6 +154,71 @@ drains or expires gateway leases, restores `in_process` ownership and keeps the
 additive schema for later reconciliation. Never copy bridge traffic through a
 shared Redis channel or query the other product's database directly.
 
+### QR onboarding from ChatbotX
+
+QR onboarding reuses the existing `zalo-personal` and
+`zalo-personal-gateway` services. It does not add a third Zalo service and it
+does not move `zca-js`, session, proxy, reconnect or rate-limit logic into the
+builder. The builder only provisions a scoped account and enqueues the existing
+`loginWithQr` command; the worker projects durable `account_status` events into
+the workspace-scoped ConnectSession.
+
+First create one provisioning client from an administrator-only shell. The
+scope is fixed to one existing Zalo organization and active owner; clients
+created by the earlier account-scoped command cannot call the onboarding route.
+
+```bash
+docker compose -f docker-compose.production.yml -f docker-compose.zalo-personal.production.yml exec \
+  -e ZALO_BRIDGE_KID=chatbotx-qr-provisioner \
+  -e ZALO_BRIDGE_PROVISION_ORG_ID=<zalo-org-id> \
+  -e ZALO_BRIDGE_PROVISION_OWNER_USER_ID=<active-zalo-owner-user-id> \
+  zalo-personal npm run bridge:provision
+```
+
+The command prints the KID and secret once. Put them only in the production
+host `.env` as `ZALO_PERSONAL_PROVISIONING_KID` and
+`ZALO_PERSONAL_PROVISIONING_SECRET`; set
+`ZALO_PERSONAL_PROVISIONING_BRIDGE_URL` to the exact trusted internal origin
+(normally `http://zalo-personal:3000`). Docker passes these three values only
+to builder. They must not be added to `NEXT_PUBLIC_*`, worker environment,
+browser state, Actions output or tracked files.
+
+Keep both dynamic-onboarding gates disabled until the provisioning client and
+both migrations are ready. Enable `ZALO_PERSONAL_BRIDGE_ONBOARDING_ENABLED=1`
+for the ChatbotX worker and `ZALO_GATEWAY_ONBOARDING_ENABLED=1` for the gateway
+to admit accounts carrying the server-owned `chatbotx_qr` marker without
+adding each new account to the legacy static allowlists. Existing accounts
+still follow the static allowlist behavior.
+
+Cancelling, expiring or terminally failing a new connect session first sends
+an idempotent disconnect and retires its unbound Zalo account, mapping and
+account-scoped bridge credential. Only after that succeeds does ChatbotX clear
+the encrypted cleanup capability and terminalize the session. A bridge outage
+therefore leaves cleanup retryable instead of silently abandoning a ghost
+account. Reconnect sessions never retire the existing account merely because
+their QR attempt is cancelled or fails.
+
+Before rollout, review these additive migrations and obtain separate approval
+to apply them. Generating or testing this feature does not apply any database
+migration.
+
+```text
+packages/database/drizzle/20261109084843_zalo_personal_qr_onboarding/
+packages/database/drizzle/20261109085533_zalo_personal_qr_fence_token/
+apps/zalo-personal/backend/prisma/migrations/20261109090000_bridge_mapping_bootstrap/
+apps/zalo-personal/backend/prisma/migrations/20261109151000_zalo_personal_qr_onboarding/
+```
+
+After the approved migration and deployment, start with one workspace and one
+account. Open Zalo Personal settings, choose **Connect with QR code**, scan it,
+and verify the session reaches `completed`. Then verify exactly one account
+mapping, one active gateway lease, one `Connection`/Inbox, and successful
+inbound and outbound text. A cancelled, expired or dead QR session must have no
+`encryptedAuth`/QR image and must not create an Inbox. Stop the canary on an
+unknown account sequence, stale fence, duplicate Inbox/account/send, unsigned
+bridge response, workspace mismatch or any secret/QR image in application
+logs.
+
 ### One-account gateway and bridge canary
 
 All rollout variables default to disabled. Use the same exact account ID in
@@ -170,14 +235,15 @@ docker compose -f docker-compose.yml -f docker-compose.zalo-personal.production.
   -e ZALO_BRIDGE_KID=chatbotx-canary \
   -e ZALO_BRIDGE_ACCOUNT_ID=<account-id> \
   -e CHATBOTX_WORKSPACE_ID=<workspace-id> \
-  -e CHATBOTX_INBOX_ID=<inbox-id> \
   zalo-personal npm run bridge:provision
 ```
 
 The command prints the new `kid` and secret exactly once. Store the secret in
 the ChatbotX connection immediately; do not paste it into CI logs, shell history
 or a tracked file. Re-running the command with an existing KID or mapping fails
-closed instead of rotating credentials implicitly. Then enable one account in
+closed instead of rotating credentials implicitly. The first inbound poll or
+outbound command binds the provisioned account/workspace mapping to the Inbox
+created by ChatbotX; a different workspace or Inbox fails closed. Then enable one account in
 this order:
 
 1. Set `ZALO_PERSONAL_PROVIDER_MODE=gateway`,

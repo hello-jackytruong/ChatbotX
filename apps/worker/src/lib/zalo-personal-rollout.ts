@@ -17,9 +17,9 @@ export const isZaloPersonalAccountAllowed = (input: {
 
 export const isZaloPersonalBridgeAccountEnabled = (
   accountId: string,
+  managedBy?: "chatbotx_qr",
 ): boolean =>
-  isZaloPersonalAccountAllowed({
-    accountId,
-    enabled: env.ZALO_PERSONAL_BRIDGE_ENABLED,
-    allowlist: env.ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST,
-  })
+  env.ZALO_PERSONAL_BRIDGE_ENABLED &&
+  ((managedBy === "chatbotx_qr" &&
+    env.ZALO_PERSONAL_BRIDGE_ONBOARDING_ENABLED) ||
+    allowedAccounts(env.ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST).has(accountId))

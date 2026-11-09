@@ -16,7 +16,11 @@ const prismaMock = {
     update: vi.fn(),
     updateMany: vi.fn(),
     deleteMany: vi.fn(),
+    delete: vi.fn(),
   },
+  zaloAccountAccess: { deleteMany: vi.fn() },
+  bridgeAccountMapping: { findMany: vi.fn(), updateMany: vi.fn() },
+  bridgeClient: { updateMany: vi.fn() },
   friend: { deleteMany: vi.fn() },
 };
 vi.mock('../src/shared/database/prisma-client.js', () => ({ prisma: prismaMock }));
@@ -38,6 +42,9 @@ vi.mock('fs/promises', () => ({ readFile: vi.fn() }));
 vi.mock('image-size', () => ({ imageSize: vi.fn() }));
 
 const { zaloPool } = await import('../src/modules/zalo/zalo-pool.js');
+const cleanupGhostAccount = (zaloPool as any).cleanupGhostAccount.bind(zaloPool) as (
+  accountId: string,
+) => Promise<void>;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -61,5 +68,18 @@ describe('ghost-visible-within-24h — thẻ ma mới KHÔNG bị ẩn', () => {
     const cutoff: Date = prismaMock.zaloAccount.findMany.mock.calls[0][0].where.createdAt.lt;
     expect(cutoff).toBeInstanceOf(Date);
     expect(Date.now() - cutoff.getTime()).toBeCloseTo(24 * 60 * 60 * 1000, -4);
+  });
+
+  it('keeps a ChatbotX-managed duplicate until its durable event is consumed', async () => {
+    prismaMock.zaloAccount.findUnique.mockResolvedValue({
+      status: 'qr_pending',
+      zaloUid: null,
+      _count: { bridgeAccountMappings: 1, conversations: 0 },
+    });
+
+    await cleanupGhostAccount('account-1');
+
+    expect(prismaMock.zaloAccountAccess.deleteMany).not.toHaveBeenCalled();
+    expect(prismaMock.zaloAccount.delete).not.toHaveBeenCalled();
   });
 });

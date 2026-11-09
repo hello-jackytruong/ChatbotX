@@ -14,6 +14,8 @@ export class PrismaBridgeKeyResolver {
         previousSecretExpiresAt: true,
         active: true,
         revokedAt: true,
+        provisionOrgId: true,
+        provisionOwnerUserId: true,
         accountMappings: {
           where: { active: true },
           select: { accountId: true },
@@ -35,6 +37,13 @@ export class PrismaBridgeKeyResolver {
         : undefined,
       accountIds: client.accountMappings.map((mapping) => mapping.accountId),
       active: client.active && client.revokedAt === null,
+      revokedAt: client.revokedAt ?? undefined,
+      provisioningScope: client.provisionOrgId && client.provisionOwnerUserId
+        ? {
+            orgId: client.provisionOrgId,
+            ownerUserId: client.provisionOwnerUserId,
+          }
+        : undefined,
     };
   }
 }

@@ -24,6 +24,9 @@ export const env = createEnv({
     REALTIME_PROXY_URL: z.url().optional().default("http://localhost:1999"),
     MCP_PROXY_URL: z.url().optional().default("http://localhost:3333"),
     MCP_PUBLIC_URL: z.url().optional(),
+    ZALO_PERSONAL_PROVISIONING_BRIDGE_URL: z.url().optional(),
+    ZALO_PERSONAL_PROVISIONING_KID: z.string().min(1).optional(),
+    ZALO_PERSONAL_PROVISIONING_SECRET: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_BUILDER_URL: z.url(),

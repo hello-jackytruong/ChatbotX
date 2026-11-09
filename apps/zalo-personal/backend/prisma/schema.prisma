@@ -499,6 +499,7 @@ model GatewayEventOutbox {
   @@unique([accountId, accountSequence])
   @@unique([accountId, providerEventId])
   @@index([accountId, createdAt])
+  @@index([createdAt])
   @@map("gateway_event_outbox")
 }
 
@@ -523,6 +524,10 @@ model BridgeClient {
   active           Boolean   @default(true)
   rotatedAt        DateTime? @map("rotated_at")
   revokedAt        DateTime? @map("revoked_at")
+  // Optional server-to-server provisioning scope. Account-scoped clients
+  // leave these null and cannot create Zalo accounts.
+  provisionOrgId       String? @map("provision_org_id")
+  provisionOwnerUserId String? @map("provision_owner_user_id")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
@@ -552,7 +557,8 @@ model BridgeAccountMapping {
   clientId              String   @map("client_id")
   accountId             String   @map("account_id")
   chatbotxWorkspaceId   String   @map("chatbotx_workspace_id")
-  chatbotxInboxId       String   @map("chatbotx_inbox_id")
+  chatbotxInboxId       String?  @map("chatbotx_inbox_id")
+  chatbotxConnectSessionId String? @unique @map("chatbotx_connect_session_id")
   active                Boolean  @default(true)
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
@@ -561,6 +567,7 @@ model BridgeAccountMapping {
   account ZaloAccount  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@unique([clientId, accountId])
+  @@unique([accountId])
   @@unique([chatbotxWorkspaceId, chatbotxInboxId])
   @@index([accountId])
   @@map("bridge_account_mappings")

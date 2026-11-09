@@ -14,6 +14,8 @@ export const zaloPersonalAuthSchema = customAuthSchema.extend({
   bridgeUrl,
   keyId: nonEmpty,
   secret: nonEmpty,
+  managedBy: z.literal("chatbotx_qr").optional(),
+  connectSessionId: nonEmpty.optional(),
 })
 
 export type ZaloPersonalAuthValue = z.infer<typeof zaloPersonalAuthSchema>

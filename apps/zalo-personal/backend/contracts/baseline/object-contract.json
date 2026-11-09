@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "objectCount": 422,
+  "objectCount": 429,
   "objects": [
     {
       "kind": "interface",
@@ -181,6 +181,24 @@
     },
     {
       "kind": "zod-object",
+      "name": "anonymous@75",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 75
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@81",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 81
+    },
+    {
+      "kind": "zod-object",
+      "name": "anonymous@87",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 87
+    },
+    {
+      "kind": "zod-object",
       "name": "anonymous@90",
       "file": "backend/src/modules/zalo-provider/contracts.ts",
       "line": 90
@@ -347,36 +365,43 @@
       "signatureSha256": "92b4720e5b47b94e1320d50afdc44d32d176b6e5a6968405bbee4fcf3ab18937"
     },
     {
+      "kind": "type",
+      "name": "BridgeAccountBindingStatus",
+      "file": "backend/src/modules/bridge/prisma-account-binding.ts",
+      "line": 4,
+      "signatureSha256": "1dc5b2707a4d2e6ebfd36a019d26b89aa4abd4095e477c824f1f2a68df796933"
+    },
+    {
       "kind": "class",
       "name": "BridgeAuthenticator",
       "file": "backend/src/modules/bridge/auth.ts",
-      "line": 94
+      "line": 99
     },
     {
       "kind": "class",
       "name": "BridgeAuthError",
       "file": "backend/src/modules/bridge/auth.ts",
-      "line": 26
+      "line": 31
     },
     {
       "kind": "type",
       "name": "BridgeKey",
       "file": "backend/src/modules/bridge/auth.ts",
       "line": 3,
-      "signatureSha256": "0161ceaeec4af1a247fbdbfe6c58f170b802da2c02238fef9d659ee8b46d9388"
+      "signatureSha256": "76c76a83ec422ec93794a18de7e2a240f76fb6a5c9d9c4fb07f88691aea71928"
     },
     {
       "kind": "type",
       "name": "BridgeRouteDependencies",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 40,
-      "signatureSha256": "54ed9594183c429db271ffbaaf5542a70b8342e24e537ce108432e89de2d3e40"
+      "line": 67,
+      "signatureSha256": "c7ab33b344a3f6e3f639b42cca52d74659e57a22f29c98a9d1c59e86c793c460"
     },
     {
       "kind": "type",
       "name": "BridgeSignedRequest",
       "file": "backend/src/modules/bridge/auth.ts",
-      "line": 11,
+      "line": 16,
       "signatureSha256": "b7a0f21f4bb25b660365f7935416b3f97a7148e8bfce42a128d56b79176c8b11"
     },
     {
@@ -441,6 +466,13 @@
       "file": "frontend/src/composables/use-zalo-phone-check.ts",
       "line": 23,
       "signatureSha256": "415a87ad4529f48493a7cfcb7559a0df510141b63613d3bf07ecaa681e91e4ec"
+    },
+    {
+      "kind": "type",
+      "name": "CleanupResult",
+      "file": "backend/src/modules/bridge/prisma-onboarding.ts",
+      "line": 22,
+      "signatureSha256": "335be4d97be75aecf0affced479e18e01e3049d3a679e5cc615633faddc8fc98"
     },
     {
       "kind": "interface",
@@ -992,7 +1024,7 @@
       "name": "GatewayRolloutConfig",
       "file": "backend/src/modules/gateway/rollout.ts",
       "line": 1,
-      "signatureSha256": "8c54cc79b1f0f752ce9f71c192dbe4f81501791f99f3b43a46e42a3f8225d9e1"
+      "signatureSha256": "e6b1dbebadb369d0ff34fe531efeed4d8d61e255dd078018fb65564aa7074447"
     },
     {
       "kind": "class",
@@ -1143,7 +1175,7 @@
       "kind": "class",
       "name": "InMemoryBridgeNonceStore",
       "file": "backend/src/modules/bridge/auth.ts",
-      "line": 83
+      "line": 88
     },
     {
       "kind": "class",
@@ -1711,6 +1743,12 @@
     },
     {
       "kind": "class",
+      "name": "PrismaBridgeAccountBindingRepository",
+      "file": "backend/src/modules/bridge/prisma-account-binding.ts",
+      "line": 13
+    },
+    {
+      "kind": "class",
       "name": "PrismaBridgeKeyResolver",
       "file": "backend/src/modules/bridge/prisma-auth.ts",
       "line": 6
@@ -1719,7 +1757,13 @@
       "kind": "class",
       "name": "PrismaBridgeNonceStore",
       "file": "backend/src/modules/bridge/prisma-auth.ts",
-      "line": 42
+      "line": 51
+    },
+    {
+      "kind": "class",
+      "name": "PrismaBridgeOnboardingRepository",
+      "file": "backend/src/modules/bridge/prisma-onboarding.ts",
+      "line": 32
     },
     {
       "kind": "class",

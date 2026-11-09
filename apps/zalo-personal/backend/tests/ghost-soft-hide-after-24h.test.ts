@@ -19,6 +19,8 @@ const prismaMock = {
     delete: vi.fn(),
     deleteMany: vi.fn(),
   },
+  bridgeAccountMapping: { findMany: vi.fn(), updateMany: vi.fn() },
+  bridgeClient: { updateMany: vi.fn() },
   friend: { deleteMany: vi.fn() },
 };
 vi.mock('../src/shared/database/prisma-client.js', () => ({ prisma: prismaMock }));
@@ -43,6 +45,7 @@ const { zaloPool } = await import('../src/modules/zalo/zalo-pool.js');
 
 beforeEach(() => {
   vi.clearAllMocks();
+  prismaMock.bridgeAccountMapping.findMany.mockResolvedValue([]);
 });
 
 describe('ghost-soft-hide-after-24h — ẩn mềm, KHÔNG hard-delete', () => {

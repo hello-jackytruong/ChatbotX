@@ -141,4 +141,38 @@ export class PrismaGatewayEventOutbox {
       retentionFloor: rows[0]?.retention_floor ?? 0n,
     };
   }
+
+  /**
+   * QR images are bearer-like onboarding material. Keep the event sequence
+   * immutable, including its `zalo:qr` lifecycle identity, while removing
+   * the base64 image so every consumer can advance through the same sequence
+   * without retaining sensitive QR material indefinitely.
+   */
+  async redactExpiredQrImages(before: Date): Promise<number> {
+    const rows = await this.sql.$queryRaw<Array<{ event_id: string }>>(Prisma.sql`
+      WITH "expired_qr" AS (
+        SELECT "event_id"
+        FROM "gateway_event_outbox"
+        WHERE "kind" = 'account_status'
+          AND "payload"->>'event' = 'zalo:qr'
+          AND "created_at" < ${before}
+          AND COALESCE("payload"->'payload', '{}'::jsonb) ? 'qrImage'
+        ORDER BY "created_at" ASC
+        LIMIT 500
+        FOR UPDATE SKIP LOCKED
+      )
+      UPDATE "gateway_event_outbox" AS "events"
+      SET "payload" = jsonb_set(
+        "events"."payload",
+        '{payload}',
+        (COALESCE("events"."payload"->'payload', '{}'::jsonb) - 'qrImage')
+          || '{"redacted":true}'::jsonb,
+        true
+      )
+      FROM "expired_qr"
+      WHERE "events"."event_id" = "expired_qr"."event_id"
+      RETURNING "events"."event_id"
+    `);
+    return rows.length;
+  }
 }

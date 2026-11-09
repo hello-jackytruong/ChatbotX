@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
 const purgeExpired = vi.fn()
+const listExpiredByProviderWithRuntime = vi.fn()
+const expireZaloPersonalQrSession = vi.fn()
 const info = vi.fn()
 const warn = vi.fn()
 
 vi.mock("@chatbotx.io/business/connect-session", () => ({
-  connectSessionService: { purgeExpired },
+  connectSessionService: { listExpiredByProviderWithRuntime, purgeExpired },
+}))
+vi.mock("@chatbotx.io/connections/zalo-personal-qr", () => ({
+  expireZaloPersonalQrSession,
 }))
 vi.mock("@chatbotx.io/logger", () => ({
   getChildLogger: () => ({ info, warn }),
@@ -17,6 +22,8 @@ const { purgeExpiredConnectSessions } = await import(
 
 beforeEach(() => {
   purgeExpired.mockReset()
+  listExpiredByProviderWithRuntime.mockReset().mockResolvedValue([])
+  expireZaloPersonalQrSession.mockReset()
   info.mockReset()
   warn.mockReset()
 })

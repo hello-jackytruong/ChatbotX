@@ -2,6 +2,7 @@ import { connectionStateService } from "@chatbotx.io/business"
 import { connectSessionService } from "@chatbotx.io/business/connect-session"
 import { notFoundException } from "@chatbotx.io/business/errors"
 import { connectionService } from "@chatbotx.io/connections"
+import { cancelConnectSession } from "@chatbotx.io/connections/zalo-personal-qr"
 import type { WorkspaceApiTokenScope } from "@chatbotx.io/database/partials"
 import { mcpSpec } from "@/lib/orpc/mcp-annotations"
 import {
@@ -60,7 +61,10 @@ const workspaceTokenAuthAPI = workspaceTokenAuthAPIForScope([
 ])
 
 type PublicConnectionContext = {
-  apiToken: { scopes: WorkspaceApiTokenScope[] | null | undefined }
+  apiToken: {
+    id: string
+    scopes: WorkspaceApiTokenScope[] | null | undefined
+  }
   workspace: { id: string }
 }
 
@@ -91,13 +95,11 @@ const loadScopedSession = async (
   context: PublicConnectionContext,
   id: string,
 ) => {
-  const session = await connectSessionService.findByIdForWorkspace({
+  const session = await connectSessionService.requireByIdForWorkspaceAndActor({
     id,
     workspaceId: context.workspace.id,
+    actorTokenId: context.apiToken.id,
   })
-  if (!session) {
-    throw notFoundException("Connect session not found")
-  }
   assertTokenScopeForProvider(context.apiToken.scopes, session.provider)
   return session
 }
@@ -152,7 +154,7 @@ export const connectionsPublicRouter = {
       successStatus: 201,
       summary: "Connect channel or integration",
       description:
-        'Credential-strategy providers (`token`/`api_key`/`self_serve`) connect immediately and return `connection` (`session: null`). `webchat` and `api` are self-serve channels; API returns its bearer token once in `secret.token`, and webchat accepts its branding and behavior fields in `config` using the `POST /v1/webchats` shape. OAuth providers (`oauth_redirect`/`oauth_popup`) return `connection: null` and a `session` whose `nextAction` is `{type:"open_url", url}` — show that URL to the person connecting, then poll `connectSessions.get` until `awaiting_selection` (a multi-account provider) or `completed` (a single-account provider), then call `connectSessions.connectTargets` to finish a multi-account connect. Call `connectionProviders.list` first to find the provider key and required `config` fields. The person opening the URL must have admin rights on the account being connected: the resulting token belongs to them, so hand each person their own link — a leaked URL can only connect the opener\'s account into this workspace…',
+        'Credential-strategy providers (`token`/`api_key`/`self_serve`) connect immediately and return `connection` (`session: null`). `webchat` and `api` are self-serve channels; API returns its bearer token once in `secret.token`, and webchat accepts its branding and behavior fields in `config` using the `POST /v1/webchats` shape. QR providers (`qr_code`, currently Zalo Personal) require no config and return a session whose `nextAction` is `{type:"display_qr", state, qrImage?, retryable}`; poll `connectSessions.get` until completed or terminal. OAuth providers (`oauth_redirect`/`oauth_popup`) return `connection: null` and a session whose `nextAction` is `{type:"open_url", url}` — show that URL to the person connecting, then poll `connectSessions.get` until `awaiting_selection` (a multi-account provider) or `completed` (a single-account provider), then call `connectSessions.connectTargets` to finish a multi-account connect. Call `connectionProviders.list` first to find the provider key and required `config` fields. The person opening the URL must have admin rights on the account being connected: the resulting token belongs to them, so hand each person their own link — a leaked URL can only connect the opener\'s account into this workspace…',
       tags: ["Connections"],
       spec: mcpSpec({ visibility: "default" }),
     })
@@ -181,7 +183,7 @@ export const connectionsPublicRouter = {
       successStatus: 201,
       summary: "Re-authorize existing connection",
       description:
-        "Starts a new OAuth authorization for this exact connection (typically after it went `needs_reauth`). The re-granted account must match the one being reconnected, or the attempt fails once the browser round trip completes. Same envelope as `connections.create`; `connection` is always `null` here — a reconnect never resolves without the round trip.",
+        "Starts re-authorization for this exact connection (typically after it went `needs_reauth`). OAuth providers return an `open_url` session; QR providers such as Zalo Personal return a `display_qr` session with no config input. Poll `connectSessions.get` until completion or a terminal state. The re-authorized provider identity must match the existing connection. Same envelope as `connections.create`; `connection` is null while the session is in progress.",
       tags: ["Connections"],
     })
     .input(reconnectConnectionRequest)
@@ -324,7 +326,7 @@ export const connectSessionsPublicRouter = {
       path: "/v1/connect-sessions/{id}",
       summary: "Get connect session",
       description:
-        "Poll this after `connections.create` or `connections.reconnect` returns a `session`. `status` moves `pending` -> `awaiting_selection` (multi-account) or straight to `completed` (single-account) once the OAuth round trip finishes, or `failed`/`expired`/`cancelled`. Call `connectSessions.connectTargets` once `awaiting_selection`. Clients must tolerate unknown future values in `status`/`nextAction.type`.",
+        "Poll this after `connections.create` or `connections.reconnect` returns a `session`. OAuth sessions move `pending` -> `awaiting_selection` or `completed`; QR sessions expose `nextAction.type=display_qr` and advance through preparing/ready/scanned/connecting before completed. Terminal states are `failed`/`expired`/`cancelled`. Call `connectSessions.connectTargets` only for OAuth sessions in `awaiting_selection`. Clients must tolerate unknown future values in `status`/`nextAction.type`.",
       tags: ["Connections"],
       spec: mcpSpec({ visibility: "default" }),
     })
@@ -374,9 +376,10 @@ export const connectSessionsPublicRouter = {
     .handler(async ({ context, input }) => {
       const existing = await loadScopedSession(context, input.id)
       assertGenericProviderAllowed(existing.provider)
-      const session = await connectSessionService.cancel({
+      const session = await cancelConnectSession({
         id: input.id,
         workspaceId: context.workspace.id,
+        actorTokenId: context.apiToken.id,
       })
       return toConnectSessionResource(session)
     }),

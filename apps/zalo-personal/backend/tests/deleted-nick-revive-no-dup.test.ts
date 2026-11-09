@@ -45,7 +45,7 @@ vi.mock('../src/modules/automation/friend-invite/nick-worker.js', () => ({
 vi.mock('fs/promises', () => ({ readFile: vi.fn() }));
 vi.mock('image-size', () => ({ imageSize: vi.fn() }));
 
-const { zaloPool } = await import('../src/modules/zalo/zalo-pool.js');
+const { isQrIdentityMismatch, zaloPool } = await import('../src/modules/zalo/zalo-pool.js');
 const updateAccountDB = (zaloPool as any).updateAccountDB.bind(zaloPool) as (
   accountId: string, status: string, zaloUid: string | null, reason?: string,
 ) => Promise<void>;
@@ -55,6 +55,11 @@ beforeEach(() => {
 });
 
 describe('deleted-nick-revive-no-dup — revive đúng id, không cướp uid, không nuốt lỗi', () => {
+  it('QR reconnect rejects a different Zalo identity but allows first connect or the same UID', () => {
+    expect(isQrIdentityMismatch('uid-original', 'uid-other')).toBe(true);
+    expect(isQrIdentityMismatch('uid-original', 'uid-original')).toBe(false);
+    expect(isQrIdentityMismatch(null, 'uid-first-connect')).toBe(false);
+  });
   it('REVIVE: connected → update where {id:cũ} + data.archivedAt=null; KHÔNG create record mới', async () => {
     prismaMock.zaloAccount.update.mockResolvedValue({ orgId: 'org-1', ownerUserId: 'user-1' });
     prismaMock.zaloAccount.updateMany.mockResolvedValue({ count: 0 });

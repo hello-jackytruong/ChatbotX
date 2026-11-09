@@ -17,12 +17,55 @@ describe("Zalo Personal bridge contracts", () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     vi.unstubAllEnvs()
   })
 
   it("registers a channel distinct from the existing Zalo OA provider", () => {
     expect(integration.name).toBe("zalo_personal")
     expect(integration.name).not.toBe("zalo")
+  })
+
+  it("advertises server-managed QR onboarding without browser credentials", () => {
+    expect(integration.connection).toMatchObject({
+      strategy: "qr_code",
+      configFields: [],
+    })
+  })
+
+  it("does not run onboarding cleanup for an already-bound managed account", async () => {
+    const cleanup = vi
+      .spyOn(ZaloPersonalBridgeClient.prototype, "cleanupOnboardingAccount")
+      .mockResolvedValue({ status: "cleaned" })
+
+    await integration.disconnect({
+      authType: "custom",
+      accountId: "account-1",
+      bridgeUrl: "https://bridge.example.test",
+      keyId: "kid-1",
+      secret: "secret-1",
+      managedBy: "chatbotx_qr",
+      connectSessionId: "session-1",
+    })
+
+    expect(cleanup).not.toHaveBeenCalled()
+  })
+
+  it("preserves legacy ZaloCRM accounts during ChatbotX disconnect", async () => {
+    const cleanup = vi.spyOn(
+      ZaloPersonalBridgeClient.prototype,
+      "cleanupOnboardingAccount",
+    )
+
+    await integration.disconnect({
+      authType: "custom",
+      accountId: "legacy-account-1",
+      bridgeUrl: "https://bridge.example.test",
+      keyId: "kid-1",
+      secret: "secret-1",
+    })
+
+    expect(cleanup).not.toHaveBeenCalled()
   })
 
   it("rejects non-HTTP bridge protocols", () => {
@@ -50,9 +93,12 @@ describe("Zalo Personal bridge contracts", () => {
       fetcher,
     )
 
-    await expect(client.health()).rejects.toMatchObject({
+    await expect(client.health("account-1")).rejects.toMatchObject({
       code: "INVALID_BRIDGE_RESPONSE_SIGNATURE",
     })
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe(
+      "https://bridge.example.test/internal/bridge/v1/accounts/account-1/health",
+    )
     expect(fetcher).toHaveBeenCalledWith(
       expect.any(URL),
       expect.objectContaining({ redirect: "error" }),

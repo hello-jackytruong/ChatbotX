@@ -1330,6 +1330,20 @@
       "bridgeUrl": "URL cầu nối",
       "keyId": "ID khóa",
       "secret": "Khóa bí mật dịch vụ",
+      "startQr": "Kết nối bằng mã QR",
+      "preparing": "Đang chuẩn bị mã QR…",
+      "qrAlt": "Mã QR đăng nhập Zalo Cá nhân",
+      "scanQr": "Mở Zalo trên điện thoại và quét mã QR này.",
+      "reconnect": "Kết nối lại bằng QR",
+      "qrFailed": "Phiên QR đã kết thúc. Hãy tạo mã mới để thử lại.",
+      "newQr": "Tạo mã QR mới",
+      "qrState": {
+        "preparing": "Đang chuẩn bị mã QR…",
+        "scanned": "Đã quét QR. Đang xác nhận đăng nhập…",
+        "connecting": "Đang kết nối tài khoản Zalo…",
+        "expired": "Mã QR đã hết hạn. Đang chờ mã thay thế…",
+        "session_dead": "Phiên QR đã kết thúc"
+      },
       "status": {
         "connected": "Đã kết nối",
         "degraded": "Suy giảm",

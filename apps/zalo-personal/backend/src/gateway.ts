@@ -16,6 +16,7 @@ const instanceId = process.env.ZALO_GATEWAY_INSTANCE_ID || `gateway-${randomUUID
 const leaseTtlMs = 30_000;
 const heartbeatMs = 10_000;
 const reconcileMs = 10_000;
+const qrImageRetentionMs = 5 * 60_000;
 const rollout = readGatewayRolloutConfig(process.env);
 
 const sql = prisma as never;
@@ -55,12 +56,31 @@ async function stopOwnedListeners(): Promise<void> {
 
 async function reconcileAccounts(): Promise<void> {
   try {
+    const redactedQrImages = await eventOutbox.redactExpiredQrImages(
+      new Date(Date.now() - qrImageRetentionMs),
+    );
+    if (redactedQrImages > 0) {
+      logger.info(`[zalo-gateway] redacted ${redactedQrImages} expired QR image(s)`);
+    }
     const accounts = await prisma.zaloAccount.findMany({
       where: { archivedAt: null },
-      select: { id: true, zaloUid: true },
+      select: {
+        id: true,
+        zaloUid: true,
+        bridgeAccountMappings: {
+          where: {
+            active: true,
+            chatbotxConnectSessionId: { not: null },
+          },
+          select: { id: true },
+        },
+      },
     });
     const eligible = eligibleGatewayAccountIds(
-      accounts.map((account) => account.id),
+      accounts.map((account) => ({
+        id: account.id,
+        onboardingManaged: account.bridgeAccountMappings.length > 0,
+      })),
       rollout,
     );
     for (const accountId of eligible) {
