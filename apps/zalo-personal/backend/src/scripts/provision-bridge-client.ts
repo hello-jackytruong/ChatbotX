@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
-import { sealGatewayCredential } from '../src/modules/gateway/credential-store.js';
-import { prisma } from '../src/shared/database/prisma-client.js';
+import { sealGatewayCredential } from '../modules/gateway/credential-store.js';
+import { prisma } from '../shared/database/prisma-client.js';
 
 function required(name: string): string {
   const value = process.env[name]?.trim();

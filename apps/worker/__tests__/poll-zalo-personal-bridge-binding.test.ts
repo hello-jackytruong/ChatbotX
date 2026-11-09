@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => {
     listActiveRuntimeRows: vi.fn(),
     listActiveQrSessions: vi.fn(async () => []),
     pollQrSession: vi.fn(),
+    commitInboundEvent: vi.fn(),
+    queueAdd: vi.fn(),
+    waitForJobCompletion: vi.fn(),
     listEvents: vi.fn(() => {
       order.push("events")
       return Promise.resolve({
@@ -67,7 +70,7 @@ vi.mock("@chatbotx.io/business/zalo-personal-bridge", () => ({
   },
   zaloPersonalBridgeService: {
     getCheckpoint: mocks.getCheckpoint,
-    commitInboundEvent: vi.fn(),
+    commitInboundEvent: mocks.commitInboundEvent,
   },
 }))
 
@@ -78,9 +81,9 @@ vi.mock("@chatbotx.io/worker-config", () => ({
     messageStatus: "messageStatus",
     deleteIncomingMessage: "deleteIncomingMessage",
   },
-  integrationQueue: { add: vi.fn() },
+  integrationQueue: { add: mocks.queueAdd },
   queueNames: { enum: { integration: "integration" } },
-  waitForJobCompletionWithRetries: vi.fn(),
+  waitForJobCompletionWithRetries: mocks.waitForJobCompletion,
 }))
 
 import { pollZaloPersonalBridge } from "../src/schedule/handlers/poll-zalo-personal-bridge"
@@ -164,5 +167,97 @@ describe("pollZaloPersonalBridge account binding", () => {
       inboxId: "inbox-1",
     })
     expect(mocks.listEvents).toHaveBeenCalled()
+  })
+
+  it("checkpoints an unsupported receipt and continues to the next message", async () => {
+    mocks.queueAdd.mockResolvedValueOnce({ waitUntilFinished: vi.fn() })
+    mocks.waitForJobCompletion.mockResolvedValueOnce({
+      messageId: "chatbotx-message-8",
+      conversationId: "conversation-1",
+      contactId: "contact-1",
+      direction: "inbound",
+    })
+    mocks.listEvents.mockImplementationOnce(() => {
+      mocks.order.push("events")
+      return Promise.resolve({
+        version: 1,
+        accountId: "account-1",
+        nextSequence: "9",
+        highWaterMark: "8",
+        retentionFloor: "1",
+        events: [
+          {
+            version: 1,
+            eventId: "event-delivered-7",
+            accountId: "account-1",
+            accountSequence: "7",
+            fenceToken: "3",
+            kind: "delivered",
+            providerEventId: "provider-message-1",
+            payload: {},
+            occurredAt: "2026-11-09T14:00:00.000Z",
+          },
+          {
+            version: 1,
+            eventId: "event-message-8",
+            accountId: "account-1",
+            accountSequence: "8",
+            fenceToken: "3",
+            kind: "message",
+            providerEventId: "provider-message-2",
+            payload: {
+              event: "chat:message",
+              payload: {
+                conversationId: "thread-1",
+                message: {
+                  senderType: "user",
+                  senderUid: "provider-contact-1",
+                  zaloMsgId: "provider-message-2",
+                },
+              },
+            },
+            occurredAt: "2026-11-09T14:00:01.000Z",
+          },
+        ],
+      })
+    })
+
+    await pollZaloPersonalBridge()
+
+    expect(mocks.queueAdd).toHaveBeenCalledTimes(1)
+    expect(mocks.queueAdd).toHaveBeenCalledWith(
+      "incomingMessage",
+      expect.objectContaining({
+        type: "incomingMessage",
+        data: expect.objectContaining({
+          integrationType: "zalo_personal",
+          integrationIdentifier: "account-1",
+        }),
+      }),
+      { jobId: "zalo-personal-event-event-message-8" },
+    )
+    expect(mocks.commitInboundEvent).toHaveBeenNthCalledWith(1, {
+      workspaceId: "workspace-1",
+      integrationId: "integration-1",
+      inboxId: "inbox-1",
+      accountId: "account-1",
+      sequence: "7",
+      fenceToken: "3",
+      eventId: "event-delivered-7",
+      rawPayload: {},
+    })
+    expect(mocks.commitInboundEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        sequence: "8",
+        eventId: "event-message-8",
+        message: {
+          providerId: "provider-message-2",
+          providerClientId: null,
+          messageId: "chatbotx-message-8",
+          direction: "inbound",
+        },
+      }),
+    )
   })
 })
