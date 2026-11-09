@@ -348,7 +348,7 @@ export async function sendMessageToChannel(
       if (
         !(
           env.ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED &&
-          isZaloPersonalBridgeAccountEnabled(auth.accountId)
+          isZaloPersonalBridgeAccountEnabled(auth.accountId, auth.managedBy)
         )
       ) {
         throw new Error("ZALO_PERSONAL_BRIDGE_OUTBOUND_DISABLED")
@@ -1232,7 +1232,7 @@ export async function sendFlowStepToChannel({
       if (
         !(
           env.ZALO_PERSONAL_BRIDGE_OUTBOUND_ENABLED &&
-          isZaloPersonalBridgeAccountEnabled(auth.accountId)
+          isZaloPersonalBridgeAccountEnabled(auth.accountId, auth.managedBy)
         )
       ) {
         throw new Error("ZALO_PERSONAL_BRIDGE_OUTBOUND_DISABLED")

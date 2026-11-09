@@ -883,6 +883,81 @@ describe.skipIf(!databaseUrl)(
         expect(row.step).toBe("select")
       }))
 
+    test("allows an already-claimed QR finalization to complete after its onboarding TTL", () =>
+      run(async (tx) => {
+        const { workspaceId, ownerId } = await seedWorkspace(tx, "finalizing")
+        const session = await seedSession(tx, {
+          workspaceId,
+          actorUserId: ownerId,
+          stateNonceHash: "iso-hash-finalizing-after-expiry",
+        })
+        await tx
+          .update(schema.connectSessionModel)
+          .set({
+            provider: "zalo_personal",
+            step: "finalizing",
+            expiresAt: new Date(Date.now() - 60_000),
+          })
+          .where(eq(schema.connectSessionModel.id, session.id))
+
+        const completed = await connectSessionRepository.completeProvisioned(
+          {
+            id: session.id,
+            workspaceId,
+            connectionId: "connection-finalized-after-expiry",
+          },
+          tx,
+        )
+
+        expect(completed).toMatchObject({
+          status: "completed",
+          step: "done",
+          resultConnectionIds: ["connection-finalized-after-expiry"],
+        })
+      }))
+
+    test("rejects an out-of-order provider cursor update at the same fence", () =>
+      run(async (tx) => {
+        const { workspaceId, ownerId } = await seedWorkspace(tx, "cursor-cas")
+        const session = await seedSession(tx, {
+          workspaceId,
+          actorUserId: ownerId,
+          stateNonceHash: "iso-hash-provider-cursor-cas",
+        })
+        await tx
+          .update(schema.connectSessionModel)
+          .set({ providerCursor: "10", providerFenceToken: "2" })
+          .where(eq(schema.connectSessionModel.id, session.id))
+
+        await expect(
+          connectSessionRepository.updateWhereStatusIn(
+            {
+              id: session.id,
+              workspaceId,
+              statuses: ["awaiting_selection"],
+              expectedProviderCursor: "10",
+              expectedProviderFenceToken: "2",
+              values: { providerCursor: "11", providerFenceToken: "2" },
+            },
+            tx,
+          ),
+        ).resolves.toMatchObject({ providerCursor: "11" })
+
+        await expect(
+          connectSessionRepository.updateWhereStatusIn(
+            {
+              id: session.id,
+              workspaceId,
+              statuses: ["awaiting_selection"],
+              expectedProviderCursor: "10",
+              expectedProviderFenceToken: "2",
+              values: { providerCursor: "12", providerFenceToken: "2" },
+            },
+            tx,
+          ),
+        ).resolves.toBeUndefined()
+      }))
+
     test("enforces terminal cleanup and active reconnect target invariants", () =>
       run(async (tx) => {
         const { workspaceId, ownerId } = await seedWorkspace(tx, "invariants")

@@ -27,7 +27,7 @@ const connectionServiceMocks = vi.hoisted(() => ({
 }))
 
 const connectSessionServiceMocks = vi.hoisted(() => ({
-  findByIdForWorkspace: vi.fn(),
+  requireByIdForWorkspaceAndActor: vi.fn(),
   cancel: vi.fn(),
 }))
 
@@ -344,20 +344,24 @@ describe("real router: connections public API permission enforcement (T5)", () =
     {
       label: "GET /v1/connect-sessions/{id}",
       setupLoad: () =>
-        connectSessionServiceMocks.findByIdForWorkspace.mockResolvedValueOnce({
-          id: "sess-1",
-          provider: "claude",
-        }),
+        connectSessionServiceMocks.requireByIdForWorkspaceAndActor.mockResolvedValueOnce(
+          {
+            id: "sess-1",
+            provider: "claude",
+          },
+        ),
       invoke: () => invoke(connectSessionsPublicRouter.get, { id: "sess-1" }),
       notCalled: () => [connectSessionResourceMocks.toConnectSessionResource],
     },
     {
       label: "POST /v1/connect-sessions/{id}/targets",
       setupLoad: () =>
-        connectSessionServiceMocks.findByIdForWorkspace.mockResolvedValueOnce({
-          id: "sess-1",
-          provider: "claude",
-        }),
+        connectSessionServiceMocks.requireByIdForWorkspaceAndActor.mockResolvedValueOnce(
+          {
+            id: "sess-1",
+            provider: "claude",
+          },
+        ),
       invoke: () =>
         invoke(connectSessionsPublicRouter.connectTargets, {
           id: "sess-1",
@@ -368,10 +372,12 @@ describe("real router: connections public API permission enforcement (T5)", () =
     {
       label: "DELETE /v1/connect-sessions/{id} (cancel)",
       setupLoad: () =>
-        connectSessionServiceMocks.findByIdForWorkspace.mockResolvedValueOnce({
-          id: "sess-1",
-          provider: "claude",
-        }),
+        connectSessionServiceMocks.requireByIdForWorkspaceAndActor.mockResolvedValueOnce(
+          {
+            id: "sess-1",
+            provider: "claude",
+          },
+        ),
       invoke: () =>
         invoke(connectSessionsPublicRouter.cancel, { id: "sess-1" }),
       notCalled: () => [connectSessionServiceMocks.cancel],

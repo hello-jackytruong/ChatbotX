@@ -1,6 +1,7 @@
 export type GatewayRolloutConfig = {
   claimsEnabled: boolean;
   commandClaimsEnabled: boolean;
+  onboardingClaimsEnabled: boolean;
   accountAllowlist: ReadonlySet<string>;
 };
 
@@ -10,6 +11,7 @@ export function readGatewayRolloutConfig(
   return {
     claimsEnabled: env.ZALO_GATEWAY_CLAIMS_ENABLED === 'true',
     commandClaimsEnabled: env.ZALO_GATEWAY_COMMAND_CLAIMS_ENABLED === 'true',
+    onboardingClaimsEnabled: env.ZALO_GATEWAY_ONBOARDING_ENABLED === 'true',
     accountAllowlist: new Set(
       (env.ZALO_GATEWAY_ACCOUNT_ALLOWLIST || '')
         .split(',')
@@ -20,12 +22,15 @@ export function readGatewayRolloutConfig(
 }
 
 export function eligibleGatewayAccountIds(
-  accountIds: readonly string[],
+  accounts: readonly { id: string; onboardingManaged: boolean }[],
   config: GatewayRolloutConfig,
 ): Set<string> {
   return new Set(
     config.claimsEnabled
-      ? accountIds.filter((accountId) => config.accountAllowlist.has(accountId))
+      ? accounts
+        .filter((account) => config.accountAllowlist.has(account.id)
+          || (config.onboardingClaimsEnabled && account.onboardingManaged))
+        .map((account) => account.id)
       : [],
   );
 }

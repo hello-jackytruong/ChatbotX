@@ -76,6 +76,7 @@ const mocks = vi.hoisted(() => ({
   ),
   findSessionByIdForWorkspace: vi.fn(),
   cancelSession: vi.fn(),
+  startZaloPersonalQrSession: vi.fn(),
 }))
 
 vi.mock("@chatbotx.io/business", () => ({
@@ -90,6 +91,15 @@ vi.mock("@chatbotx.io/business", () => ({
 vi.mock("@chatbotx.io/business/connect-session", () => ({
   connectSessionService: {
     findByIdForWorkspace: mocks.findSessionByIdForWorkspace,
+    requireByIdForWorkspaceAndActor: async (input: unknown) => {
+      const session = await mocks.findSessionByIdForWorkspace(input)
+      if (!session) {
+        throw Object.assign(new Error("Connect session not found."), {
+          code: "notFound",
+        })
+      }
+      return session
+    },
     cancel: mocks.cancelSession,
   },
 }))
@@ -115,6 +125,7 @@ vi.mock("@chatbotx.io/connections", () => ({
     claude: { provider: { strategy: "api_key", kind: "integration" } },
     messenger: { provider: { strategy: "oauth_redirect", kind: "channel" } },
     zalo: { provider: { strategy: "oauth_redirect", kind: "channel" } },
+    zalo_personal: { provider: { strategy: "qr_code", kind: "channel" } },
     webchat: {
       provider: { strategy: "self_serve", kind: "channel" },
       connect: vi.fn(),
@@ -123,6 +134,23 @@ vi.mock("@chatbotx.io/connections", () => ({
       provider: { strategy: "self_serve", kind: "channel" },
       connect: vi.fn(),
     },
+  },
+}))
+
+vi.mock("@chatbotx.io/connections/zalo-personal-qr", () => ({
+  cancelConnectSession: mocks.cancelSession,
+  startZaloPersonalQrSession: mocks.startZaloPersonalQrSession,
+}))
+
+vi.mock("@chatbotx.io/business/integration-zalo-personal", () => ({
+  integrationZaloPersonalService: { loadRuntimeAuthByInbox: vi.fn() },
+}))
+
+vi.mock("@/env", () => ({
+  env: {
+    ZALO_PERSONAL_PROVISIONING_BRIDGE_URL: "https://zalo.internal",
+    ZALO_PERSONAL_PROVISIONING_KID: "provision-kid",
+    ZALO_PERSONAL_PROVISIONING_SECRET: "provision-secret",
   },
 }))
 
@@ -491,6 +519,38 @@ describe("POST /v1/connections", () => {
     })
   })
 
+  test("starts Zalo Personal QR onboarding with no browser config", async () => {
+    mocks.resolveChannelPolicy.mockResolvedValueOnce({
+      ownerId: "owner-1",
+      creatable: ["zalo_personal"],
+      visibleChannels: ["zalo_personal"],
+    })
+    mocks.startZaloPersonalQrSession.mockResolvedValueOnce({
+      id: "zalo-session-1",
+    })
+
+    const result = await procedure.handler?.({
+      context,
+      input: { provider: "zalo_personal" },
+    })
+
+    expect(mocks.startZaloPersonalQrSession).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      platformOwnerId: "owner-1",
+      actorTokenId: "token-1",
+      provisioning: {
+        bridgeUrl: "https://zalo.internal",
+        kid: "provision-kid",
+        secret: "provision-secret",
+      },
+    })
+    expect(result).toEqual({
+      connection: null,
+      session: { id: "zalo-session-1", sessionResource: true },
+      secret: null,
+    })
+  })
+
   test("throws channelHidden when the channel is outside the tenant's visibleChannels policy", async () => {
     mocks.resolveChannelPolicy.mockResolvedValueOnce({
       ownerId: "owner-1",
@@ -627,6 +687,7 @@ describe("GET /v1/connect-sessions/{id}", () => {
     expect(mocks.findSessionByIdForWorkspace).toHaveBeenCalledWith({
       id: "session-1",
       workspaceId: "workspace-1",
+      actorTokenId: "token-1",
     })
     expect(result).toEqual({ id: "session-1", sessionResource: true })
   })
@@ -704,6 +765,7 @@ describe("DELETE /v1/connect-sessions/{id}", () => {
     expect(mocks.cancelSession).toHaveBeenCalledWith({
       id: "session-1",
       workspaceId: "workspace-1",
+      actorTokenId: "token-1",
     })
     expect(result).toEqual({ id: "session-1", sessionResource: true })
   })

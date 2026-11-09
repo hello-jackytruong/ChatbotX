@@ -127,6 +127,13 @@ export class ZaloPersonalBridgeClient {
     return this.request("POST", "/internal/bridge/v1/commands", command)
   }
 
+  provisionAccount(input: { connectSessionId: string; workspaceId: string }) {
+    return this.request("POST", "/internal/bridge/v1/onboarding", {
+      version: 1,
+      ...input,
+    })
+  }
+
   getCommand(commandId: string) {
     return this.request(
       "GET",
@@ -162,8 +169,23 @@ export class ZaloPersonalBridgeClient {
     return this.request("POST", "/internal/bridge/v1/reconcile", input)
   }
 
-  health() {
-    return this.request("GET", "/internal/bridge/v1/health", null)
+  health(accountId: string) {
+    return this.request(
+      "GET",
+      `/internal/bridge/v1/accounts/${encodeURIComponent(accountId)}/health`,
+      null,
+    )
+  }
+
+  cleanupOnboardingAccount(input: {
+    accountId: string
+    connectSessionId: string
+  }) {
+    return this.request(
+      "POST",
+      `/internal/bridge/v1/accounts/${encodeURIComponent(input.accountId)}/onboarding-cleanup`,
+      { version: 1, connectSessionId: input.connectSessionId },
+    )
   }
 
   private async request(
@@ -212,7 +234,7 @@ export class ZaloPersonalBridgeClient {
     const signatureInput = `${correlationId}\n${bodyHash}`
     if (
       !(
-        correlationId &&
+        correlationId === nonce &&
         (await verifyHmac(this.config.secret, signatureInput, signature))
       )
     ) {

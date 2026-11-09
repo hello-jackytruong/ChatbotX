@@ -2363,6 +2363,20 @@
       "bridgeUrl": "Bridge URL",
       "keyId": "Key ID",
       "secret": "Service secret",
+      "startQr": "Connect with QR code",
+      "preparing": "Preparing QR code…",
+      "qrAlt": "Zalo Personal login QR code",
+      "scanQr": "Open Zalo on your phone and scan this QR code.",
+      "reconnect": "Reconnect with QR",
+      "qrFailed": "This QR session ended. Create a new code to try again.",
+      "newQr": "Create new QR code",
+      "qrState": {
+        "preparing": "Preparing QR code…",
+        "scanned": "QR scanned. Confirming login…",
+        "connecting": "Connecting Zalo account…",
+        "expired": "QR expired. Waiting for a replacement…",
+        "session_dead": "QR session ended"
+      },
       "status": {
         "connected": "Connected",
         "degraded": "Degraded",

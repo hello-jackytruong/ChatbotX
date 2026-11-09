@@ -24,6 +24,7 @@ const connectionStrategies = z.enum([
   "oauth_popup",
   "token",
   "api_key",
+  "qr_code",
   "self_serve",
 ]) satisfies z.ZodType<ConnectionStrategy>
 

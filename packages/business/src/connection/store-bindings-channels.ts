@@ -131,6 +131,7 @@ const sanitizeZaloPersonalAuth = (
   accountId: string
   bridgeUrl: string
   keyId: string
+  managedBy?: "chatbotx_qr"
 } => {
   const parsed = zaloPersonalRuntimeAuthSchema.parse(auth)
   return {
@@ -138,6 +139,7 @@ const sanitizeZaloPersonalAuth = (
     accountId: parsed.accountId,
     bridgeUrl: parsed.bridgeUrl,
     keyId: parsed.keyId,
+    ...(parsed.managedBy ? { managedBy: parsed.managedBy } : {}),
   }
 }
 

@@ -75,6 +75,36 @@ describe("connection status partitions", () => {
 })
 
 describe("connectSessionNextActionSchema", () => {
+  test("accepts the server-managed QR lifecycle without exposing credentials", () => {
+    const parsed = connectSessionNextActionSchema.parse({
+      type: "display_qr",
+      state: "ready",
+      qrImage: "c3ludGhldGlj",
+      retryable: true,
+    })
+
+    expect(parsed).toEqual({
+      type: "display_qr",
+      state: "ready",
+      qrImage: "c3ludGhldGlj",
+      retryable: true,
+    })
+    expect(parsed).not.toHaveProperty("secret")
+    expect(parsed).not.toHaveProperty("keyId")
+    expect(parsed).not.toHaveProperty("bridgeUrl")
+  })
+
+  test("rejects a QR image on a state that must clear it", () => {
+    expect(
+      connectSessionNextActionSchema.safeParse({
+        type: "display_qr",
+        state: "scanned",
+        qrImage: "c3ludGhldGlj",
+        retryable: false,
+      }).success,
+    ).toBe(false)
+  })
+
   test("rejects an unknown next-action type", () => {
     expect(
       connectSessionNextActionSchema.safeParse({ type: "redirect" }).success,

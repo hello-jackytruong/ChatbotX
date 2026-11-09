@@ -16,6 +16,7 @@ export type ConnectionStrategy =
   | "oauth_popup"
   | "token"
   | "api_key"
+  | "qr_code"
   | "self_serve"
 
 export type {
@@ -88,6 +89,13 @@ type SelfServeStrategy<IAuth extends AuthValue, ICreds> = {
   fromCredentials?: Handler<ICreds, IAuth>
 }
 
+type QrCodeStrategy = {
+  strategy: Extract<ConnectionStrategy, "qr_code">
+  authorizeUrl?: never
+  exchangeCode?: never
+  fromCredentials?: never
+}
+
 type MultiAccount<IAuth extends AuthValue> = {
   multiAccount: true
   listCandidates: Handler<{ auth: IAuth }, ConnectionCandidate<IAuth>[]>
@@ -105,6 +113,7 @@ export type ConnectionProvider<
   (
     | OAuthStrategy<IAuth, ICreds>
     | CredentialStrategy<IAuth, ICreds>
+    | QrCodeStrategy
     | SelfServeStrategy<IAuth, ICreds>
   ) &
   (MultiAccount<IAuth> | SingleAccount)

@@ -6,6 +6,11 @@ export type BridgeKey = {
   previousSecret?: string;
   accountIds: string[];
   active: boolean;
+  revokedAt?: Date;
+  provisioningScope?: {
+    orgId: string;
+    ownerUserId: string;
+  };
 };
 
 export type BridgeSignedRequest = {
@@ -99,14 +104,24 @@ export class BridgeAuthenticator {
     private readonly skewSeconds = 60,
   ) {}
 
-  async verify(request: BridgeSignedRequest, accountId?: string): Promise<BridgeKey> {
+  async verify(
+    request: BridgeSignedRequest,
+    accountId?: string,
+    options?: { allowRevokedForOnboardingCleanup?: boolean },
+  ): Promise<BridgeKey> {
     const nowSeconds = Math.floor(this.now() / 1000);
     if (!Number.isSafeInteger(request.timestamp)
       || Math.abs(nowSeconds - request.timestamp) > this.skewSeconds) {
       throw new BridgeAuthError('TIMESTAMP_OUT_OF_RANGE', 401);
     }
     const key = await this.keys.find(request.kid);
-    if (!key?.active) throw new BridgeAuthError('UNKNOWN_OR_REVOKED_KID', 401);
+    if (!key) throw new BridgeAuthError('UNKNOWN_OR_REVOKED_KID', 401);
+    const revokedCleanupAuthorization = Boolean(
+      options?.allowRevokedForOnboardingCleanup && key.revokedAt,
+    );
+    if (!(key.active || revokedCleanupAuthorization)) {
+      throw new BridgeAuthError('UNKNOWN_OR_REVOKED_KID', 401);
+    }
     const matchedSecret = [key.secret, key.previousSecret]
       .filter((secret): secret is string => Boolean(secret))
       .find((secret) => signaturesEqual(
@@ -116,7 +131,11 @@ export class BridgeAuthenticator {
     if (!matchedSecret) {
       throw new BridgeAuthError('BAD_SIGNATURE', 401);
     }
-    if (accountId && !key.accountIds.includes(accountId)) {
+    if (
+      accountId
+      && !revokedCleanupAuthorization
+      && !key.accountIds.includes(accountId)
+    ) {
       throw new BridgeAuthError('ACCOUNT_SCOPE_DENIED', 403);
     }
     const accepted = await this.nonces.consume(

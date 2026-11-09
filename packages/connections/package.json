@@ -48,7 +48,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./messenger-teardown": "./src/messenger-teardown.ts"
+    "./messenger-teardown": "./src/messenger-teardown.ts",
+    "./zalo-personal-qr": "./src/zalo-personal-qr.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

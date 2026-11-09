@@ -1,4 +1,5 @@
 import { connectSessionService } from "@chatbotx.io/business/connect-session"
+import { expireZaloPersonalQrSession } from "@chatbotx.io/connections/zalo-personal-qr"
 import { getChildLogger } from "@chatbotx.io/logger"
 
 const log = getChildLogger("purge-expired-connect-sessions")
@@ -8,6 +9,42 @@ const TERMINAL_RETENTION_DAYS = 7
 const CHUNK_SIZE = 500
 const INTER_CHUNK_DELAY_MS = 100
 const MAX_CHUNKS_PER_RUN = 1000
+const QR_CLEANUP_PAGE_SIZE = 100
+const MAX_QR_CLEANUPS_PER_RUN = 1000
+
+async function cleanupExpiredZaloPersonalQrSessions(): Promise<void> {
+  let afterId: string | undefined
+  let inspected = 0
+  while (inspected < MAX_QR_CLEANUPS_PER_RUN) {
+    const sessions =
+      await connectSessionService.listExpiredByProviderWithRuntime({
+        provider: "zalo_personal",
+        limit: Math.min(
+          QR_CLEANUP_PAGE_SIZE,
+          MAX_QR_CLEANUPS_PER_RUN - inspected,
+        ),
+        afterId,
+      })
+    if (sessions.length === 0) {
+      return
+    }
+    for (const session of sessions) {
+      afterId = session.id
+      inspected += 1
+      try {
+        await expireZaloPersonalQrSession(session)
+      } catch (err) {
+        log.warn(
+          { err, sessionId: session.id },
+          "purgeExpiredConnectSessions: Zalo QR cleanup will retry",
+        )
+      }
+    }
+    if (sessions.length < QR_CLEANUP_PAGE_SIZE) {
+      return
+    }
+  }
+}
 
 /**
  * Two sweeps over `ConnectSession`, both delegated to
@@ -24,6 +61,7 @@ const MAX_CHUNKS_PER_RUN = 1000
  *   long enough for diagnostics.
  */
 export async function purgeExpiredConnectSessions(): Promise<void> {
+  await cleanupExpiredZaloPersonalQrSessions()
   const { expired, deletedTerminal, terminalPurgeStopReason } =
     await connectSessionService.purgeExpired({
       retentionDays: TERMINAL_RETENTION_DAYS,

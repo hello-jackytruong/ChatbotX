@@ -2,6 +2,7 @@ import { connectionStateService } from "@chatbotx.io/business"
 import { connectSessionService } from "@chatbotx.io/business/connect-session"
 import { notFoundException } from "@chatbotx.io/business/errors"
 import { connectionService } from "@chatbotx.io/connections"
+import { cancelConnectSession } from "@chatbotx.io/connections/zalo-personal-qr"
 import { withWorkspaceIdSchema } from "@/features/workspaces/schema/resource"
 import {
   possibleErrorsOnCancelingConnectSession,
@@ -23,7 +24,6 @@ import { authorizedAPI } from "@/orpc"
 import {
   assertConnectionProviderAllowed,
   assertGenericProviderAllowed,
-  assertSessionProviderAllowed,
 } from "../lib/assert-generic-provider-allowed"
 import { startConnect, startReconnect } from "../lib/connect-flow"
 import { toConnectSessionResource } from "../lib/connect-session-resource"
@@ -283,14 +283,14 @@ const getConnectSessionAPI = authorizedAPI
   .output(connectSessionResource)
   .errors(possibleErrorsOnFindingConnectSession)
   .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
-  .handler(async ({ input }) => {
-    const session = await connectSessionService.findByIdForWorkspace({
-      id: input.id,
-      workspaceId: input.workspaceId,
-    })
-    if (!session) {
-      throw notFoundException("Connect session not found")
-    }
+  .handler(async ({ context, input }) => {
+    const session = await connectSessionService.requireByIdForWorkspaceAndActor(
+      {
+        id: input.id,
+        workspaceId: input.workspaceId,
+        actorUserId: context.user.id,
+      },
+    )
     return toConnectSessionResource(session)
   })
 
@@ -306,10 +306,14 @@ const connectSessionTargetsAPI = authorizedAPI
   .errors(possibleErrorsOnConnectingSessionTargets)
   .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
   .handler(async ({ context, input }) => {
-    await assertSessionProviderAllowed({
-      sessionId: input.id,
-      workspaceId: input.workspaceId,
-    })
+    const session = await connectSessionService.requireByIdForWorkspaceAndActor(
+      {
+        id: input.id,
+        workspaceId: input.workspaceId,
+        actorUserId: context.user.id,
+      },
+    )
+    assertGenericProviderAllowed(session.provider)
     const result = await connectionService.connectTargets({
       sessionId: input.id,
       workspaceId: input.workspaceId,
@@ -330,14 +334,18 @@ const cancelConnectSessionAPI = authorizedAPI
   .output(connectSessionResource)
   .errors(possibleErrorsOnCancelingConnectSession)
   .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
-  .handler(async ({ input }) => {
-    await assertSessionProviderAllowed({
-      sessionId: input.id,
-      workspaceId: input.workspaceId,
-    })
-    const session = await connectSessionService.cancel({
+  .handler(async ({ context, input }) => {
+    const existing =
+      await connectSessionService.requireByIdForWorkspaceAndActor({
+        id: input.id,
+        workspaceId: input.workspaceId,
+        actorUserId: context.user.id,
+      })
+    assertGenericProviderAllowed(existing.provider)
+    const session = await cancelConnectSession({
       id: input.id,
       workspaceId: input.workspaceId,
+      actorUserId: context.user.id,
     })
     return toConnectSessionResource(session)
   })

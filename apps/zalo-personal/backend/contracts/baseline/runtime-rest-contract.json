@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "routeCount": 626,
+  "routeCount": 631,
   "routes": [
     {
       "method": "GET",
@@ -3093,6 +3093,11 @@
       "owner": "backend/src/app.ts"
     },
     {
+      "method": "PUT",
+      "path": "/internal/bridge/v1/accounts/:accountId/binding",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
       "method": "GET",
       "path": "/internal/bridge/v1/accounts/:accountId/events",
       "owner": "backend/src/modules/bridge/index.ts"
@@ -3100,6 +3105,21 @@
     {
       "method": "HEAD",
       "path": "/internal/bridge/v1/accounts/:accountId/events",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/accounts/:accountId/health",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "HEAD",
+      "path": "/internal/bridge/v1/accounts/:accountId/health",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/accounts/:accountId/onboarding-cleanup",
       "owner": "backend/src/modules/bridge/index.ts"
     },
     {
@@ -3125,6 +3145,11 @@
     {
       "method": "HEAD",
       "path": "/internal/bridge/v1/health",
+      "owner": "backend/src/modules/bridge/index.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/onboarding",
       "owner": "backend/src/modules/bridge/index.ts"
     },
     {

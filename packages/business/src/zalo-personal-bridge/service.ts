@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto"
 import { BaseService } from "../base.service"
 import { ZaloPersonalBridgeClient } from "./client"
 import {
@@ -22,10 +21,16 @@ function canonicalize(value: unknown): unknown {
   return value
 }
 
-function digest(value: unknown): string {
-  return createHash("sha256")
-    .update(JSON.stringify(canonicalize(value)))
-    .digest("hex")
+async function digest(value: unknown): Promise<string> {
+  const bytes = new Uint8Array(
+    await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(JSON.stringify(canonicalize(value))),
+    ),
+  )
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  )
 }
 
 export class ZaloPersonalBridgeService extends BaseService {
@@ -34,7 +39,7 @@ export class ZaloPersonalBridgeService extends BaseService {
     config: ConstructorParameters<typeof ZaloPersonalBridgeClient>[0],
   ) => Pick<
     ZaloPersonalBridgeClient,
-    "acceptCommand" | "getCommand" | "reconcile"
+    "acceptCommand" | "bindAccount" | "getCommand" | "reconcile"
   >
 
   constructor(
@@ -43,7 +48,7 @@ export class ZaloPersonalBridgeService extends BaseService {
       config: ConstructorParameters<typeof ZaloPersonalBridgeClient>[0],
     ) => Pick<
       ZaloPersonalBridgeClient,
-      "acceptCommand" | "getCommand" | "reconcile"
+      "acceptCommand" | "bindAccount" | "getCommand" | "reconcile"
     > = (config) => new ZaloPersonalBridgeClient(config),
   ) {
     super()
@@ -51,7 +56,7 @@ export class ZaloPersonalBridgeService extends BaseService {
     this.createClient = createClient
   }
 
-  enqueueOutbound(input: {
+  async enqueueOutbound(input: {
     workspaceId: string
     integrationId: string
     inboxId: string
@@ -60,10 +65,10 @@ export class ZaloPersonalBridgeService extends BaseService {
     commandId: string
     payload: Record<string, unknown>
   }) {
-    return this.repository.createOutbound({
+    return await this.repository.createOutbound({
       ...input,
       idempotencyKey: input.messageId,
-      payloadHash: digest(input.payload),
+      payloadHash: await digest(input.payload),
     })
   }
 
@@ -82,7 +87,7 @@ export class ZaloPersonalBridgeService extends BaseService {
           direction: "inbound",
           eventId: input.eventId,
           errorCode: `MAPPING_CONFLICT_${error.mappingType.toUpperCase()}`,
-          payloadDigest: digest(input.rawPayload),
+          payloadDigest: await digest(input.rawPayload),
         })
       }
       throw error
@@ -124,6 +129,11 @@ export class ZaloPersonalBridgeService extends BaseService {
       baseUrl: input.bridgeUrl,
       kid: input.keyId,
       secret: input.secret,
+    })
+    await client.bindAccount({
+      accountId: input.accountId,
+      workspaceId: input.workspaceId,
+      inboxId: input.inboxId,
     })
     let response: Record<string, unknown>
     try {

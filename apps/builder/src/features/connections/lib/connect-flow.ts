@@ -3,6 +3,7 @@ import {
   connectionNotConfiguredException,
   connectionNotOAuthException,
 } from "@chatbotx.io/business/errors"
+import { integrationZaloPersonalService } from "@chatbotx.io/business/integration-zalo-personal"
 import {
   CONNECTION_REGISTRY,
   connectionService,
@@ -10,11 +11,16 @@ import {
   type SelfServeSecret,
   toChannelType,
 } from "@chatbotx.io/connections"
+import {
+  startZaloPersonalQrReconnect,
+  startZaloPersonalQrSession,
+} from "@chatbotx.io/connections/zalo-personal-qr"
 import type { IntegrationType } from "@chatbotx.io/database/partials"
 import type {
   ConnectionModel,
   ConnectSessionModel,
 } from "@chatbotx.io/database/types"
+import { env } from "@/env"
 import { sanitizeOptionalReturnUrl } from "@/lib/oauth-referer"
 import { resolveChannelPolicy } from "@/lib/workspace/resolve-visible-channels"
 import { resolveOAuthCredential } from "./resolve-connect-credential"
@@ -118,6 +124,32 @@ export const startConnect = async (input: {
     return { connection, session: null, secret }
   }
 
+  if (input.provider === "zalo_personal") {
+    if (input.config && Object.keys(input.config).length > 0) {
+      const connection = await connectionService.connectFromCredentials({
+        workspaceId: input.workspaceId,
+        provider: input.provider,
+        config: input.config,
+        actorUserId: input.actor.actorUserId,
+        allowLegacyQrCredentials: true,
+      })
+      return { connection, session: null, secret: null }
+    }
+    const bridgeUrl = env.ZALO_PERSONAL_PROVISIONING_BRIDGE_URL
+    const kid = env.ZALO_PERSONAL_PROVISIONING_KID
+    const secret = env.ZALO_PERSONAL_PROVISIONING_SECRET
+    if (!(bridgeUrl && kid && secret)) {
+      throw connectionNotConfiguredException(input.provider)
+    }
+    const session = await startZaloPersonalQrSession({
+      workspaceId: input.workspaceId,
+      platformOwnerId: input.ownerId,
+      ...input.actor,
+      provisioning: { bridgeUrl, kid, secret },
+    })
+    return { connection: null, session, secret: null }
+  }
+
   if (isCredentialStrategy(adapter.provider.strategy)) {
     const connection = await connectionService.connectFromCredentials({
       workspaceId: input.workspaceId,
@@ -157,6 +189,26 @@ export const startReconnect = async (input: {
   ownerId: string
   actor: ConnectFlowActor
 }): Promise<{ session: ConnectSessionModel }> => {
+  if (input.connection.provider === "zalo_personal") {
+    if (!input.connection.inboxId) {
+      throw connectionNotConfiguredException(input.connection.provider)
+    }
+    const auth = await integrationZaloPersonalService.loadRuntimeAuthByInbox({
+      inboxId: input.connection.inboxId,
+      workspaceId: input.workspaceId,
+    })
+    if (!auth) {
+      throw connectionNotConfiguredException(input.connection.provider)
+    }
+    const session = await startZaloPersonalQrReconnect({
+      connectionId: input.connection.id,
+      workspaceId: input.workspaceId,
+      platformOwnerId: input.ownerId,
+      auth,
+      ...input.actor,
+    })
+    return { session }
+  }
   const resolved = await resolveOAuthCredential({
     provider: input.connection.provider,
     ownerId: input.ownerId,

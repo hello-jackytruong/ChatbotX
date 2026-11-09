@@ -112,6 +112,7 @@ vi.mock("@chatbotx.io/business", () => ({
 vi.mock("@chatbotx.io/business/connect-session", () => ({
   connectSessionService: {
     findByIdForWorkspace: mocks.findByIdForWorkspace,
+    requireByIdForWorkspaceAndActor: mocks.findByIdForWorkspace,
     cancel: mocks.cancel,
   },
 }))
@@ -162,6 +163,10 @@ vi.mock("@chatbotx.io/connections", () => ({
     claude: { provider: { strategy: "api_key", kind: "integration" } },
     messenger: { provider: { strategy: "oauth_redirect", kind: "channel" } },
   },
+}))
+
+vi.mock("@chatbotx.io/connections/zalo-personal-qr", () => ({
+  cancelConnectSession: mocks.cancel,
 }))
 
 vi.mock("../src/features/connections/lib/resolve-provider", () => ({
@@ -536,6 +541,7 @@ describe("private connectSessionsAPI.getConnectSessionAPI", () => {
     expect(mocks.findByIdForWorkspace).toHaveBeenCalledWith({
       id: "session-1",
       workspaceId: "ws-1",
+      actorUserId: "user-1",
     })
   })
 })
@@ -590,6 +596,7 @@ describe("private connectSessionsAPI.cancelConnectSessionAPI", () => {
     expect(mocks.cancel).toHaveBeenCalledWith({
       id: "session-1",
       workspaceId: "ws-1",
+      actorUserId: "user-1",
     })
   })
 })
@@ -713,6 +720,7 @@ describe("generic connections API rejects the dedicated-only googleAds provider"
     expect(mocks.findByIdForWorkspace).toHaveBeenCalledWith({
       id: "session-1",
       workspaceId: "ws-1",
+      actorUserId: "user-1",
     })
     expect(mocks.connectTargets).not.toHaveBeenCalled()
   })
@@ -735,8 +743,12 @@ describe("generic connections API rejects the dedicated-only googleAds provider"
 
   test("connectSessionTargetsAPI and cancelConnectSessionAPI answer notFound for a foreign session", async () => {
     mocks.findByIdForWorkspace
-      .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(
+        new MockChatbotXException("Connect session not found", "notFound"),
+      )
+      .mockRejectedValueOnce(
+        new MockChatbotXException("Connect session not found", "notFound"),
+      )
 
     await expect(
       getHandler(

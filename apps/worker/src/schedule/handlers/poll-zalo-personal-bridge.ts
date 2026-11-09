@@ -1,13 +1,16 @@
 import { withBlockedOwnerGuard } from "@chatbotx.io/business"
+import { connectSessionService } from "@chatbotx.io/business/connect-session"
 import { integrationZaloPersonalService } from "@chatbotx.io/business/integration-zalo-personal"
 import {
   ZaloPersonalBridgeClient,
   zaloPersonalBridgeService,
 } from "@chatbotx.io/business/zalo-personal-bridge"
+import { pollZaloPersonalQrSession } from "@chatbotx.io/connections/zalo-personal-qr"
 import {
   type BridgeEvent,
   bridgeEventPageSchema,
 } from "@chatbotx.io/integration-zalo-personal/schema"
+import { getChildLogger } from "@chatbotx.io/logger"
 import {
   getQueueEvents,
   IntegrationJobAction,
@@ -28,6 +31,9 @@ import { isZaloPersonalBridgeAccountEnabled } from "../../lib/zalo-personal-roll
 const POLL_PAGE_SIZE = 100
 const POLL_WAIT_MS = 30_000
 const MAX_ACTIVE_ACCOUNTS_PER_RUN = 1000
+const MAX_ACTIVE_QR_SESSIONS_PER_RUN = 100
+const logger = getChildLogger("poll-zalo-personal-bridge")
+let activeQrSessionCursor: string | undefined
 
 const eventJobId = (eventId: string): string =>
   `zalo-personal-event-${eventId.replace(/[^a-zA-Z0-9_-]/g, "-")}`.slice(0, 120)
@@ -127,16 +133,22 @@ async function pollAccount(
   >[number],
 ): Promise<void> {
   await withBlockedOwnerGuard(row.workspaceId, async () => {
+    const client = new ZaloPersonalBridgeClient({
+      baseUrl: row.auth.bridgeUrl,
+      kid: row.auth.keyId,
+      secret: row.auth.secret,
+    })
+    await client.bindAccount({
+      accountId: row.accountId,
+      workspaceId: row.workspaceId,
+      inboxId: row.inboxId,
+    })
     const checkpoint = await zaloPersonalBridgeService.getCheckpoint({
       integrationId: row.id,
       accountId: row.accountId,
     })
     const page = bridgeEventPageSchema.parse(
-      await new ZaloPersonalBridgeClient({
-        baseUrl: row.auth.bridgeUrl,
-        kid: row.auth.keyId,
-        secret: row.auth.secret,
-      }).listEvents({
+      await client.listEvents({
         accountId: row.accountId,
         after: checkpoint?.lastSequence ?? "0",
         limit: POLL_PAGE_SIZE,
@@ -167,6 +179,44 @@ export async function pollZaloPersonalBridge(): Promise<void> {
   if (!env.ZALO_PERSONAL_BRIDGE_POLL_ENABLED) {
     return
   }
+  const qrSessions = await connectSessionService.listActiveByProvider({
+    provider: "zalo_personal",
+    limit: MAX_ACTIVE_QR_SESSIONS_PER_RUN,
+    afterId: activeQrSessionCursor,
+    requireProviderRuntime: true,
+    includeExpiredFinalizing: true,
+  })
+  activeQrSessionCursor =
+    qrSessions.length === MAX_ACTIVE_QR_SESSIONS_PER_RUN
+      ? qrSessions.at(-1)?.id
+      : undefined
+  for (let index = 0; index < qrSessions.length; index += 10) {
+    await Promise.all(
+      qrSessions
+        .slice(index, index + 10)
+        .filter(
+          (session) =>
+            session.providerReference &&
+            isZaloPersonalBridgeAccountEnabled(
+              session.providerReference,
+              "chatbotx_qr",
+            ),
+        )
+        .map((session) =>
+          withBlockedOwnerGuard(session.workspaceId, async () => {
+            try {
+              await pollZaloPersonalQrSession(session)
+            } catch (err) {
+              logger.error(
+                { err, sessionId: session.id },
+                "zalo personal QR session poll failed",
+              )
+            }
+          }),
+        ),
+    )
+  }
+
   const rows = await integrationZaloPersonalService.listActiveRuntimeRows(
     MAX_ACTIVE_ACCOUNTS_PER_RUN,
   )
@@ -174,7 +224,9 @@ export async function pollZaloPersonalBridge(): Promise<void> {
     await Promise.all(
       rows
         .slice(index, index + 10)
-        .filter((row) => isZaloPersonalBridgeAccountEnabled(row.accountId))
+        .filter((row) =>
+          isZaloPersonalBridgeAccountEnabled(row.accountId, row.auth.managedBy),
+        )
         .map(pollAccount),
     )
   }

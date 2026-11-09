@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "routeCount": 735,
-  "producerCount": 427,
+  "routeCount": 739,
+  "producerCount": 431,
   "consumerCount": 308,
   "routes": [
     {
@@ -6682,14 +6682,48 @@
       "statuses": []
     },
     {
+      "method": "PUT",
+      "path": "/internal/bridge/v1/accounts/:accountId/binding",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 286,
+      "authOrPreHandler": false,
+      "statuses": [
+        426
+      ]
+    },
+    {
       "method": "GET",
       "path": "/internal/bridge/v1/accounts/:accountId/events",
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 133,
+      "line": 203,
       "authOrPreHandler": false,
       "statuses": []
+    },
+    {
+      "method": "GET",
+      "path": "/internal/bridge/v1/accounts/:accountId/health",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 276,
+      "authOrPreHandler": false,
+      "statuses": []
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/accounts/:accountId/onboarding-cleanup",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 321,
+      "authOrPreHandler": false,
+      "statuses": [
+        426
+      ]
     },
     {
       "method": "POST",
@@ -6697,7 +6731,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 100,
+      "line": 170,
       "authOrPreHandler": false,
       "statuses": [
         426
@@ -6709,7 +6743,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 119,
+      "line": 189,
       "authOrPreHandler": false,
       "statuses": [
         404
@@ -6721,9 +6755,22 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 200,
+      "line": 270,
       "authOrPreHandler": false,
       "statuses": []
+    },
+    {
+      "method": "POST",
+      "path": "/internal/bridge/v1/onboarding",
+      "role": "producer",
+      "receiver": "app",
+      "file": "backend/src/modules/bridge/routes.ts",
+      "line": 147,
+      "authOrPreHandler": false,
+      "statuses": [
+        201,
+        426
+      ]
     },
     {
       "method": "POST",
@@ -6731,7 +6778,7 @@
       "role": "producer",
       "receiver": "app",
       "file": "backend/src/modules/bridge/routes.ts",
-      "line": 169,
+      "line": 239,
       "authOrPreHandler": false,
       "statuses": []
     },

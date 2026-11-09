@@ -64,4 +64,27 @@ describe('bridge HMAC authentication', () => {
 
     await expect(auth.verify(request, 'account-1')).resolves.toMatchObject({ kid: 'client-1' });
   });
+
+  it('allows only signed onboarding cleanup retries after revocation, regardless of outage duration', async () => {
+    const auth = new BridgeAuthenticator({
+      find: async () => ({
+        kid: 'client-1',
+        secret,
+        accountIds: [],
+        active: false,
+        revokedAt: new Date(nowMs - 30 * 24 * 60 * 60_000),
+      }),
+    }, new InMemoryBridgeNonceStore(), () => nowMs);
+    const cleanupRequest = signedRequest({ nonce: 'cleanup-retry' });
+
+    await expect(
+      auth.verify(cleanupRequest, 'account-1', {
+        allowRevokedForOnboardingCleanup: true,
+      }),
+    ).resolves.toMatchObject({ kid: 'client-1' });
+
+    await expect(
+      auth.verify(signedRequest({ nonce: 'normal-retry' }), 'account-1'),
+    ).rejects.toMatchObject({ code: 'UNKNOWN_OR_REVOKED_KID' });
+  });
 });

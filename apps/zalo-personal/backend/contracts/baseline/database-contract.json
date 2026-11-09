@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "backend/prisma/schema.prisma",
-  "schemaSha256": "e4e53b6851372e062bba0fefe5d92cd31d9bd8d55cf55222c8344ebe77fdcbc9",
+  "schemaSha256": "bd3c7d6150252a054c982d861bc426c6fc88b35125626bc3f2e32349d58cbf5b",
   "modelCount": 116,
   "models": [
     {
@@ -3678,13 +3678,24 @@
         {
           "name": "chatbotxInboxId",
           "type": "String",
-          "nullable": false,
+          "nullable": true,
           "list": false,
           "id": false,
           "unique": false,
           "default": null,
           "relation": null,
           "attributes": "@map(\"chatbotx_inbox_id\")"
+        },
+        {
+          "name": "chatbotxConnectSessionId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": true,
+          "default": null,
+          "relation": null,
+          "attributes": "@unique @map(\"chatbotx_connect_session_id\")"
         },
         {
           "name": "active",
@@ -3744,6 +3755,7 @@
       ],
       "attributes": [
         "@@unique([clientId, accountId])",
+        "@@unique([accountId])",
         "@@unique([chatbotxWorkspaceId, chatbotxInboxId])",
         "@@index([accountId])",
         "@@map(\"bridge_account_mappings\")"
@@ -3904,6 +3916,28 @@
           "default": null,
           "relation": null,
           "attributes": "@map(\"revoked_at\")"
+        },
+        {
+          "name": "provisionOrgId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"provision_org_id\")"
+        },
+        {
+          "name": "provisionOwnerUserId",
+          "type": "String",
+          "nullable": true,
+          "list": false,
+          "id": false,
+          "unique": false,
+          "default": null,
+          "relation": null,
+          "attributes": "@map(\"provision_owner_user_id\")"
         },
         {
           "name": "createdAt",
@@ -10898,6 +10932,7 @@
         "@@unique([accountId, accountSequence])",
         "@@unique([accountId, providerEventId])",
         "@@index([accountId, createdAt])",
+        "@@index([createdAt])",
         "@@map(\"gateway_event_outbox\")"
       ]
     },

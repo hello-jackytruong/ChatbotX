@@ -8,7 +8,8 @@ const mocks = vi.hoisted(() => ({
   resolveOAuthCredential: vi.fn(),
 }))
 
-vi.mock("@chatbotx.io/business/errors", () => ({
+vi.mock("@chatbotx.io/business/errors", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@chatbotx.io/business/errors")>()),
   channelHiddenException: (c: string) => new Error(`hidden ${c}`),
   connectionNotConfiguredException: (p: string) => new Error(`nc ${p}`),
 }))

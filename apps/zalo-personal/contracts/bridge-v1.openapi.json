@@ -43,11 +43,53 @@
           "error": {},
           "attempts": { "type": "integer", "minimum": 0 }
         }
+      },
+      "AccountBindingV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "workspaceId", "inboxId"],
+        "properties": {
+          "version": { "const": 1 },
+          "workspaceId": { "type": "string", "minLength": 1 },
+          "inboxId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "OnboardingV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "workspaceId", "connectSessionId"],
+        "properties": {
+          "version": { "const": 1 },
+          "workspaceId": { "type": "string", "minLength": 1 },
+          "connectSessionId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "OnboardingCleanupV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "connectSessionId"],
+        "properties": {
+          "version": { "const": 1 },
+          "connectSessionId": { "type": "string", "minLength": 1 }
+        }
       }
     }
   },
   "security": [{ "bridgeHmac": [] }],
   "paths": {
+    "/internal/bridge/v1/onboarding": {
+      "post": {
+        "operationId": "provisionBridgeOnboardingAccount",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OnboardingV1" } } }
+        },
+        "responses": {
+          "201": { "description": "Account and account-scoped bridge credential provisioned or reused" },
+          "403": { "description": "Credential lacks the fixed provisioning scope" }
+        }
+      }
+    },
     "/internal/bridge/v1/commands": {
       "post": {
         "operationId": "acceptBridgeCommand",
@@ -77,6 +119,51 @@
           { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 500 } }
         ],
         "responses": { "200": { "description": "Ordered immutable event page" } }
+      }
+    },
+    "/internal/bridge/v1/accounts/{accountId}/health": {
+      "get": {
+        "operationId": "getBridgeAccountHealth",
+        "parameters": [
+          { "name": "accountId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Version and readiness for the provisioned account" },
+          "403": { "description": "Credential is not scoped to this account" }
+        }
+      }
+    },
+    "/internal/bridge/v1/accounts/{accountId}/binding": {
+      "put": {
+        "operationId": "bindBridgeAccountInbox",
+        "parameters": [
+          { "name": "accountId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccountBindingV1" } } }
+        },
+        "responses": {
+          "200": { "description": "Binding created or already identical" },
+          "404": { "description": "Provisioned account mapping not found" },
+          "409": { "description": "Workspace or Inbox binding conflict" }
+        }
+      }
+    },
+    "/internal/bridge/v1/accounts/{accountId}/onboarding-cleanup": {
+      "post": {
+        "operationId": "cleanupBridgeOnboardingAccount",
+        "parameters": [
+          { "name": "accountId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OnboardingCleanupV1" } } }
+        },
+        "responses": {
+          "200": { "description": "Managed mapping, credential and account retired" },
+          "404": { "description": "ChatbotX-managed onboarding mapping not found" }
+        }
       }
     },
     "/internal/bridge/v1/reconcile": {

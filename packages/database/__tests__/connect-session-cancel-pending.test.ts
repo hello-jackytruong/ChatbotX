@@ -75,7 +75,7 @@ describe("connectSessionRepository.cancelPendingByProvider", () => {
     })
   })
 
-  test("marks rows cancelled, consumed, and clears the ciphertext", async () => {
+  test("marks rows cancelled, consumed, and clears runtime state", async () => {
     mocks.returning.mockResolvedValue([])
     const tx = buildTx()
 
@@ -89,6 +89,7 @@ describe("connectSessionRepository.cancelPendingByProvider", () => {
       status: "cancelled",
       consumedAt: "now()",
       encryptedAuth: null,
+      nextAction: null,
     })
   })
 })

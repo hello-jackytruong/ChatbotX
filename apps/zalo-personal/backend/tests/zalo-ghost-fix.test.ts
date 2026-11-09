@@ -18,6 +18,8 @@ const prismaMock = {
     update: vi.fn(),
     updateMany: vi.fn(),
   },
+  bridgeAccountMapping: { findMany: vi.fn(), updateMany: vi.fn() },
+  bridgeClient: { updateMany: vi.fn() },
   friend: { deleteMany: vi.fn() },
 };
 vi.mock('../src/shared/database/prisma-client.js', () => ({
@@ -57,6 +59,7 @@ const CREDS = { cookie: {}, imei: 'imei-1', userAgent: 'ua-1' };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  prismaMock.bridgeAccountMapping.findMany.mockResolvedValue([]);
 });
 
 describe('Fix 2 — reconnect() guard thẻ ma (gom 1 chỗ cho 4 đường)', () => {
@@ -129,5 +132,22 @@ describe('Fix 3 — cleanupStaleGhosts (bộ dọn định kỳ)', () => {
     prismaMock.zaloAccount.findMany.mockRejectedValue(new Error('db down'));
     const n = await zaloPool.cleanupStaleGhosts(15);
     expect(n).toBe(0);
+  });
+
+  it('thu hồi mapping và client của thẻ ma do ChatbotX QR tạo', async () => {
+    prismaMock.zaloAccount.findMany.mockResolvedValue([{ id: 'g1' }]);
+    prismaMock.bridgeAccountMapping.findMany.mockResolvedValue([{ clientId: 'c1' }]);
+    prismaMock.zaloAccount.updateMany.mockResolvedValue({ count: 1 });
+
+    await expect(zaloPool.cleanupStaleGhosts(15)).resolves.toBe(1);
+
+    expect(prismaMock.bridgeAccountMapping.updateMany).toHaveBeenCalledWith({
+      where: { accountId: { in: ['g1'] }, clientId: { in: ['c1'] } },
+      data: { active: false, chatbotxInboxId: null },
+    });
+    expect(prismaMock.bridgeClient.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['c1'] } },
+      data: { active: false, revokedAt: expect.any(Date) },
+    });
   });
 });
