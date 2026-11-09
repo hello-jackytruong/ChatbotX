@@ -24,7 +24,7 @@
     "contracts:runtime": "tsx scripts/contracts/runtime-route-inventory.ts && tsx scripts/contracts/runtime-socket-inventory.ts",
     "contracts:generate": "node scripts/contracts/contract-inventory.mjs && npm run contracts:runtime",
     "contracts:check": "node scripts/contracts/contract-inventory.mjs --check && tsx scripts/contracts/runtime-route-inventory.ts --check && tsx scripts/contracts/runtime-socket-inventory.ts --check",
-    "bridge:provision": "tsx scripts/provision-bridge-client.ts",
+    "bridge:provision": "node dist/scripts/provision-bridge-client.js",
     "test:contract": "vitest run tests/contracts",
     "test:unit": "vitest run",
     "test:service": "vitest run tests",

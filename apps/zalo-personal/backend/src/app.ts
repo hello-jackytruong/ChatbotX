@@ -4,11 +4,11 @@
  * The process never exits — all errors are caught and logged.
  */
 
+import { installBigIntJsonSerializer } from './shared/json-bigint.js';
+
 // BigInt → string khi JSON.stringify (Fastify response serializer).
 // Cần thiết cho Message.zaloMsgIdNum (Prisma trả BigInt, JSON native fail without this).
-(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function () {
-  return this.toString();
-};
+installBigIntJsonSerializer();
 
 import Fastify, { type FastifyRequest } from 'fastify';
 import cors from '@fastify/cors';

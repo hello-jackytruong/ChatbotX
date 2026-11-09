@@ -52,18 +52,6 @@ async function enqueueEventAndWait(
         }
       }
     | {
-        type: typeof IntegrationJobAction.messageStatus
-        data: {
-          integrationType: string
-          integrationIdentifier: string
-          payload: {
-            messageId: string
-            status: "delivered" | "read"
-            timestamp: string
-          }
-        }
-      }
-    | {
         type: typeof IntegrationJobAction.deleteIncomingMessage
         data: {
           integrationType: string
@@ -82,22 +70,6 @@ async function enqueueEventAndWait(
         payload: event,
       },
     }
-  } else if (
-    (event.kind === "delivered" || event.kind === "seen") &&
-    messageId
-  ) {
-    payload = {
-      type: IntegrationJobAction.messageStatus,
-      data: {
-        integrationType: "zalo_personal",
-        integrationIdentifier: event.accountId,
-        payload: {
-          messageId,
-          status: event.kind === "seen" ? "read" : "delivered",
-          timestamp: event.occurredAt,
-        },
-      },
-    }
   } else if (event.kind === "undo" && messageId) {
     payload = {
       type: IntegrationJobAction.deleteIncomingMessage,
@@ -110,6 +82,9 @@ async function enqueueEventAndWait(
   }
 
   if (!payload) {
+    // Zalo delivery/seen events do not carry the recipient identity required by
+    // ChatbotX's shared status handler. Checkpoint them as no-ops so one receipt
+    // cannot poison the ordered stream and block later inbound messages.
     return null
   }
   const job = await integrationQueue.add(payload.type, payload, {

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { rm, writeFile } from 'node:fs/promises';
 import { Prisma } from '@prisma/client';
+import { installBigIntJsonSerializer } from './shared/json-bigint.js';
 import { prisma } from './shared/database/prisma-client.js';
 import { logger } from './shared/utils/logger.js';
 import { AccountLeaseService, PrismaAccountLeaseStore, type AccountLease } from './modules/gateway/account-lease.js';
@@ -11,6 +12,8 @@ import { PrismaGatewayEventOutbox } from './modules/gateway/event-outbox.js';
 import { GatewaySocketOutbox } from './modules/gateway/gateway-socket-outbox.js';
 import { eligibleGatewayAccountIds, readGatewayRolloutConfig } from './modules/gateway/rollout.js';
 import { zaloProviderClient } from './modules/zalo-provider/client.js';
+
+installBigIntJsonSerializer();
 
 const instanceId = process.env.ZALO_GATEWAY_INSTANCE_ID || `gateway-${randomUUID()}`;
 const leaseTtlMs = 30_000;

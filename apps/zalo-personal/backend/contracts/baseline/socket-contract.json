@@ -854,7 +854,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/gateway.ts",
-      "line": 155,
+      "line": 158,
       "payloadExpression": "() => void shutdown('SIGINT')"
     },
     {
@@ -872,7 +872,7 @@
       "direction": "client-to-server",
       "room": null,
       "file": "backend/src/gateway.ts",
-      "line": 154,
+      "line": 157,
       "payloadExpression": "() => void shutdown('SIGTERM')"
     },
     {

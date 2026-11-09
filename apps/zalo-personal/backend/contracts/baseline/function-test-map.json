@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "functionCount": 2294,
+  "functionCount": 2298,
   "functions": [
     {
       "symbol": "loadExtension",
@@ -62,7 +62,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 109,
+      "line": 112,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -73,7 +73,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 119,
+      "line": 122,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -84,7 +84,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 135,
+      "line": 138,
       "risk": "P2",
       "sideEffects": true,
       "evidence": [],
@@ -95,7 +95,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 145,
+      "line": 148,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -106,7 +106,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 49,
+      "line": 52,
       "risk": "P2",
       "sideEffects": false,
       "evidence": [],
@@ -117,7 +117,7 @@
       "kind": "function",
       "exported": false,
       "file": "backend/src/gateway.ts",
-      "line": 57,
+      "line": 60,
       "risk": "P2",
       "sideEffects": true,
       "evidence": [],
@@ -11656,6 +11656,51 @@
       "status": "UNTESTED"
     },
     {
+      "symbol": "optional",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/scripts/provision-bridge-client.ts",
+      "line": 11,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [],
+      "status": "UNTESTED"
+    },
+    {
+      "symbol": "main",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/scripts/provision-bridge-client.ts",
+      "line": 16,
+      "risk": "P2",
+      "sideEffects": true,
+      "evidence": [
+        "backend/tests/deleted-nick-privacy.test.ts",
+        "backend/tests/group-scan-routes.test.ts",
+        "backend/tests/media-dedup.test.ts",
+        "backend/tests/privacy-redact-regression.test.ts",
+        "backend/tests/zinstant-proxy-auth.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "required",
+      "kind": "function",
+      "exported": false,
+      "file": "backend/src/scripts/provision-bridge-client.ts",
+      "line": 5,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/chat-operations-routes.test.ts",
+        "backend/tests/friend-routes.test.ts",
+        "backend/tests/group-moderation-routes.test.ts",
+        "backend/tests/group-routes.test.ts",
+        "backend/tests/profile-routes.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
       "symbol": "publishMessagePersisted",
       "kind": "function",
       "exported": true,
@@ -12466,6 +12511,19 @@
       "sideEffects": false,
       "evidence": [
         "backend/tests/friend-serializer.test.ts"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "symbol": "installBigIntJsonSerializer",
+      "kind": "function",
+      "exported": true,
+      "file": "backend/src/shared/json-bigint.ts",
+      "line": 1,
+      "risk": "P2",
+      "sideEffects": false,
+      "evidence": [
+        "backend/tests/unit/json-bigint.test.ts"
       ],
       "status": "PARTIAL"
     },
