@@ -8,6 +8,7 @@ readonly SCRIPT_DIR
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 readonly REPO_ROOT
 readonly COMPOSE_FILE="$REPO_ROOT/docker-compose.production.yml"
+readonly ENV_FILE="${CHATBOTX_ENV_FILE:-$REPO_ROOT/.env}"
 IMAGE_PREFIX="${CHATBOTX_IMAGE_PREFIX:-ghcr.io/hello-jackytruong}"
 readonly IMAGE_PREFIX
 readonly BUILDER_NAME="${CHATBOTX_BUILDER_NAME:-chatbotx-production-limited}"
@@ -40,6 +41,7 @@ export CHATBOTX_REALTIME_IMAGE_TAG="${CHATBOTX_REALTIME_IMAGE_TAG:-${CHATBOTX_IM
 COMPOSE=(
   docker compose
   --project-directory "$REPO_ROOT"
+  --env-file "$ENV_FILE"
   -f "$COMPOSE_FILE"
 )
 
@@ -111,8 +113,29 @@ check_tools() {
 
 check_project() {
   [[ -f "$COMPOSE_FILE" ]] || fail "Missing $COMPOSE_FILE"
-  [[ -f "$REPO_ROOT/.env" ]] || fail "Missing $REPO_ROOT/.env"
+  [[ -f "$ENV_FILE" ]] || fail "Missing $ENV_FILE"
+  validate_public_s3_endpoint
   "${COMPOSE[@]}" config --quiet
+}
+
+validate_public_s3_endpoint() {
+  local endpoint authority
+  endpoint="$(sed -n 's/^S3_ENDPOINT=//p' "$ENV_FILE" | tail -n 1 | tr -d '\r')"
+  endpoint="${endpoint%\"}"
+  endpoint="${endpoint#\"}"
+  endpoint="${endpoint%\'}"
+  endpoint="${endpoint#\'}"
+
+  [[ -n "$endpoint" ]] || fail "Missing required production env: S3_ENDPOINT"
+  [[ "$endpoint" == https://* ]] || fail "S3_ENDPOINT must use HTTPS in production."
+
+  authority="${endpoint#https://}"
+  authority="${authority%%/*}"
+  case "${authority,,}" in
+    "" | localhost | localhost:* | 127.* | \[::1\] | \[::1\]:* | filesystem | filesystem:* | host.docker.internal | host.docker.internal:*)
+      fail "S3_ENDPOINT must be reachable by external browsers in production."
+      ;;
+  esac
 }
 
 read_meminfo_mb() {

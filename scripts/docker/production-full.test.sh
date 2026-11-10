@@ -20,6 +20,7 @@ touch "$globals_dir/.chatbotx-encrypted-backup-target"
 cat >"$CHATBOTX_ENV_FILE" <<EOF
 PRODUCTION_AUTOMATION_READY=1
 APP_URL=https://app.example.test
+S3_ENDPOINT=https://app.example.test
 BETTER_AUTH_SECRET=better-auth-secret-at-least-32-characters
 ENCRYPTION_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 POSTGRES_USER=chatbotx
@@ -70,6 +71,20 @@ if (validate_automation_environment) >/dev/null 2>&1; then
 fi
 mv "$TEST_DIR/valid.env" "$CHATBOTX_ENV_FILE"
 chmod 600 "$CHATBOTX_ENV_FILE"
+
+cp "$CHATBOTX_ENV_FILE" "$TEST_DIR/valid.env"
+for invalid_endpoint in \
+  'http://app.example.test' \
+  'https://localhost:9000' \
+  'https://filesystem:9000'; do
+  sed -i.bak "s|^S3_ENDPOINT=.*|S3_ENDPOINT=$invalid_endpoint|" "$CHATBOTX_ENV_FILE"
+  if (validate_automation_environment) >/dev/null 2>&1; then
+    echo "FAIL: production automation accepted invalid S3_ENDPOINT=$invalid_endpoint" >&2
+    exit 1
+  fi
+  cp "$TEST_DIR/valid.env" "$CHATBOTX_ENV_FILE"
+done
+rm -f "$TEST_DIR/valid.env"
 
 split_services "zalo-personal"
 [[ "$DEPLOY_ZALO" == "true" && ${#CHATBOTX_SERVICES[@]} -eq 0 ]] || {
