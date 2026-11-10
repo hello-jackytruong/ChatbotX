@@ -63,7 +63,7 @@ validate_backup_target() {
 }
 
 validate_automation_environment() {
-  local mode app_url zalo_app_url zalo_public_url postgres_user zalo_user
+  local mode app_url s3_endpoint s3_authority zalo_app_url zalo_public_url postgres_user zalo_user
   local s3_access zalo_s3_access s3_bucket zalo_s3_bucket database_url
   local backup_directory globals_directory deployment_mode
   [[ -f "$ENV_FILE" ]] || fail "Missing production env file: $ENV_FILE"
@@ -73,9 +73,18 @@ validate_automation_environment() {
     fail "Set PRODUCTION_AUTOMATION_READY=1 only after completing the production checklist."
 
   app_url="$(require_env_value APP_URL)"
+  s3_endpoint="$(require_env_value S3_ENDPOINT)"
   zalo_app_url="$(require_env_value ZALO_APP_URL)"
   zalo_public_url="$(require_env_value ZALO_S3_PUBLIC_URL)"
   [[ "$app_url" == https://* ]] || fail "APP_URL must use HTTPS in production."
+  [[ "$s3_endpoint" == https://* ]] || fail "S3_ENDPOINT must use HTTPS in production."
+  s3_authority="${s3_endpoint#https://}"
+  s3_authority="${s3_authority%%/*}"
+  case "${s3_authority,,}" in
+    "" | localhost | localhost:* | 127.* | \[::1\] | \[::1\]:* | filesystem | filesystem:* | host.docker.internal | host.docker.internal:*)
+      fail "S3_ENDPOINT must be reachable by external browsers in production."
+      ;;
+  esac
   [[ "$zalo_app_url" == https://* ]] || fail "ZALO_APP_URL must use HTTPS in production."
   [[ "$zalo_public_url" == https://* ]] || fail "ZALO_S3_PUBLIC_URL must use HTTPS in production."
 

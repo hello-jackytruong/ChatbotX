@@ -39,6 +39,7 @@ const fixtureEnvironment = {
   CHATBOTX_ENV_FILE: ".env.example",
   APP_URL: "https://chatbotx.example.test",
   POSTGRES_PASSWORD: "chatbotx-postgres-password",
+  S3_ENDPOINT: "https://storage.example.test",
   S3_ACCESS_KEY_ID: "chatbotx-storage-root",
   S3_SECRET_ACCESS_KEY: "chatbotx-storage-root-secret",
   REALTIME_BROADCAST_SECRET: "realtime-secret-at-least-32-characters",
@@ -165,6 +166,16 @@ function verifySharedTopology(config, { production }) {
   assert.equal(worker.environment.ZALO_PERSONAL_BRIDGE_ACCOUNT_ALLOWLIST, "")
 
   if (production) {
+    assert.equal(
+      services.builder.environment.S3_ENDPOINT,
+      fixtureEnvironment.S3_ENDPOINT,
+      "production Builder must honor the externally supplied S3 endpoint",
+    )
+    assert.equal(
+      services.worker.environment.S3_ENDPOINT,
+      fixtureEnvironment.S3_ENDPOINT,
+      "production Worker must honor the externally supplied S3 endpoint",
+    )
     assert.equal(
       gateway.environment.JWT_SECRET,
       "zalo-jwt-secret-at-least-32-characters",

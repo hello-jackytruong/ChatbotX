@@ -32,6 +32,12 @@ docker buildx version
 Keep production secrets in `/root/apps/ChatbotX/.env`. The file must not be
 committed and should have mode `600`.
 
+Set `S3_ENDPOINT` to the browser-reachable HTTPS origin used for presigned
+uploads. The production Compose stack passes this value through to Builder and
+Worker; an internal Docker hostname such as `http://filesystem:9000` cannot be
+used by browsers. When storage shares `APP_URL`, host Nginx must proxy the
+bucket path to RustFS without rewriting the request path or `Host` header.
+
 Run every first deployment and upgrade through the guarded script:
 
 ```bash
@@ -178,7 +184,7 @@ or migration command.
 
 Core ChatbotX values:
 
-- `APP_URL` uses HTTPS;
+- `APP_URL` and the browser-reachable `S3_ENDPOINT` use HTTPS;
 - `BETTER_AUTH_SECRET` and `REALTIME_BROADCAST_SECRET` contain at least 32
   random characters;
 - `ENCRYPTION_KEY` is exactly 64 hexadecimal characters;
@@ -400,6 +406,16 @@ location ^~ /storage/ {
     proxy_pass http://127.0.0.1:9000/chatbotx/;
     proxy_buffering off;
     proxy_request_buffering off;
+}
+
+# Browser-direct presigned uploads. Keep the signed bucket path and Host intact.
+location ^~ /chatbotx/ {
+    client_max_body_size 110m;
+    proxy_pass http://127.0.0.1:9000;
+    proxy_set_header Host $http_host;
+    proxy_buffering off;
+    proxy_request_buffering off;
+    proxy_read_timeout 300s;
 }
 
 location ^~ /ws/ {

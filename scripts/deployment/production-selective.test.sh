@@ -12,10 +12,28 @@ readonly TEST_SCRIPT_DIR
 TEST_STATE_DIR="$(mktemp -d)"
 readonly TEST_STATE_DIR
 export CHATBOTX_STATE_DIR="$TEST_STATE_DIR"
+export CHATBOTX_ENV_FILE="$TEST_STATE_DIR/.env"
 trap 'rm -rf -- "$TEST_STATE_DIR"' EXIT
 
 # shellcheck disable=SC1091
 source "$TEST_SCRIPT_DIR/production.sh"
+
+printf '%s\n' 'S3_ENDPOINT=https://app.example.test' >"$CHATBOTX_ENV_FILE"
+validate_public_s3_endpoint
+for invalid_endpoint in \
+  '' \
+  'http://app.example.test' \
+  'https://localhost:9000' \
+  'https://127.0.0.1:9000' \
+  'https://filesystem:9000' \
+  'https://host.docker.internal:9000'; do
+  printf 'S3_ENDPOINT=%s\n' "$invalid_endpoint" >"$CHATBOTX_ENV_FILE"
+  if (validate_public_s3_endpoint) >/dev/null 2>&1; then
+    printf 'FAIL: invalid public S3 endpoint was accepted: %s\n' "$invalid_endpoint" >&2
+    exit 1
+  fi
+done
+printf '%s\n' 'S3_ENDPOINT=https://app.example.test' >"$CHATBOTX_ENV_FILE"
 
 declare -a DOCKER_CALLS=()
 FAIL_DOCKER_SERVICE=''
